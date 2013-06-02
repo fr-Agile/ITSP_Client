@@ -22,7 +22,6 @@ public class RemoteApi {
 		final boolean enableGZip = builder.getRootUrl().startsWith("https:");
 
 		builder.setGoogleClientRequestInitializer(new GoogleClientRequestInitializer() {
-			@Override
 			public void initialize(AbstractGoogleClientRequest<?> request)
 					throws IOException {
 				if (!enableGZip) {
@@ -38,7 +37,6 @@ public class RemoteApi {
 		LoginEndpoint.Builder endpointBuilder = new LoginEndpoint.Builder(
 				AndroidHttp.newCompatibleTransport(), new JacksonFactory(),
 				new HttpRequestInitializer() {
-					@Override
 					public void initialize(HttpRequest httpRequest) {
 					}
 				});
