@@ -13,6 +13,7 @@ import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.json.jackson.JacksonFactory;
 import com.google.api.services.loginEndpoint.LoginEndpoint;
+import com.google.api.services.registerEndpoint.RegisterEndpoint;
 
 public class RemoteApi {
 	protected static <B extends AbstractGoogleClient.Builder> B updateBuilder(B builder) {
@@ -42,6 +43,19 @@ public class RemoteApi {
 					}
 				});
 
+		return updateBuilder(endpointBuilder).build();
+	}
+	
+	public static RegisterEndpoint getRegisterEndpoint() {
+		RegisterEndpoint.Builder endpointBuilder = new RegisterEndpoint.Builder(
+				AndroidHttp.newCompatibleTransport(), 
+				new JacksonFactory(), 
+				new HttpRequestInitializer() {
+					@Override
+					public void initialize(HttpRequest httpRequest) {
+					}
+				}); 
+		
 		return updateBuilder(endpointBuilder).build();
 	}
 }
