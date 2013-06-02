@@ -18,3 +18,7 @@ local.properties
 # eclipse settings
 .classpath
 .settings/
+
+endpoint-libs/
+
+
