@@ -5,10 +5,12 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.View;
@@ -206,7 +208,8 @@ public class LoginActivity extends Activity {
 			showProgress(false);
 
 			if (success) {
-				
+				Log.d("DEBUG", "ログイン成功");
+				startActivity(new Intent(LoginActivity.this, LoggedActivity.class));
 				finish();
 			} else {
 				mPasswordView

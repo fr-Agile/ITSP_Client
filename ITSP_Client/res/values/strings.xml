@@ -4,5 +4,7 @@
     <string name="app_name">simplechat</string>
     <string name="action_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
+    <string name="message_logged_in">ログイン成功</string>
+    <string name="logged_title">ユーザーページ</string>
 
 </resources>
