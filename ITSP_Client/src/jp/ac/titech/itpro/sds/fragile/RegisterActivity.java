@@ -5,10 +5,12 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.View;
@@ -218,12 +220,15 @@ public class RegisterActivity extends Activity {
 			showProgress(false);
 
 			if (success) {
-				
+				Log.d("DEBUG", "register success");
+				startActivity(new Intent(RegisterActivity.this, RegisteredActivity.class));
 				finish();
 			} else {
+				/*
 				mPasswordView
 						.setError(getString(R.string.error_incorrect_password));
 				mPasswordView.requestFocus();
+				*/
 			}
 		}
 

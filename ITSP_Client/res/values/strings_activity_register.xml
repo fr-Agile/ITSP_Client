@@ -1,6 +1,8 @@
 <resources>
 
     <string name="title_activity_register">Sign up</string>
+    <string name="message_registered_in">register success</string>
+    <string name="title_activity_registered">register success</string>
 
     <!-- Strings related to register -->
     <string name="register_prompt_firstname">FirstName</string>

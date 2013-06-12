@@ -4,6 +4,8 @@
     android:versionCode="1"
     android:versionName="1.0" >
 
+	<uses-permission android:name="android.permission.INTERNET" />
+	
     <uses-sdk
         android:minSdkVersion="16"
         android:targetSdkVersion="17" />
@@ -29,6 +31,14 @@
         <activity
             android:name=".LoggedActivity"
             android:label="@string/logged_title">
+        </activity>
+        <activity
+            android:name=".RegisterActivity"
+            android:label="@string/title_activity_register">
+        </activity>
+        <activity
+            android:name=".RegisteredActivity"
+            android:label="@string/title_activity_registered">
         </activity>
     </application>
 
