@@ -80,7 +80,6 @@ public class RegisterActivity extends Activity {
 
 		findViewById(R.id.register_sign_up_button).setOnClickListener(
 				new View.OnClickListener() {
-					@Override
 					public void onClick(View view) {
 						attemptRegister();
 					}

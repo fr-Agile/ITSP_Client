@@ -5,10 +5,21 @@ import java.util.Calendar;
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import java.text.DateFormat;
 
+import com.google.api.services.scheduleEndpoint.ScheduleEndpoint;
+import com.google.api.services.scheduleEndpoint.ScheduleEndpoint.ScheduleV1EndPoint.CreateSchedule;
+import com.google.api.services.scheduleEndpoint.model.ScheduleResultV1Dto;
+
+import jp.ac.titech.itpro.sds.fragile.RegisterActivity.UserRegisterTask;
+import jp.ac.titech.itpro.sds.fragile.api.RemoteApi;
+
+
+import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -17,23 +28,43 @@ public class ScheduleInputActivity extends Activity{
 	
 //	private Button timeBtn;
 //	private Button dateBtn;
+	
+	private Button doneBtn;
+	private String scheduleStartTime = "";
+	private String scheduleFinishTime = "";
+	
+	private static String SUCCESS = "success";
+	private static String FAIL = "fail";
+	
+	private ScheduleInputTask mAuthTask = null;
+	
 	DateFormat formatDateTime = DateFormat.getDateTimeInstance();
 	Calendar dateTime=Calendar.getInstance();
-	private TextView timeLabel;
+	private TextView startTimeLabel;
+	private TextView finishTimeLabel;
 	/** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_inputschedule);
-        timeLabel=(TextView)findViewById(R.id.timeTxt);
-        updateLabel();
+        startTimeLabel=(TextView)findViewById(R.id.startTimeTxt);
+        finishTimeLabel=(TextView)findViewById(R.id.finishTimeTxt);
+//        updateLabel();
 //        timeBtn = (Button)findViewById(R.id.timeBtn);
         findViewById(R.id.startTimeBtn).setOnClickListener(
 				new View.OnClickListener() {
 					public void onClick(View view) {
-						chooseTime();
+						chooseStartTime();
 					}
 				});
+        
+        findViewById(R.id.finishTimeBtn).setOnClickListener(
+				new View.OnClickListener() {
+					public void onClick(View view) {
+						chooseFinishTime();
+					}
+				});
+        
 //        dateBtn = (Button)findViewById(R.id.dateBtn);
         findViewById(R.id.dateBtn).setOnClickListener(
 				new View.OnClickListener() {
@@ -41,33 +72,172 @@ public class ScheduleInputActivity extends Activity{
 						chooseDate();
 					}
 				});
-        
+        doneBtn = (Button)findViewById(R.id.doneBtn);
+        doneBtn.setEnabled(false);
+        findViewById(R.id.doneBtn).setOnClickListener(
+        		new View.OnClickListener() {
+        			public void onClick(View view) {
+        				clickDoneButton();
+        			}
+        		});
     }
+    
     public void chooseDate(){
     	new DatePickerDialog(ScheduleInputActivity.this, d, dateTime.get(Calendar.YEAR),dateTime.get(Calendar.MONTH), dateTime.get(Calendar.DAY_OF_MONTH)).show();
     }
-    public void chooseTime(){
-    	new TimePickerDialog(ScheduleInputActivity.this, t, dateTime.get(Calendar.HOUR_OF_DAY), dateTime.get(Calendar.MINUTE), true).show();
+    
+    public void chooseStartTime(){
+    	new TimePickerDialog(ScheduleInputActivity.this, st, dateTime.get(Calendar.HOUR_OF_DAY), dateTime.get(Calendar.MINUTE), true).show();
     }
+    
+    public void chooseFinishTime(){
+    	new TimePickerDialog(ScheduleInputActivity.this, ft, dateTime.get(Calendar.HOUR_OF_DAY), dateTime.get(Calendar.MINUTE), true).show();
+    }
+    
+    public void clickDoneButton(){
+    	Log.d("vietDebug", "click done button");
+    	mAuthTask = new ScheduleInputTask();
+    	Log.d("vietDebug", "create task finish");
+		mAuthTask.execute((Void) null);
+		Log.d("vietDebug", "task execute finish");
+    }
+    
     DatePickerDialog.OnDateSetListener d=new DatePickerDialog.OnDateSetListener() {
 		public void onDateSet(DatePicker view, int year, int monthOfYear,int dayOfMonth) {
 			dateTime.set(Calendar.YEAR,year);
 			dateTime.set(Calendar.MONTH, monthOfYear);
 			dateTime.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-			updateLabel();
+//			updateLabel();
+			setButtonEnable();
 		}
 	};
-	TimePickerDialog.OnTimeSetListener t=new TimePickerDialog.OnTimeSetListener() {
+	TimePickerDialog.OnTimeSetListener st=new TimePickerDialog.OnTimeSetListener() {
 		
 		public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
 			// TODO Auto-generated method stub
 			dateTime.set(Calendar.HOUR_OF_DAY, hourOfDay);
 			dateTime.set(Calendar.MINUTE,minute);
-			updateLabel();
+//			updateLabel();
+			startTimeLabel.setText(formatDateTime.format(dateTime.getTime()));
+			scheduleStartTime = formatDateTime.format(dateTime.getTime());
+			setButtonEnable();
 		}
 	};
-	private void updateLabel() {
-		timeLabel.setText(formatDateTime.format(dateTime.getTime()));
+	
+	TimePickerDialog.OnTimeSetListener ft=new TimePickerDialog.OnTimeSetListener() {
+		
+		public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+			// TODO Auto-generated method stub
+			dateTime.set(Calendar.HOUR_OF_DAY, hourOfDay);
+			dateTime.set(Calendar.MINUTE,minute);
+//			updateLabel();
+			finishTimeLabel.setText(formatDateTime.format(dateTime.getTime()));
+			scheduleFinishTime = formatDateTime.format(dateTime.getTime());
+			setButtonEnable();
+		}
+	};
+	
+	private void setButtonEnable() {
+		if (scheduleStartTime.isEmpty() || scheduleFinishTime.isEmpty()){
+			doneBtn.setEnabled(false);
+		} else {
+			doneBtn.setEnabled(true);
+		}
+	}
+	
+//	private void updateLabel() {
+//		timeLabel.setText(formatDateTime.format(dateTime.getTime()));
+//	}
+	
+	/**
+	 * Shows the progress UI and hides the register form.
+	 */
+//	@TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
+//	private void showProgress(final boolean show) {
+//		// On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
+//		// for very easy animations. If available, use these APIs to fade-in
+//		// the progress spinner.
+//		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
+//			int shortAnimTime = getResources().getInteger(
+//					android.R.integer.config_shortAnimTime);
+//
+//			mRegisterStatusView.setVisibility(View.VISIBLE);
+//			mRegisterStatusView.animate().setDuration(shortAnimTime)
+//					.alpha(show ? 1 : 0)
+//					.setListener(new AnimatorListenerAdapter() {
+//						@Override
+//						public void onAnimationEnd(Animator animation) {
+//							mRegisterStatusView.setVisibility(show ? View.VISIBLE
+//									: View.GONE);
+//						}
+//					});
+//
+//			mRegisterFormView.setVisibility(View.VISIBLE);
+//			mRegisterFormView.animate().setDuration(shortAnimTime)
+//					.alpha(show ? 0 : 1)
+//					.setListener(new AnimatorListenerAdapter() {
+//						@Override
+//						public void onAnimationEnd(Animator animation) {
+//							mRegisterFormView.setVisibility(show ? View.GONE
+//									: View.VISIBLE);
+//						}
+//					});
+//		} else {
+//			// The ViewPropertyAnimator APIs are not available, so simply show
+//			// and hide the relevant UI components.
+//			mRegisterStatusView.setVisibility(show ? View.VISIBLE : View.GONE);
+//			mRegisterFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+//		}
+//	}
+	
+	public class ScheduleInputTask extends AsyncTask<Void, Void, Boolean> {
+		@Override
+		protected Boolean doInBackground(Void... args) {
+
+			try {
+				ScheduleEndpoint endpoint = RemoteApi.getScheduleEndpoint();
+				CreateSchedule schedule = endpoint.scheduleV1EndPoint().createSchedule(
+						scheduleStartTime, scheduleFinishTime);
+				ScheduleResultV1Dto result = schedule.execute();
+
+				if (SUCCESS.equals(result.getResult())) {
+					Log.d("vietDebug", "successed");
+					return true;
+				} else {
+					Log.d("vietDebug", "failed");
+					return false;
+				}
+
+			} catch (Exception e) {
+				Log.d("vietDebug", "failed with exception:" + e);
+				return false;
+			}
+		}
+
+		@Override
+		protected void onPostExecute(final Boolean success) {
+			mAuthTask = null;
+//			showProgress(false);
+
+			if (success) {
+				Log.d("vietDebug", "post success");
+//				startActivity(new Intent(RegisterActivity.this, RegisteredActivity.class));
+//				finish();
+			} else {
+				Log.d("vietDebug", "post failed");
+				/*
+				mPasswordView
+						.setError(getString(R.string.error_incorrect_password));
+				mPasswordView.requestFocus();
+				*/
+			}
+		}
+
+		@Override
+		protected void onCancelled() {
+			mAuthTask = null;
+//			showProgress(false);
+		}
 	}
 	
 }

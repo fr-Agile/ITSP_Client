@@ -59,7 +59,6 @@ public class LoginActivity extends Activity {
 		mPasswordView = (EditText) findViewById(R.id.password);
 		mPasswordView
 				.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-					@Override
 					public boolean onEditorAction(TextView textView, int id,
 							KeyEvent keyEvent) {
 						if (id == R.id.login || id == EditorInfo.IME_NULL) {
@@ -76,7 +75,6 @@ public class LoginActivity extends Activity {
 
 		findViewById(R.id.sign_in_button).setOnClickListener(
 				new View.OnClickListener() {
-					@Override
 					public void onClick(View view) {
 						attemptLogin();
 					}

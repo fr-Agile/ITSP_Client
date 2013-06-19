@@ -40,6 +40,10 @@
             android:name=".RegisteredActivity"
             android:label="@string/title_activity_registered">
         </activity>
+        <activity
+            android:name=".ScheduleInputActivity"
+            android:label="@string/title_activity_inputschedule">
+        </activity>
     </application>
 
 </manifest>

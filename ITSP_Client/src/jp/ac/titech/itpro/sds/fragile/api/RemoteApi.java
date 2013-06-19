@@ -14,6 +14,7 @@ import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.json.jackson.JacksonFactory;
 import com.google.api.services.loginEndpoint.LoginEndpoint;
 import com.google.api.services.registerEndpoint.RegisterEndpoint;
+import com.google.api.services.scheduleEndpoint.ScheduleEndpoint;
 
 public class RemoteApi {
 	protected static <B extends AbstractGoogleClient.Builder> B updateBuilder(B builder) {
@@ -49,7 +50,18 @@ public class RemoteApi {
 				AndroidHttp.newCompatibleTransport(), 
 				new JacksonFactory(), 
 				new HttpRequestInitializer() {
-					@Override
+					public void initialize(HttpRequest httpRequest) {
+					}
+				}); 
+		
+		return updateBuilder(endpointBuilder).build();
+	}
+	
+	public static ScheduleEndpoint getScheduleEndpoint() {
+		ScheduleEndpoint.Builder endpointBuilder = new ScheduleEndpoint.Builder(
+				AndroidHttp.newCompatibleTransport(), 
+				new JacksonFactory(), 
+				new HttpRequestInitializer() {
 					public void initialize(HttpRequest httpRequest) {
 					}
 				}); 
