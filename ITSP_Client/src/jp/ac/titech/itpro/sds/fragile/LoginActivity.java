@@ -6,6 +6,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -187,6 +188,13 @@ public class LoginActivity extends Activity {
 				LoginEndpoint endpoint = RemoteApi.getLoginEndpoint();
 				Login login = endpoint.loginV1Endpoint().login(mEmail,
 						mPassword);
+				
+				//ログイン中のユーザー情報をpreferenceに格納して用いることができるようにする
+				SharedPreferences pref = getSharedPreferences("user", Activity.MODE_PRIVATE);
+				SharedPreferences.Editor editor = pref.edit();
+				editor.putString("email",mEmail);  
+			    editor.commit();
+				
 				LoginResultV1Dto result = login.execute();
 
 				if (SUCCESS.equals(result.getResult())) {
