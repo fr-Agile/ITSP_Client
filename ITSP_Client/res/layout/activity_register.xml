@@ -87,7 +87,7 @@
                 android:id="@+id/register_password_again"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/register_prompt_password"
+                android:hint="@string/register_prompt_password_again"
                 android:imeActionId="@+id/register"
                 android:imeActionLabel="@string/register_action_sign_up_short"
                 android:imeOptions="actionUnspecified"

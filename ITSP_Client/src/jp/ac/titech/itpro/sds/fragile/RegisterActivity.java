@@ -1,5 +1,7 @@
 package jp.ac.titech.itpro.sds.fragile;
 
+import java.util.List;
+
 import jp.ac.titech.itpro.sds.fragile.api.RemoteApi;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -49,8 +51,18 @@ public class RegisterActivity extends Activity {
 	private View mRegisterStatusView;
 	private TextView mRegisterStatusMessageView;
 
-	private static String SUCCESS = "success";
-	private static String FAIL = "fail";
+    private static String SUCCESS = "success";
+    private static String FAIL = "fail";
+    private static String NULL_FNAME = "null_fname";
+    private static String NULL_LNAME = "null_lname";
+    private static String NULL_EMAIL = "null_email";
+    private static String NULL_PASS = "null_pass";
+    private static String NULL_PASSA = "null_passa";
+    private static String INVALID_ADDRESS = "invalid_address";
+    private static String EXISTING_ADDRESS = "existing_address";
+    private static String SHORT_PASS = "short_pass";
+    private static String DIFFERENT_PASS = "different_pass";
+    private static String UNEXPECTED_ERROR = "unexpected_error";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -120,18 +132,32 @@ public class RegisterActivity extends Activity {
 		boolean cancel = false;
 		View focusView = null;
 
-		/*
-		// Check for a valid email address.
+		// Check null elements.
+		if (TextUtils.isEmpty(mFirstName)) {
+			mFirstNameView.setError(getString(R.string.error_field_required));
+			focusView = mFirstNameView;
+			//cancel = true;
+		}
+		if (TextUtils.isEmpty(mLastName)) {
+			mLastNameView.setError(getString(R.string.error_field_required));
+			focusView = mLastNameView;
+			//cancel = true;
+		}
 		if (TextUtils.isEmpty(mEmail)) {
 			mEmailView.setError(getString(R.string.error_field_required));
 			focusView = mEmailView;
-			cancel = true;
-		} else if (!mEmail.contains("@")) {
-			mEmailView.setError(getString(R.string.error_invalid_email));
-			focusView = mEmailView;
-			cancel = true;
+			//cancel = true;
 		}
-		*/
+		if (TextUtils.isEmpty(mPassword)) {
+			mPasswordView.setError(getString(R.string.error_field_required));
+			focusView = mPasswordView;
+			//cancel = true;
+		}
+		if (TextUtils.isEmpty(mPasswordAgain)) {
+			mPasswordAgainView.setError(getString(R.string.error_field_required));
+			focusView = mPasswordAgainView;
+			//cancel = true;
+		}
 
 		if (cancel) {
 			// There was an error; don't attempt register and focus the first
@@ -205,9 +231,9 @@ public class RegisterActivity extends Activity {
 				if (SUCCESS.equals(result.getResult())) {
 					return true;
 				} else {
+					setErrorMessage(result);
 					return false;
 				}
-
 			} catch (Exception e) {
 				return false;
 			}
@@ -227,6 +253,11 @@ public class RegisterActivity extends Activity {
 				mPasswordView
 						.setError(getString(R.string.error_incorrect_password));
 				mPasswordView.requestFocus();
+				mPasswordView.setError("test");
+				mPasswordView.requestFocus();
+				
+				mEmailView.setError("test");
+				mEmailView.requestFocus();
 				*/
 			}
 		}
@@ -235,6 +266,61 @@ public class RegisterActivity extends Activity {
 		protected void onCancelled() {
 			mAuthTask = null;
 			showProgress(false);
+		}
+		
+		private void setErrorMessage(RegisterV1ResultDto result) {
+			List<String> errorList = result.getErrorList();
+			if (errorList == null) {
+				return;
+			}
+			checkFirstNameError(errorList);
+			checkLastNameError(errorList);
+			checkEmailError(errorList);
+			checkPasswordError(errorList);
+		}
+		
+		private void checkFirstNameError(List<String> errorList) {
+			if(errorList.contains(NULL_FNAME)) {
+				mFirstNameView.setError(getString(R.string.register_error_field_required));
+				//mFirstNameView.requestFocus();
+			}
+		}
+		
+		private void checkLastNameError(List<String> errorList) {
+			if(errorList.contains(NULL_LNAME)) {
+				mLastNameView.setError(getString(R.string.register_error_field_required));
+				//mLastNameView.requestFocus();
+			}
+		}
+		
+		private void checkEmailError(List<String> errorList) {
+			if(errorList.contains(NULL_EMAIL)) {
+				mEmailView.setError(getString(R.string.register_error_field_required));
+				//mEmailView.requestFocus();
+			} else if(errorList.contains(INVALID_ADDRESS)) {
+				mEmailView.setError(getString(R.string.register_error_invalid_email));
+				//mEmailView.requestFocus();
+			} else if(errorList.contains(EXISTING_ADDRESS)) {
+				mEmailView.setError(getString(R.string.register_error_existing_email));
+				//mEmailView.requestFocus();
+			}
+		}
+		
+		private void checkPasswordError(List<String> errorList) {
+			if(errorList.contains(NULL_PASS)) {
+				mPasswordView.setError(getString(R.string.register_error_field_required));
+				//mPasswordView.requestFocus();
+			} else if(errorList.contains(SHORT_PASS)) {
+				mPasswordView.setError(getString(R.string.register_error_short_password));
+				//mPasswordView.requestFocus();
+			}
+			if(errorList.contains(NULL_PASSA)) {
+				mPasswordAgainView.setError(getString(R.string.register_error_field_required));
+				//mPasswordAgainView.requestFocus();
+			} else if(errorList.contains(DIFFERENT_PASS)) {
+				mPasswordAgainView.setError(getString(R.string.register_error_different_password));
+				//mPasswordAgainView.requestFocus();
+			}
 		}
 	}
 }
