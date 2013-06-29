@@ -41,6 +41,10 @@
             android:label="@string/title_activity_registered">
         </activity>
         <activity
+            android:name=".FriendActivity"
+            android:label="@string/title_activity_friend">
+        </activity>
+        <activity
             android:name=".ScheduleInputActivity"
             android:label="@string/title_activity_inputschedule">
         </activity>
