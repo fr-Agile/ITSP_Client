@@ -1,7 +1,7 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".RegisterActivity" >
-
+    
     <!-- Register progress -->
 
     <LinearLayout
@@ -40,7 +40,7 @@
             style="@style/RegisterFormContainer"
             android:orientation="vertical" >
 
-            <EditText
+            <jp.ac.titech.itpro.sds.fragile.MyEditText
                 android:id="@+id/register_firstname"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -50,9 +50,9 @@
                 android:singleLine="true" >
 
                 <requestFocus />
-            </EditText>
+            </jp.ac.titech.itpro.sds.fragile.MyEditText>
             
-            <EditText
+            <jp.ac.titech.itpro.sds.fragile.MyEditText
                 android:id="@+id/register_lastname"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -62,7 +62,7 @@
                 android:singleLine="true" />
 
 
-            <EditText
+            <jp.ac.titech.itpro.sds.fragile.MyEditText
                 android:id="@+id/register_email"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -71,7 +71,7 @@
                 android:maxLines="1"
                 android:singleLine="true" />
 
-            <EditText
+            <jp.ac.titech.itpro.sds.fragile.MyEditText
                 android:id="@+id/register_password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -83,7 +83,7 @@
                 android:maxLines="1"
                 android:singleLine="true" />
 
-            <EditText
+            <jp.ac.titech.itpro.sds.fragile.MyEditText
                 android:id="@+id/register_password_again"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -104,6 +104,7 @@
                 android:paddingLeft="32dp"
                 android:paddingRight="32dp"
                 android:text="@string/register_action_sign_up" />
+
         </LinearLayout>
     </ScrollView>
 

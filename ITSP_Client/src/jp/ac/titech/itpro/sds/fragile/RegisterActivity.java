@@ -4,6 +4,7 @@ import java.util.List;
 
 import jp.ac.titech.itpro.sds.fragile.utils.AddressChecker;
 
+import jp.ac.titech.itpro.sds.fragile.api.RegisterV1Endpoint;
 import jp.ac.titech.itpro.sds.fragile.api.RemoteApi;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -47,28 +48,28 @@ public class RegisterActivity extends Activity {
 	private String mPasswordAgain;
 
 	// UI references.
-	private EditText mFirstNameView;
-	private EditText mLastNameView;
-	private EditText mEmailView;
-	private EditText mPasswordView;
-	private EditText mPasswordAgainView;
+	private MyEditText mFirstNameView;
+	private MyEditText mLastNameView;
+	private MyEditText mEmailView;
+	private MyEditText mPasswordView;
+	private MyEditText mPasswordAgainView;
 	private View mRegisterFormView;
 	private View mRegisterStatusView;
 	private TextView mRegisterStatusMessageView;
 
-    private static String SUCCESS = "success";
-    private static String FAIL = "fail";
-    private static String NULL_FNAME = "null_fname";
-    private static String NULL_LNAME = "null_lname";
-    private static String NULL_EMAIL = "null_email";
-    private static String NULL_PASS = "null_pass";
-    private static String NULL_PASSA = "null_passa";
-    private static String INVALID_ADDRESS = "invalid_address";
-    private static String EXISTING_ADDRESS = "existing_address";
-    private static String SHORT_PASS = "short_pass";
-    private static String DIFFERENT_PASS = "different_pass";
-    private static String UNEXPECTED_ERROR = "unexpected_error";
-    private static int PASS_LENGTH = 6;
+    private static String SUCCESS = RegisterV1Endpoint.SUCCESS;
+    private static String FAIL = RegisterV1Endpoint.FAIL;
+    private static String NULL_FNAME = RegisterV1Endpoint.NULL_FNAME;
+    private static String NULL_LNAME = RegisterV1Endpoint.NULL_LNAME;
+    private static String NULL_EMAIL = RegisterV1Endpoint.NULL_EMAIL;
+    private static String NULL_PASS = RegisterV1Endpoint.NULL_PASS;
+    private static String NULL_PASSA = RegisterV1Endpoint.NULL_PASSA;
+    private static String INVALID_ADDRESS = RegisterV1Endpoint.INVALID_ADDRESS;
+    private static String EXISTING_ADDRESS = RegisterV1Endpoint.EXISTING_ADDRESS;
+    private static String SHORT_PASS = RegisterV1Endpoint.SHORT_PASS;
+    private static String DIFFERENT_PASS = RegisterV1Endpoint.DIFFERENT_PASS;
+    private static String UNEXPECTED_ERROR = RegisterV1Endpoint.UNEXPECTED_ERROR;
+    private static int PASS_LENGTH = RegisterV1Endpoint.PASS_LENGTH;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -77,19 +78,20 @@ public class RegisterActivity extends Activity {
 		setContentView(R.layout.activity_register);
 
 		// Set up the register form.
-		mFirstNameView = (EditText) findViewById(R.id.register_firstname);
+		
+		mFirstNameView = (MyEditText) findViewById(R.id.register_firstname);
 		mFirstNameView.setText(mFirstName);
 		
-		mLastNameView = (EditText) findViewById(R.id.register_lastname);
+		mLastNameView = (MyEditText) findViewById(R.id.register_lastname);
 		mLastNameView.setText(mLastName);
 		
-		mEmailView = (EditText) findViewById(R.id.register_email);
+		mEmailView = (MyEditText) findViewById(R.id.register_email);
 		mEmailView.setText(mEmail);
 
-		mPasswordView = (EditText) findViewById(R.id.register_password);
+		mPasswordView = (MyEditText) findViewById(R.id.register_password);
 		mPasswordView.setText(mPassword);
 
-		mPasswordAgainView = (EditText) findViewById(R.id.register_password_again);
+		mPasswordAgainView = (MyEditText) findViewById(R.id.register_password_again);
 		mPasswordAgainView.setText(mPasswordAgain);
 
 		mRegisterFormView = findViewById(R.id.register_form);
@@ -99,6 +101,7 @@ public class RegisterActivity extends Activity {
 		findViewById(R.id.register_sign_up_button).setOnClickListener(
 				new View.OnClickListener() {
 					public void onClick(View view) {
+						
 						attemptRegister();
 					}
 				});
@@ -122,11 +125,11 @@ public class RegisterActivity extends Activity {
 		}
 
 		// Reset errors.
-		mFirstNameView.setError(null);
-		mLastNameView.setError(null);
-		mEmailView.setError(null);
-		mPasswordView.setError(null);
-		mPasswordAgainView.setError(null);
+		mFirstNameView.setMyError(null);
+		mLastNameView.setMyError(null);
+		mEmailView.setMyError(null);
+		mPasswordView.setMyError(null);
+		mPasswordAgainView.setMyError(null);
 
 		// Store values at the time of the register attempt.
 		mFirstName = mFirstNameView.getText().toString();
@@ -138,22 +141,21 @@ public class RegisterActivity extends Activity {
 		boolean cancel = false;
 
 		// Validate inputs
-		if(!validateFirstName()) {
+		if (!validateFirstNameBeforeConnect()) {
 			cancel = true;
 		}
-		if(!validateLastName()) {
+		if (!validateLastNameBeforeConnect()) {
 			cancel = true;
 		}
-		if(!validateEmail()) {
+		if (!validateEmailBeforeConnect()) {
 			cancel = true;
 		}
-		if(!validatePassword()) {
+		if (!validatePasswordBeforeConnect()) {
 			cancel = true;
 		}
 
 		if (cancel) {
-			// There was an error; don't attempt register and focus the first
-			// form field with an error.
+			// There was an error; don't attempt register
 		} else {
 			// Show a progress spinner, and kick off a background task to
 			// perform the user register attempt.
@@ -219,6 +221,7 @@ public class RegisterActivity extends Activity {
 						mFirstName, mLastName, mEmail, mPassword, mPasswordAgain);
 				RegisterV1ResultDto result = register.execute();
 
+				
 				if (SUCCESS.equals(result.getResult())) {
 					return true;
 				} else {
@@ -239,17 +242,6 @@ public class RegisterActivity extends Activity {
 				Log.d("DEBUG", "register success");
 				startActivity(new Intent(RegisterActivity.this, RegisteredActivity.class));
 				finish();
-			} else {
-				/*
-				mPasswordView
-						.setError(getString(R.string.error_incorrect_password));
-				mPasswordView.requestFocus();
-				mPasswordView.setError("test");
-				mPasswordView.requestFocus();
-				
-				mEmailView.setError("test");
-				mEmailView.requestFocus();
-				*/
 			}
 		}
 
@@ -264,90 +256,90 @@ public class RegisterActivity extends Activity {
 			if (errorList == null) {
 				return;
 			}
-			checkFirstNameError(errorList);
-			checkLastNameError(errorList);
-			checkEmailError(errorList);
-			checkPasswordError(errorList);
+			validateFirstNameAfterConnect(errorList);
+			validateLastNameAfterConnect(errorList);
+			validateEmailAfterConnect(errorList);
+			validatePasswordAfterConnect(errorList);
 		}
 		
-		private void checkFirstNameError(List<String> errorList) {
-			if(errorList.contains(NULL_FNAME)) {
-				mFirstNameView.setError(getString(R.string.register_error_field_required));
+		private void validateFirstNameAfterConnect(List<String> errorList) {
+			if (errorList.contains(NULL_FNAME)) {
+				mFirstNameView.setMyError(getString(R.string.register_error_field_required));
 			}
 		}
 		
-		private void checkLastNameError(List<String> errorList) {
-			if(errorList.contains(NULL_LNAME)) {
-				mLastNameView.setError(getString(R.string.register_error_field_required));
+		private void validateLastNameAfterConnect(List<String> errorList) {
+			if (errorList.contains(NULL_LNAME)) {
+				mLastNameView.setMyError(getString(R.string.register_error_field_required));
 			}
 		}
 		
-		private void checkEmailError(List<String> errorList) {
-			if(errorList.contains(NULL_EMAIL)) {
-				mEmailView.setError(getString(R.string.register_error_field_required));
-			} else if(errorList.contains(INVALID_ADDRESS)) {
-				mEmailView.setError(getString(R.string.register_error_invalid_email));
-			} else if(errorList.contains(EXISTING_ADDRESS)) {
-				mEmailView.setError(getString(R.string.register_error_existing_email));
+		private void validateEmailAfterConnect(List<String> errorList) {
+			if (errorList.contains(NULL_EMAIL)) {
+				mEmailView.setMyError(getString(R.string.register_error_field_required));
+			} else if (errorList.contains(INVALID_ADDRESS)) {
+				mEmailView.setMyError(getString(R.string.register_error_invalid_email));
+			} else if (errorList.contains(EXISTING_ADDRESS)) {
+				mEmailView.setMyError(getString(R.string.register_error_existing_email));
 			}
 		}
 		
-		private void checkPasswordError(List<String> errorList) {
-			if(errorList.contains(NULL_PASS)) {
-				mPasswordView.setError(getString(R.string.register_error_field_required));
-			} else if(errorList.contains(SHORT_PASS)) {
-				mPasswordView.setError(getString(R.string.register_error_short_password));
+		private void validatePasswordAfterConnect(List<String> errorList) {
+			if (errorList.contains(NULL_PASS)) {
+				mPasswordView.setMyError(getString(R.string.register_error_field_required));
+			} else if (errorList.contains(SHORT_PASS)) {
+				mPasswordView.setMyError(getString(R.string.register_error_short_password));
 			}
-			if(errorList.contains(NULL_PASSA)) {
-				mPasswordAgainView.setError(getString(R.string.register_error_field_required));
-			} else if(errorList.contains(DIFFERENT_PASS)) {
-				mPasswordAgainView.setError(getString(R.string.register_error_different_password));
+			if (errorList.contains(NULL_PASSA)) {
+				mPasswordAgainView.setMyError(getString(R.string.register_error_field_required));
+			} else if (errorList.contains(DIFFERENT_PASS)) {
+				mPasswordAgainView.setMyError(getString(R.string.register_error_different_password));
 			}
 		}
 	}
 	
-	private boolean validateFirstName() {
+	private boolean validateFirstNameBeforeConnect() {
         if (TextUtils.isEmpty(mFirstName)) {
-			mFirstNameView.setError(getString(R.string.register_error_field_required));
+			mFirstNameView.setMyError(getString(R.string.register_error_field_required));
 			return false;
 		}
         return true;
 	}
 	
-	private boolean validateLastName() {
+	private boolean validateLastNameBeforeConnect() {
         if (TextUtils.isEmpty(mLastName)) {
-			mLastNameView.setError(getString(R.string.register_error_field_required));
+			mLastNameView.setMyError(getString(R.string.register_error_field_required));
 			return false;
 		}
         return true;
 	}
 	
-	private boolean validateEmail() {
-		if(TextUtils.isEmpty(mEmail)) {
-			mEmailView.setError(getString(R.string.register_error_field_required));
+	private boolean validateEmailBeforeConnect() {
+		if (TextUtils.isEmpty(mEmail)) {
+			mEmailView.setMyError(getString(R.string.register_error_field_required));
 			return false;
-		} else if(!AddressChecker.check(mEmail)) {
-			mEmailView.setError(getString(R.string.register_error_invalid_email));
+		} else if (!AddressChecker.check(mEmail)) {
+			mEmailView.setMyError(getString(R.string.register_error_invalid_email));
 			return false;
 		}
 		return true;
 	}
 	
-	private boolean validatePassword() {
+	private boolean validatePasswordBeforeConnect() {
 		boolean success = true;
 		
-		if(TextUtils.isEmpty(mPassword)) {
-			mPasswordView.setError(getString(R.string.register_error_field_required));
+		if (TextUtils.isEmpty(mPassword)) {
+			mPasswordView.setMyError(getString(R.string.register_error_field_required));
 			success = false;
-		} else if(mPassword.length() < PASS_LENGTH) {
-			mPasswordView.setError(getString(R.string.register_error_short_password));
+		} else if (mPassword.length() < PASS_LENGTH) {
+			mPasswordView.setMyError(getString(R.string.register_error_short_password));
 			success = false;
 		}
-		if(TextUtils.isEmpty(mPasswordAgain)) {
-			mPasswordAgainView.setError(getString(R.string.register_error_field_required));
+		if (TextUtils.isEmpty(mPasswordAgain)) {
+			mPasswordAgainView.setMyError(getString(R.string.register_error_field_required));
 			success = false;
-		} else if(!mPasswordAgain.equals(mPassword)) {
-			mPasswordAgainView.setError(getString(R.string.register_error_different_password));
+		} else if (!mPasswordAgain.equals(mPassword)) {
+			mPasswordAgainView.setMyError(getString(R.string.register_error_different_password));
 			success = false;
 		}
 		return success;
