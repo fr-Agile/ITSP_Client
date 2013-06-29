@@ -42,12 +42,9 @@ public class MyEditText extends EditText {
 		if (mMyPopup == null) {
 			LayoutInflater inflater = LayoutInflater.from(getContext());
 			TextView tv = (TextView) inflater.inflate(R.layout.error_popup_view, null);
-			tv.setWidth(WindowManager.LayoutParams.WRAP_CONTENT);
-			tv.setHeight(WindowManager.LayoutParams.WRAP_CONTENT);			
 			
 			mMyPopup = new PopupWindow(this);
 			mMyPopup.setContentView(tv);
-			
 			mMyPopup.setWidth(WindowManager.LayoutParams.WRAP_CONTENT);
 			mMyPopup.setHeight(WindowManager.LayoutParams.WRAP_CONTENT);			
 			mMyPopup.setFocusable(false);
