@@ -2,6 +2,7 @@ package jp.ac.titech.itpro.sds.fragile;
 
 import jp.ac.titech.itpro.sds.fragile.api.RemoteApi;
 import android.app.Activity;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -91,9 +92,11 @@ public class FriendActivity extends Activity {
 			protected Boolean doInBackground(Void... args) {
 
 				try {
+					SharedPreferences pref = getSharedPreferences("user", Activity.MODE_PRIVATE);
+				
 					FriendEndpoint endpoint = RemoteApi.getFriendEndpoint();
 					Friendship friend = endpoint.friendV1Endpoint().friendship(fEmail,
-							"aaa@yahoo.co.jp");
+							pref.getString("email",""));
 					
 					FriendResultV1Dto result = friend.execute();
 
