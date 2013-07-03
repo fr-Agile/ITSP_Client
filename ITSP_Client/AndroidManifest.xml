@@ -48,6 +48,10 @@
             android:name=".ScheduleInputActivity"
             android:label="@string/title_activity_inputschedule">
         </activity>
+        <activity
+            android:name=".ScheduleActivity"
+            android:label="@string/title_activity_schedule">
+        </activity>
     </application>
 
 </manifest>
