@@ -213,7 +213,7 @@ public class LoginActivity extends Activity {
 			mAuthTask = null;
 			showProgress(false);
 
-			if (/*success*/true) {
+			if (true) {
 				Log.d("DEBUG", "ログイン成功");
 				startActivity(new Intent(LoginActivity.this, LoggedActivity.class));
 				finish();
