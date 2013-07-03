@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
+import android.view.View;
+import android.widget.Button;
 
 
 
@@ -16,6 +18,15 @@ public class RegisteredActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_registered);
+		
+		//ボタン作成
+	    Button login_btn = (Button)findViewById(R.id.go_to_login_from_registered);
+	    login_btn.setOnClickListener(new View.OnClickListener() {
+			@Override
+	    	public void onClick(View v) {  //ログイン画面へ遷移
+	    		startActivity(new Intent(RegisteredActivity.this, LoginActivity.class));
+	    	}
+	    });
 	}
 	
 	@Override

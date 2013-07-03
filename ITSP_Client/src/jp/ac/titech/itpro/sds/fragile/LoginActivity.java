@@ -16,6 +16,7 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -80,6 +81,15 @@ public class LoginActivity extends Activity {
 						attemptLogin();
 					}
 				});
+		
+		//ボタン作成
+	    Button register_btn = (Button)findViewById(R.id.go_to_register_from_login);
+	    register_btn.setOnClickListener(new View.OnClickListener() {
+			@Override
+	    	public void onClick(View v) {  //新規登録画面へ遷移
+	    		startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
+	    	}
+	    });
 	}
 
 	@Override
