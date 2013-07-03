@@ -34,6 +34,7 @@ public class ScheduleInputActivity extends Activity{
 	private Button doneBtn;
 	private long scheduleStartTime;
 	private long scheduleFinishTime;
+	private String mEmail = "aaa123@gmail.com";
 	
 	private static String SUCCESS = "success";
 	private static String FAIL = "fail";
@@ -97,11 +98,8 @@ public class ScheduleInputActivity extends Activity{
     }
     
     public void clickDoneButton(){
-//    	Log.d("vietDebug", "click done button");
     	mAuthTask = new ScheduleInputTask();
-//    	Log.d("vietDebug", "create task finish");
 		mAuthTask.execute((Void) null);
-//		Log.d("vietDebug", "task execute finish");
     }
     
     DatePickerDialog.OnDateSetListener d=new DatePickerDialog.OnDateSetListener() {
@@ -147,60 +145,15 @@ public class ScheduleInputActivity extends Activity{
 		}
 	}
 	
-//	private void updateLabel() {
-//		timeLabel.setText(formatDateTime.format(dateTime.getTime()));
-//	}
-	
-	/**
-	 * Shows the progress UI and hides the register form.
-	 */
-//	@TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
-//	private void showProgress(final boolean show) {
-//		// On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
-//		// for very easy animations. If available, use these APIs to fade-in
-//		// the progress spinner.
-//		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-//			int shortAnimTime = getResources().getInteger(
-//					android.R.integer.config_shortAnimTime);
-//
-//			mRegisterStatusView.setVisibility(View.VISIBLE);
-//			mRegisterStatusView.animate().setDuration(shortAnimTime)
-//					.alpha(show ? 1 : 0)
-//					.setListener(new AnimatorListenerAdapter() {
-//						@Override
-//						public void onAnimationEnd(Animator animation) {
-//							mRegisterStatusView.setVisibility(show ? View.VISIBLE
-//									: View.GONE);
-//						}
-//					});
-//
-//			mRegisterFormView.setVisibility(View.VISIBLE);
-//			mRegisterFormView.animate().setDuration(shortAnimTime)
-//					.alpha(show ? 0 : 1)
-//					.setListener(new AnimatorListenerAdapter() {
-//						@Override
-//						public void onAnimationEnd(Animator animation) {
-//							mRegisterFormView.setVisibility(show ? View.GONE
-//									: View.VISIBLE);
-//						}
-//					});
-//		} else {
-//			// The ViewPropertyAnimator APIs are not available, so simply show
-//			// and hide the relevant UI components.
-//			mRegisterStatusView.setVisibility(show ? View.VISIBLE : View.GONE);
-//			mRegisterFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-//		}
-//	}
-	
 	public class ScheduleInputTask extends AsyncTask<Void, Void, Boolean> {
 		@Override
 		protected Boolean doInBackground(Void... args) {
 
 			try {
-				Log.d("vietDebug","time:"+ scheduleStartTime + " and " + scheduleFinishTime);
+				Log.d("vietDebug","time:"+ scheduleStartTime + " and " + scheduleFinishTime + "email:" +mEmail);
 				ScheduleEndpoint endpoint = RemoteApi.getScheduleEndpoint();
 				CreateSchedule schedule = endpoint.scheduleV1EndPoint().createSchedule(
-						scheduleStartTime, scheduleFinishTime);
+						scheduleStartTime, scheduleFinishTime, mEmail);
 				ScheduleResultV1Dto result = schedule.execute();
 				
 //				Log.d("vietDebug", "result:" + result.getResult());
@@ -245,4 +198,51 @@ public class ScheduleInputActivity extends Activity{
 		}
 	}
 	
+	
+//	private void updateLabel() {
+//	timeLabel.setText(formatDateTime.format(dateTime.getTime()));
+//}
+
+/**
+ * Shows the progress UI and hides the register form.
+ */
+//@TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
+//private void showProgress(final boolean show) {
+//	// On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
+//	// for very easy animations. If available, use these APIs to fade-in
+//	// the progress spinner.
+//	if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
+//		int shortAnimTime = getResources().getInteger(
+//				android.R.integer.config_shortAnimTime);
+//
+//		mRegisterStatusView.setVisibility(View.VISIBLE);
+//		mRegisterStatusView.animate().setDuration(shortAnimTime)
+//				.alpha(show ? 1 : 0)
+//				.setListener(new AnimatorListenerAdapter() {
+//					@Override
+//					public void onAnimationEnd(Animator animation) {
+//						mRegisterStatusView.setVisibility(show ? View.VISIBLE
+//								: View.GONE);
+//					}
+//				});
+//
+//		mRegisterFormView.setVisibility(View.VISIBLE);
+//		mRegisterFormView.animate().setDuration(shortAnimTime)
+//				.alpha(show ? 0 : 1)
+//				.setListener(new AnimatorListenerAdapter() {
+//					@Override
+//					public void onAnimationEnd(Animator animation) {
+//						mRegisterFormView.setVisibility(show ? View.GONE
+//								: View.VISIBLE);
+//					}
+//				});
+//	} else {
+//		// The ViewPropertyAnimator APIs are not available, so simply show
+//		// and hide the relevant UI components.
+//		mRegisterStatusView.setVisibility(show ? View.VISIBLE : View.GONE);
+//		mRegisterFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+//	}
+//}
 }
+//Debug
+//Log.d("vietDebug", "click done button");
