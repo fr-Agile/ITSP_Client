@@ -1,6 +1,7 @@
 package jp.ac.titech.itpro.sds.fragile;
 
 import java.util.Calendar;
+import java.util.Date;
 
 import android.app.Activity;
 import android.app.DatePickerDialog;
@@ -8,6 +9,7 @@ import android.app.TimePickerDialog;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 
 import com.google.api.services.scheduleEndpoint.ScheduleEndpoint;
 import com.google.api.services.scheduleEndpoint.ScheduleEndpoint.ScheduleV1EndPoint.CreateSchedule;
@@ -30,8 +32,8 @@ public class ScheduleInputActivity extends Activity{
 //	private Button dateBtn;
 	
 	private Button doneBtn;
-	private String scheduleStartTime = "";
-	private String scheduleFinishTime = "";
+	private long scheduleStartTime;
+	private long scheduleFinishTime;
 	
 	private static String SUCCESS = "success";
 	private static String FAIL = "fail";
@@ -95,11 +97,11 @@ public class ScheduleInputActivity extends Activity{
     }
     
     public void clickDoneButton(){
-    	Log.d("vietDebug", "click done button");
+//    	Log.d("vietDebug", "click done button");
     	mAuthTask = new ScheduleInputTask();
-    	Log.d("vietDebug", "create task finish");
+//    	Log.d("vietDebug", "create task finish");
 		mAuthTask.execute((Void) null);
-		Log.d("vietDebug", "task execute finish");
+//		Log.d("vietDebug", "task execute finish");
     }
     
     DatePickerDialog.OnDateSetListener d=new DatePickerDialog.OnDateSetListener() {
@@ -119,7 +121,7 @@ public class ScheduleInputActivity extends Activity{
 			dateTime.set(Calendar.MINUTE,minute);
 //			updateLabel();
 			startTimeLabel.setText(formatDateTime.format(dateTime.getTime()));
-			scheduleStartTime = formatDateTime.format(dateTime.getTime());
+			scheduleStartTime = dateTime.getTime().getTime();
 			setButtonEnable();
 		}
 	};
@@ -132,13 +134,13 @@ public class ScheduleInputActivity extends Activity{
 			dateTime.set(Calendar.MINUTE,minute);
 //			updateLabel();
 			finishTimeLabel.setText(formatDateTime.format(dateTime.getTime()));
-			scheduleFinishTime = formatDateTime.format(dateTime.getTime());
+			scheduleFinishTime = dateTime.getTime().getTime();
 			setButtonEnable();
 		}
 	};
 	
 	private void setButtonEnable() {
-		if (scheduleStartTime.isEmpty() || scheduleFinishTime.isEmpty()){
+		if (scheduleStartTime == 0 || scheduleFinishTime == 0){
 			doneBtn.setEnabled(false);
 		} else {
 			doneBtn.setEnabled(true);
@@ -195,11 +197,14 @@ public class ScheduleInputActivity extends Activity{
 		protected Boolean doInBackground(Void... args) {
 
 			try {
+				Log.d("vietDebug","time:"+ scheduleStartTime + " and " + scheduleFinishTime);
 				ScheduleEndpoint endpoint = RemoteApi.getScheduleEndpoint();
 				CreateSchedule schedule = endpoint.scheduleV1EndPoint().createSchedule(
 						scheduleStartTime, scheduleFinishTime);
 				ScheduleResultV1Dto result = schedule.execute();
-
+				
+//				Log.d("vietDebug", "result:" + result.getResult());
+				
 				if (SUCCESS.equals(result.getResult())) {
 					Log.d("vietDebug", "successed");
 					return true;
