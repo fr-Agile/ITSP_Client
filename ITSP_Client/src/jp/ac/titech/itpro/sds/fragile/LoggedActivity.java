@@ -7,7 +7,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
-
+import android.view.View;
+import android.widget.Button;
 
 
 public class LoggedActivity extends Activity {
@@ -16,6 +17,22 @@ public class LoggedActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_logged);
+		
+		//ボタン作成
+	    Button friend_btn = (Button)findViewById(R.id.go_to_friend_from_logged);
+	    friend_btn.setOnClickListener(new View.OnClickListener() {
+			@Override
+	    	public void onClick(View v) {  //友達登録画面へ遷移
+	    		startActivity(new Intent(LoggedActivity.this, FriendActivity.class));
+	    	}
+	    });
+	    Button schedule_btn = (Button)findViewById(R.id.go_to_inputschedule_from_logged);
+	    schedule_btn.setOnClickListener(new View.OnClickListener() {
+	    	@Override
+	    	public void onClick(View v) {   //スケジュール登録画面へ遷移
+	    		startActivity(new Intent(LoggedActivity.this, ScheduleInputActivity.class));
+	    	}
+	    });
 	}
 	
 	@Override

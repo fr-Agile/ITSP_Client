@@ -147,6 +147,7 @@ public class ScheduleInputActivity extends Activity{
 				CreateSchedule schedule = endpoint.scheduleV1EndPoint().createSchedule(
 						scheduleStartTime, scheduleFinishTime, mEmail);
 				ScheduleResultV1Dto result = schedule.execute();
+
 				
 				if (SUCCESS.equals(result.getResult())) {
 					Log.d("vietDebug", "successed");
