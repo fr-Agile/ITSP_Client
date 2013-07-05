@@ -27,10 +27,7 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 
 public class ScheduleInputActivity extends Activity{
-	
-//	private Button timeBtn;
-//	private Button dateBtn;
-	
+		
 	private Button doneBtn;
 	private long scheduleStartTime;
 	private long scheduleFinishTime;
@@ -52,8 +49,7 @@ public class ScheduleInputActivity extends Activity{
         setContentView(R.layout.activity_inputschedule);
         startTimeLabel=(TextView)findViewById(R.id.startTimeTxt);
         finishTimeLabel=(TextView)findViewById(R.id.finishTimeTxt);
-//        updateLabel();
-//        timeBtn = (Button)findViewById(R.id.timeBtn);
+        
         findViewById(R.id.startTimeBtn).setOnClickListener(
 				new View.OnClickListener() {
 					public void onClick(View view) {
@@ -68,7 +64,6 @@ public class ScheduleInputActivity extends Activity{
 					}
 				});
         
-//        dateBtn = (Button)findViewById(R.id.dateBtn);
         findViewById(R.id.dateBtn).setOnClickListener(
 				new View.OnClickListener() {
 					public void onClick(View view) {
@@ -107,7 +102,6 @@ public class ScheduleInputActivity extends Activity{
 			dateTime.set(Calendar.YEAR,year);
 			dateTime.set(Calendar.MONTH, monthOfYear);
 			dateTime.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-//			updateLabel();
 			setButtonEnable();
 		}
 	};
@@ -117,7 +111,6 @@ public class ScheduleInputActivity extends Activity{
 			// TODO Auto-generated method stub
 			dateTime.set(Calendar.HOUR_OF_DAY, hourOfDay);
 			dateTime.set(Calendar.MINUTE,minute);
-//			updateLabel();
 			startTimeLabel.setText(formatDateTime.format(dateTime.getTime()));
 			scheduleStartTime = dateTime.getTime().getTime();
 			setButtonEnable();
@@ -130,7 +123,6 @@ public class ScheduleInputActivity extends Activity{
 			// TODO Auto-generated method stub
 			dateTime.set(Calendar.HOUR_OF_DAY, hourOfDay);
 			dateTime.set(Calendar.MINUTE,minute);
-//			updateLabel();
 			finishTimeLabel.setText(formatDateTime.format(dateTime.getTime()));
 			scheduleFinishTime = dateTime.getTime().getTime();
 			setButtonEnable();
@@ -138,7 +130,7 @@ public class ScheduleInputActivity extends Activity{
 	};
 	
 	private void setButtonEnable() {
-		if (scheduleStartTime == 0 || scheduleFinishTime == 0){
+		if (scheduleStartTime == 0 || scheduleFinishTime == 0 || scheduleStartTime >= scheduleFinishTime){
 			doneBtn.setEnabled(false);
 		} else {
 			doneBtn.setEnabled(true);
@@ -155,8 +147,6 @@ public class ScheduleInputActivity extends Activity{
 				CreateSchedule schedule = endpoint.scheduleV1EndPoint().createSchedule(
 						scheduleStartTime, scheduleFinishTime, mEmail);
 				ScheduleResultV1Dto result = schedule.execute();
-				
-//				Log.d("vietDebug", "result:" + result.getResult());
 				
 				if (SUCCESS.equals(result.getResult())) {
 					Log.d("vietDebug", "successed");
@@ -175,74 +165,21 @@ public class ScheduleInputActivity extends Activity{
 		@Override
 		protected void onPostExecute(final Boolean success) {
 			mAuthTask = null;
-//			showProgress(false);
 
 			if (success) {
-				Log.d("vietDebug", "post success");
-//				startActivity(new Intent(RegisterActivity.this, RegisteredActivity.class));
-//				finish();
+				Log.d("vietDebug", "post successed");
 			} else {
 				Log.d("vietDebug", "post failed");
-				/*
-				mPasswordView
-						.setError(getString(R.string.error_incorrect_password));
-				mPasswordView.requestFocus();
-				*/
 			}
 		}
 
 		@Override
 		protected void onCancelled() {
 			mAuthTask = null;
-//			showProgress(false);
 		}
 	}
-	
-	
-//	private void updateLabel() {
-//	timeLabel.setText(formatDateTime.format(dateTime.getTime()));
-//}
-
-/**
- * Shows the progress UI and hides the register form.
- */
-//@TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
-//private void showProgress(final boolean show) {
-//	// On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
-//	// for very easy animations. If available, use these APIs to fade-in
-//	// the progress spinner.
-//	if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-//		int shortAnimTime = getResources().getInteger(
-//				android.R.integer.config_shortAnimTime);
-//
-//		mRegisterStatusView.setVisibility(View.VISIBLE);
-//		mRegisterStatusView.animate().setDuration(shortAnimTime)
-//				.alpha(show ? 1 : 0)
-//				.setListener(new AnimatorListenerAdapter() {
-//					@Override
-//					public void onAnimationEnd(Animator animation) {
-//						mRegisterStatusView.setVisibility(show ? View.VISIBLE
-//								: View.GONE);
-//					}
-//				});
-//
-//		mRegisterFormView.setVisibility(View.VISIBLE);
-//		mRegisterFormView.animate().setDuration(shortAnimTime)
-//				.alpha(show ? 0 : 1)
-//				.setListener(new AnimatorListenerAdapter() {
-//					@Override
-//					public void onAnimationEnd(Animator animation) {
-//						mRegisterFormView.setVisibility(show ? View.GONE
-//								: View.VISIBLE);
-//					}
-//				});
-//	} else {
-//		// The ViewPropertyAnimator APIs are not available, so simply show
-//		// and hide the relevant UI components.
-//		mRegisterStatusView.setVisibility(show ? View.VISIBLE : View.GONE);
-//		mRegisterFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-//	}
-//}
 }
+
+
 //Debug
 //Log.d("vietDebug", "click done button");
