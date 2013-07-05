@@ -7,30 +7,30 @@
         android:id="@+id/startTimeTxt"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Time" />
+        android:text="@string/startTime" />
     <TextView
         android:id="@+id/finishTimeTxt"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Time" />
+        android:text="@string/finishTime" />
     <Button
         android:id="@+id/dateBtn"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Set Date"
+        android:text="@string/Set_Date"
         />
     <Button
         android:id="@+id/startTimeBtn"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Set Start Time"
+        android:text="@string/Set_StartTime"
         />
     
     <Button
         android:id="@+id/finishTimeBtn"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Set Finish Time"
+        android:text="@string/Set_FinishTime"
         />
 
     <Button
@@ -39,6 +39,6 @@
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
         android:layout_gravity="center_horizontal"
-        android:text="Done" />
+        android:text="@string/Done" />
 
 </LinearLayout>
