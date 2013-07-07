@@ -2,4 +2,9 @@
 
     <string name="friend_regist">Add Friend</string>
     <string name="title_activity_friend">Friend</string>
+    <string name="error_f_email">eメールアドレスを入力してください</string>
+    <string name="error_f_already">その友だちとは既にフレンド登録しています</string>
+    <string name="error_f_nullmy">再ログインしてください</string>
+    <string name="error_f_nof">該当するユーザーが存在しません</string>
+    <string name="error_f_empty">入力して下さい</string>
 </resources>

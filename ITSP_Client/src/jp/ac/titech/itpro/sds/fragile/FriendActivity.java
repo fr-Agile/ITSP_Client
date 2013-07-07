@@ -24,13 +24,18 @@ public class FriendActivity extends Activity {
 	private FriendTask mAuthTask = null;
 
 	private String fEmail;
-
+	private View focusView = null;
+	
 	// UI references.
 	private EditText fEmailView;
 
 	private static String SUCCESS = "success";
 	private static String FAIL = "fail";
 
+    private static String NULLMY = "nullmy";
+    private static String NOFRIEND = "nofriend";
+    private static String ALREADY = "already";
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -62,15 +67,14 @@ public class FriendActivity extends Activity {
 			fEmail = fEmailView.getText().toString();
 
 			boolean cancel = false;
-			View focusView = null;
 
 			// Check for a valid email address.
 			if (TextUtils.isEmpty(fEmail)) {
-				fEmailView.setError(getString(R.string.error_field_required));
+				fEmailView.setError(getString(R.string.error_f_empty));
 				focusView = fEmailView;
 				cancel = true;
 			} else if (!fEmail.contains("@")) {
-				fEmailView.setError(getString(R.string.error_invalid_email));
+				fEmailView.setError(getString(R.string.error_f_email));
 				focusView = fEmailView;
 				cancel = true;
 			}
@@ -102,7 +106,19 @@ public class FriendActivity extends Activity {
 
 					if (SUCCESS.equals(result.getResult())) {
 						return true;
-					} else {
+					}else if (NULLMY.equals(result.getResult())){
+						fEmailView.setError(getString(R.string.error_f_nullmy));
+						focusView = fEmailView;
+						return false;
+					}else if (NOFRIEND.equals(result.getResult())){
+						fEmailView.setError(getString(R.string.error_f_nof));
+						focusView = fEmailView;
+						return false;
+					}else if (ALREADY.equals(result.getResult())){
+						fEmailView.setError(getString(R.string.error_f_already));
+						focusView = fEmailView;
+						return false;
+					}else{
 						return false;
 					}
 
