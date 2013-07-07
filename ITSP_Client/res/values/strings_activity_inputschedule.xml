@@ -1,4 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="title_activity_inputschedule">Input Schedule</string>
+    <string name="startTime">Start Time</string>
+    <string name="finishTime">Finish Time</string>
+    <string name="Set_Date">Set Date</string>
+    <string name="Set_StartTime">Set Start Time</string>
+    <string name="Set_FinishTime">Set Finish Time</string>
+    <string name="Done">Done</string>
+    
+     
+     
 </resources>
