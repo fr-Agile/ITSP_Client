@@ -4,26 +4,19 @@ import java.util.List;
 
 import jp.ac.titech.itpro.sds.fragile.utils.AddressChecker;
 
-import jp.ac.titech.itpro.sds.fragile.api.RegisterV1Endpoint;
 import jp.ac.titech.itpro.sds.fragile.api.RemoteApi;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.AttributeSet;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.View;
-import android.view.inputmethod.EditorInfo;
-import android.widget.EditText;
 import android.widget.TextView;
 
 import com.google.api.services.registerEndpoint.RegisterEndpoint;
@@ -57,19 +50,19 @@ public class RegisterActivity extends Activity {
 	private View mRegisterStatusView;
 	private TextView mRegisterStatusMessageView;
 
-    private static String SUCCESS = RegisterV1Endpoint.SUCCESS;
-    private static String FAIL = RegisterV1Endpoint.FAIL;
-    private static String NULL_FNAME = RegisterV1Endpoint.NULL_FNAME;
-    private static String NULL_LNAME = RegisterV1Endpoint.NULL_LNAME;
-    private static String NULL_EMAIL = RegisterV1Endpoint.NULL_EMAIL;
-    private static String NULL_PASS = RegisterV1Endpoint.NULL_PASS;
-    private static String NULL_PASSA = RegisterV1Endpoint.NULL_PASSA;
-    private static String INVALID_ADDRESS = RegisterV1Endpoint.INVALID_ADDRESS;
-    private static String EXISTING_ADDRESS = RegisterV1Endpoint.EXISTING_ADDRESS;
-    private static String SHORT_PASS = RegisterV1Endpoint.SHORT_PASS;
-    private static String DIFFERENT_PASS = RegisterV1Endpoint.DIFFERENT_PASS;
-    private static String UNEXPECTED_ERROR = RegisterV1Endpoint.UNEXPECTED_ERROR;
-    private static int PASS_LENGTH = RegisterV1Endpoint.PASS_LENGTH;
+    private final static String SUCCESS = "success";
+    private final static String FAIL = "fail";
+    private final static String NULL_FNAME = "null_fname";
+    private final static String NULL_LNAME = "null_lname";
+    private final static String NULL_EMAIL = "null_email";
+    private final static String NULL_PASS = "null_pass";
+    private final static String NULL_PASSA = "null_passa";
+    private final static String INVALID_ADDRESS = "invalid_address";
+    private final static String EXISTING_ADDRESS = "existing_address";
+    private final static String SHORT_PASS = "short_pass";
+    private final static String DIFFERENT_PASS = "different_pass";
+    private final static String UNEXPECTED_ERROR = "unexpected_error";
+    private final static int PASS_LENGTH = 6;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
