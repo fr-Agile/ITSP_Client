@@ -6,11 +6,14 @@ import java.util.Date;
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
+import com.google.api.services.friendEndpoint.FriendEndpoint;
+import com.google.api.services.friendEndpoint.FriendEndpoint.FriendV1Endpoint.Friendship;
 import com.google.api.services.scheduleEndpoint.ScheduleEndpoint;
 import com.google.api.services.scheduleEndpoint.ScheduleEndpoint.ScheduleV1EndPoint.CreateSchedule;
 import com.google.api.services.scheduleEndpoint.model.ScheduleResultV1Dto;
@@ -31,7 +34,7 @@ public class ScheduleInputActivity extends Activity{
 	private Button doneBtn;
 	private long scheduleStartTime;
 	private long scheduleFinishTime;
-	private String mEmail = "aaa123@gmail.com";
+	private String mEmail;
 	
 	private static String SUCCESS = "success";
 	private static String FAIL = "fail";
@@ -142,6 +145,8 @@ public class ScheduleInputActivity extends Activity{
 		protected Boolean doInBackground(Void... args) {
 
 			try {
+				SharedPreferences pref = getSharedPreferences("user", Activity.MODE_PRIVATE);
+				mEmail = pref.getString("email","");	
 				Log.d("vietDebug","time:"+ scheduleStartTime + " and " + scheduleFinishTime + "email:" +mEmail);
 				ScheduleEndpoint endpoint = RemoteApi.getScheduleEndpoint();
 				CreateSchedule schedule = endpoint.scheduleV1EndPoint().createSchedule(
