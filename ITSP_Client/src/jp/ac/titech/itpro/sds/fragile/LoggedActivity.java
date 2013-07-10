@@ -21,14 +21,12 @@ public class LoggedActivity extends Activity {
 		//ボタン作成
 	    Button friend_btn = (Button)findViewById(R.id.go_to_friend_from_logged);
 	    friend_btn.setOnClickListener(new View.OnClickListener() {
-			@Override
-	    	public void onClick(View v) {  //友達登録画面へ遷移
+			public void onClick(View v) {  //友達登録画面へ遷移
 	    		startActivity(new Intent(LoggedActivity.this, FriendActivity.class));
 	    	}
 	    });
 	    Button schedule_btn = (Button)findViewById(R.id.go_to_inputschedule_from_logged);
 	    schedule_btn.setOnClickListener(new View.OnClickListener() {
-	    	@Override
 	    	public void onClick(View v) {   //スケジュール登録画面へ遷移
 	    		startActivity(new Intent(LoggedActivity.this, ScheduleInputActivity.class));
 	    	}

@@ -85,8 +85,7 @@ public class LoginActivity extends Activity {
 		//ボタン作成
 	    Button register_btn = (Button)findViewById(R.id.go_to_register_from_login);
 	    register_btn.setOnClickListener(new View.OnClickListener() {
-			@Override
-	    	public void onClick(View v) {  //新規登録画面へ遷移
+			public void onClick(View v) {  //新規登録画面へ遷移
 	    		startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
 	    	}
 	    });
