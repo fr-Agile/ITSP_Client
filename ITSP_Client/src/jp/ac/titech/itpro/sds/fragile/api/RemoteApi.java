@@ -16,6 +16,9 @@ import com.google.api.services.loginEndpoint.LoginEndpoint;
 import com.google.api.services.registerEndpoint.RegisterEndpoint;
 import com.google.api.services.scheduleEndpoint.ScheduleEndpoint;
 import com.google.api.services.friendEndpoint.FriendEndpoint;
+import com.google.api.services.getFriendEndpoint.GetFriendEndpoint;
+import com.google.api.services.getShareTimeEndpoint.GetShareTimeEndpoint;
+
 
 public class RemoteApi {
 	protected static <B extends AbstractGoogleClient.Builder> B updateBuilder(B builder) {
@@ -81,5 +84,28 @@ public class RemoteApi {
 		
 		return updateBuilder(endpointBuilder).build();
 	}
+
+	public static GetShareTimeEndpoint getGetShareTimeEndpoint() {
+		GetShareTimeEndpoint.Builder endpointBuilder = new GetShareTimeEndpoint.Builder(
+				AndroidHttp.newCompatibleTransport(), 
+				new JacksonFactory(), 
+				new HttpRequestInitializer() {
+					public void initialize(HttpRequest httpRequest) {
+					}
+				}); 
+		
+		return updateBuilder(endpointBuilder).build();
+	}
 	
+	public static GetFriendEndpoint getGetFriendEndpoint() {
+		GetFriendEndpoint.Builder endpointBuilder = new GetFriendEndpoint.Builder(
+				AndroidHttp.newCompatibleTransport(), 
+				new JacksonFactory(), 
+				new HttpRequestInitializer() {
+					public void initialize(HttpRequest httpRequest) {
+					}
+				}); 
+		
+		return updateBuilder(endpointBuilder).build();
+	}
 }
