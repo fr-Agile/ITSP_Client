@@ -1,6 +1,10 @@
-package jp.ac.titech.itpro.sds.fragile;
+package jp.ac.titech.itpro.sds.fragile.utils;
 
 import java.util.ArrayList;
+
+import jp.ac.titech.itpro.sds.fragile.R;
+import jp.ac.titech.itpro.sds.fragile.R.drawable;
+import jp.ac.titech.itpro.sds.fragile.R.id;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -9,12 +13,12 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-public class TimeAdapter extends ArrayAdapter<String> {
+public class CalendarAdapter extends ArrayAdapter<String> {
 	private ArrayList<String> calendars = new ArrayList<String>();
 	private LayoutInflater inflater;
 	private int layout;
 
-	public TimeAdapter(Context context, int textViewResourceId) {
+	public CalendarAdapter(Context context, int textViewResourceId) {
 		super(context, textViewResourceId);
 		this.inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		this.layout = textViewResourceId;
@@ -29,8 +33,8 @@ public class TimeAdapter extends ArrayAdapter<String> {
 
 		String calendar = this.calendars.get(position);
 
-		((TextView)view.findViewById(R.id.time_text)).setText(calendar);
-		view.setBackgroundResource(R.drawable.time_back);
+		((TextView)view.findViewById(R.id.calendar_text)).setText(calendar);
+		view.setBackgroundResource(R.drawable.calendar_back);
 
 		return view;
 	}
