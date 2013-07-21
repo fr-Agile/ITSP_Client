@@ -1,22 +1,22 @@
 <resources>
 
-    <string name="title_activity_register">Sign up</string>
-    <string name="message_registered_in">register success</string>
-    <string name="title_activity_registered">register success</string>
+    <string name="title_activity_register">新規登録</string>
+    <string name="message_registered_in">登録完了</string>
+    <string name="title_activity_registered">登録完了</string>
 
     <!-- Strings related to register -->
-    <string name="register_prompt_firstname">First name</string>
-    <string name="register_prompt_lastname">Last name</string>
-    <string name="register_prompt_email">Email</string>
-    <string name="register_prompt_password">Password</string>
-    <string name="register_prompt_password_again">Retype your password</string>
-    <string name="register_action_sign_up"><b>Sign up</b></string>
-    <string name="register_action_sign_up_short">Sign up</string>
-    <string name="register_progress_signing_up">Signing up&#8230;</string>
-    <string name="register_error_invalid_email">This email address is invalid</string>
-    <string name="register_error_existing_email">This email address is existing</string>
-    <string name="register_error_short_password">This password is too short</string>
-    <string name="register_error_different_password">"These password don't match"</string>
-    <string name="register_error_field_required">This field is required</string>
+    <string name="register_prompt_firstname">名</string>
+    <string name="register_prompt_lastname">姓</string>
+    <string name="register_prompt_email">Eメールアドレス</string>
+    <string name="register_prompt_password">パスワード</string>
+    <string name="register_prompt_password_again">パスワード（再確認）</string>
+    <string name="register_action_sign_up"><b>新規登録</b></string>
+    <string name="register_action_sign_up_short">新規登録</string>
+    <string name="register_progress_signing_up">登録中&#8230;</string>
+    <string name="register_error_invalid_email">Eメールアドレスを入力して下さい</string>
+    <string name="register_error_existing_email">既に登録されたEメールアドレスです</string>
+    <string name="register_error_short_password">パスワードが短すぎます</string>
+    <string name="register_error_different_password">パスワードの再入力が間違っています</string>
+    <string name="register_error_field_required">入力して下さい</string>
 
 </resources>

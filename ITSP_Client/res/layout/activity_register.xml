@@ -41,27 +41,26 @@
             android:orientation="vertical" >
 
             <jp.ac.titech.itpro.sds.fragile.MyEditText
-                android:id="@+id/register_firstname"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/register_prompt_firstname"
-                android:inputType="textPersonName"
-                android:maxLines="1"
-                android:singleLine="true" >
-
-                <requestFocus />
-            </jp.ac.titech.itpro.sds.fragile.MyEditText>
-            
-            <jp.ac.titech.itpro.sds.fragile.MyEditText
                 android:id="@+id/register_lastname"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/register_prompt_lastname"
                 android:inputType="textPersonName"
                 android:maxLines="1"
-                android:singleLine="true" />
-
-
+                android:singleLine="true" >
+            <requestFocus />
+            </jp.ac.titech.itpro.sds.fragile.MyEditText>
+            
+            <jp.ac.titech.itpro.sds.fragile.MyEditText
+                android:id="@+id/register_firstname"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/register_prompt_firstname"
+                android:inputType="textPersonName"
+                android:maxLines="1"
+                android:singleLine="true" >    
+            </jp.ac.titech.itpro.sds.fragile.MyEditText>
+            
             <jp.ac.titech.itpro.sds.fragile.MyEditText
                 android:id="@+id/register_email"
                 android:layout_width="match_parent"

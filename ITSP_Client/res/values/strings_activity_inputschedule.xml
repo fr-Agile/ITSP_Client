@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="title_activity_inputschedule">Input Schedule</string>
-    <string name="startTime">Start Time</string>
-    <string name="finishTime">Finish Time</string>
-    <string name="Set_Date">Set Date</string>
-    <string name="Set_StartTime">Set Start Time</string>
-    <string name="Set_FinishTime">Set Finish Time</string>
-    <string name="Done">Done</string>
+    <string name="title_activity_inputschedule">スケジュール入力</string>
+    <string name="startTime">開始時刻</string>
+    <string name="finishTime">終了時刻</string>
+    <string name="Set_Date">日付の設定</string>
+    <string name="Set_StartTime">開始時刻の設定</string>
+    <string name="Set_FinishTime">終了時刻の設定</string>
+    <string name="Done">完了</string>
     
      
      

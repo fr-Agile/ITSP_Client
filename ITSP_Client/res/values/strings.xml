@@ -1,17 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">simplechat</string>
-    <string name="action_settings">Settings</string>
-    <string name="hello_world">Hello world!</string>
+    <string name="app_name">FrAgileアプリ</string>
+    <string name="action_settings">設定</string>
     <string name="message_logged_in">メニュー</string>
     <string name="logged_title">ユーザーページ</string>
-    <string name="back">戻る</string>    
-    <string name="button_go_to_friend">友人登録画面</string>
-    <string name="button_go_to_inputschedule">スケジュール登録画面</string>
-    <string name="button_go_to_register">新規登録画面</string>
-    <string name="button_go_to_login">ログイン画面</string>
-    <string name="button_go_to_schedule">スケジュール表示画面</string>
+    <string name="back">トップへ戻る</string>    
+    <string name="button_go_to_friend">友人登録</string>
+    <string name="button_go_to_inputschedule">スケジュール登録</string>
+    <string name="button_go_to_register">新規登録</string>
+    <string name="button_go_to_login">ログイン</string>
+    <string name="button_go_to_schedule">スケジュール表示</string>
     <string name="welcome_menu">メニュー画面へようこそ</string>        
 
 </resources>

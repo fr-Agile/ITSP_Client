@@ -100,12 +100,6 @@ public class RegisterActivity extends Activity {
 				});
 	}
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		super.onCreateOptionsMenu(menu);
-		getMenuInflater().inflate(R.menu.login, menu);
-		return true;
-	}
 
 	/**
 	 * Attempts to sign in or register the account specified by the register form.
