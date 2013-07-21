@@ -54,12 +54,16 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/friend_regist" />
-            
             <Button
                 android:id="@+id/go_to_logged_from_friend"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/back" />
+            <Button
+                android:id="@+id/friend_email"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="アドレス帳から" />
         </LinearLayout>
 </ScrollView>
 </merge>

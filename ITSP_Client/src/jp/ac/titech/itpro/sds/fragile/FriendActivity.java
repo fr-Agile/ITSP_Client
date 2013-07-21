@@ -5,11 +5,16 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.ContactsContract;
+import android.provider.ContactsContract.Contacts;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
@@ -27,6 +32,8 @@ import com.google.api.services.friendEndpoint.model.FriendResultV1Dto;
  * well.
  */
 public class FriendActivity extends Activity {
+	private static final int REQUEST_PICK_CONTACT = 1;
+
 	/**
 	 * Keep track of the register task to ensure we can cancel it if requested.
 	 */
@@ -79,7 +86,15 @@ public class FriendActivity extends Activity {
 	    mFriendFormView = findViewById(R.id.friendreg_form);  //レイアウト全体
 	    mFriendStatusView = findViewById(R.id.friendreg_status);
 	    mFriendStatusMessageView = (TextView) findViewById(R.id.friendreg_status_message);
-		
+		//ボタン作成
+	    Button email_btn = (Button)findViewById(R.id.friend_email);
+	    email_btn.setOnClickListener(new View.OnClickListener() {
+			@Override
+	    	public void onClick(View v) {  //ログイン画面へ遷移
+				Intent intent = new Intent(Intent.ACTION_PICK, Contacts.CONTENT_URI);
+				startActivityForResult(intent, REQUEST_PICK_CONTACT);
+	    	}
+	    });
 		}
 
 		/**
@@ -165,6 +180,26 @@ public class FriendActivity extends Activity {
 			}
 		}
 		
+		public void onActivityResult(int requestCode, int resultCode, Intent returnedIntent) {
+			super.onActivityResult(requestCode, resultCode, returnedIntent);
+			String email = "";
+			Uri result = returnedIntent.getData();
+			String id = result.getLastPathSegment();
+			if (resultCode == Activity.RESULT_OK) {
+				ContentResolver resolver = getContentResolver();
+				Cursor mailCursor = resolver.query(
+						ContactsContract.CommonDataKinds.Email.CONTENT_URI,
+						null,
+						ContactsContract.CommonDataKinds.Email.CONTACT_ID + " = ? ",
+						new String[]{id}, null);
+						
+				while(mailCursor.moveToNext()) {
+					email = mailCursor.getString(mailCursor.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA1));
+				}
+				mailCursor.close();
+			}
+			fEmailView.setText(email);
+		}
 
 		/**
 		 * Represents an asynchronous login/registration task used to authenticate
