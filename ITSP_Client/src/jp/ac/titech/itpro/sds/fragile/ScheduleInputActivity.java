@@ -1,43 +1,41 @@
 package jp.ac.titech.itpro.sds.fragile;
 
+import java.text.DateFormat;
 import java.util.Calendar;
-import java.util.Date;
 
+import jp.ac.titech.itpro.sds.fragile.api.RemoteApi;
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-
-import com.google.api.services.friendEndpoint.FriendEndpoint;
-import com.google.api.services.friendEndpoint.FriendEndpoint.FriendV1Endpoint.Friendship;
-import com.google.api.services.scheduleEndpoint.ScheduleEndpoint;
-import com.google.api.services.scheduleEndpoint.ScheduleEndpoint.ScheduleV1EndPoint.CreateSchedule;
-import com.google.api.services.scheduleEndpoint.model.ScheduleResultV1Dto;
-
-import jp.ac.titech.itpro.sds.fragile.RegisterActivity.UserRegisterTask;
-import jp.ac.titech.itpro.sds.fragile.api.RemoteApi;
-
-
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
+
+import com.google.api.services.scheduleEndpoint.ScheduleEndpoint;
+import com.google.api.services.scheduleEndpoint.ScheduleEndpoint.ScheduleV1EndPoint.CreateSchedule;
+import com.google.api.services.scheduleEndpoint.model.ScheduleResultV1Dto;
 
 public class ScheduleInputActivity extends Activity{
 		
+	private static final String TAG = "ScheduleInputActivity";
 	private Button doneBtn;
 	private long scheduleStartTime;
 	private long scheduleFinishTime;
 	private String mEmail;
 	
+//	private View mLoginFormView;
+//	private View mLoginStatusView;
+//	private TextView mLoginStatusMessageView;
+	
 	private static String SUCCESS = "success";
-	private static String FAIL = "fail";
+//	private static String FAIL = "fail";
 	
 	private ScheduleInputTask mAuthTask = null;
 	
@@ -142,6 +140,8 @@ public class ScheduleInputActivity extends Activity{
 		}
 	}
 	
+	
+	
 	public class ScheduleInputTask extends AsyncTask<Void, Void, Boolean> {
 		@Override
 		protected Boolean doInBackground(Void... args) {
@@ -149,7 +149,7 @@ public class ScheduleInputActivity extends Activity{
 			try {
 				SharedPreferences pref = getSharedPreferences("user", Activity.MODE_PRIVATE);
 				mEmail = pref.getString("email","");	
-				Log.d("vietDebug","time:"+ scheduleStartTime + " and " + scheduleFinishTime + "email:" +mEmail);
+				Log.d(TAG,"time:"+ scheduleStartTime + " and " + scheduleFinishTime + "email:" +mEmail);
 				ScheduleEndpoint endpoint = RemoteApi.getScheduleEndpoint();
 				CreateSchedule schedule = endpoint.scheduleV1EndPoint().createSchedule(
 						scheduleStartTime, scheduleFinishTime, mEmail);
@@ -163,15 +163,18 @@ public class ScheduleInputActivity extends Activity{
 
 				
 				if (SUCCESS.equals(result.getResult())) {
-					Log.d("vietDebug", "successed");
+//					Toast.makeText(getApplicationContext(),"Successed",Toast.LENGTH_SHORT).show();
+					Log.d(TAG, "Successed");
 					return true;
 				} else {
-					Log.d("vietDebug", "failed");
+//					Toast.makeText(getApplicationContext(),"Failed",Toast.LENGTH_SHORT).show();
+					Log.d(TAG, "Failed");
 					return false;
 				}
 
 			} catch (Exception e) {
-				Log.d("vietDebug", "failed with exception:" + e);
+				Toast.makeText(getApplicationContext(),"Failed with exception:" + e,Toast.LENGTH_SHORT).show();
+				Log.d(TAG, "failed with exception:" + e);
 				return false;
 			}
 		}
@@ -179,11 +182,12 @@ public class ScheduleInputActivity extends Activity{
 		@Override
 		protected void onPostExecute(final Boolean success) {
 			mAuthTask = null;
-
 			if (success) {
-				Log.d("vietDebug", "post successed");
+				Log.d(TAG, "post successed");
+				Toast.makeText(getApplicationContext(),"Successed",Toast.LENGTH_SHORT).show();
 			} else {
-				Log.d("vietDebug", "post failed");
+				Log.d(TAG, "post failed");
+				Toast.makeText(getApplicationContext(),"Failed",Toast.LENGTH_SHORT).show();
 			}
 		}
 
@@ -197,3 +201,44 @@ public class ScheduleInputActivity extends Activity{
 
 //Debug
 //Log.d("vietDebug", "click done button");
+
+///**
+// * Shows the progress UI and hides the login form.
+// */
+//@TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
+//private void showProgress(final boolean show) {
+//	// On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
+//	// for very easy animations. If available, use these APIs to fade-in
+//	// the progress spinner.
+//	if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
+//		int shortAnimTime = getResources().getInteger(
+//				android.R.integer.config_shortAnimTime);
+//
+//		mLoginStatusView.setVisibility(View.VISIBLE);
+//		mLoginStatusView.animate().setDuration(shortAnimTime)
+//				.alpha(show ? 1 : 0)
+//				.setListener(new AnimatorListenerAdapter() {
+//					@Override
+//					public void onAnimationEnd(Animator animation) {
+//						mLoginStatusView.setVisibility(show ? View.VISIBLE
+//								: View.GONE);
+//					}
+//				});
+//
+//		mLoginFormView.setVisibility(View.VISIBLE);
+//		mLoginFormView.animate().setDuration(shortAnimTime)
+//				.alpha(show ? 0 : 1)
+//				.setListener(new AnimatorListenerAdapter() {
+//					@Override
+//					public void onAnimationEnd(Animator animation) {
+//						mLoginFormView.setVisibility(show ? View.GONE
+//								: View.VISIBLE);
+//					}
+//				});
+//	} else {
+//		// The ViewPropertyAnimator APIs are not available, so simply show
+//		// and hide the relevant UI components.
+//		mLoginStatusView.setVisibility(show ? View.VISIBLE : View.GONE);
+//		mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+//	}
+//}
