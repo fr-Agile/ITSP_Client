@@ -178,7 +178,6 @@ public class ScheduleActivity extends Activity {
 				if(schedules.size() > 0){
 					for(final ScheduleV1Dto schedule: schedules){
 						mHandler.post(new Runnable() {
-							@Override
 							public void run() {
 								displaySchedule(schedule.getStartTime(), schedule.getFinishTime());
 							}

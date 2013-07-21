@@ -1,44 +1,129 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical" >
-    <TextView
-        android:id="@+id/startTimeTxt"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/startTime" />
-    <TextView
-        android:id="@+id/finishTimeTxt"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/finishTime" />
-    <Button
-        android:id="@+id/dateBtn"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/Set_Date"
-        />
-    <Button
-        android:id="@+id/startTimeBtn"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/Set_StartTime"
-        />
-    
-    <Button
-        android:id="@+id/finishTimeBtn"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/Set_FinishTime"
-        />
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".ScheduleInputAcitivity" >
 
-    <Button
-        android:id="@+id/doneBtn"
+    <!-- Input Schedule progress -->
+
+    <LinearLayout
+        android:id="@+id/spinView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="center"
         android:gravity="center_horizontal"
-        android:layout_gravity="center_horizontal"
-        android:text="@string/Done" />
+        android:orientation="vertical"
+        android:visibility="gone" >
 
-</LinearLayout>
+        <ProgressBar
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:id="@+id/spinView_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:fontFamily="sans-serif-light"
+            android:text="@string/input_schedule_progress"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+    </LinearLayout>
+
+    <!-- Input Schedule form -->
+
+    <LinearLayout
+        android:id="@+id/inputScheduleView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical" >
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:id="@+id/dateTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/dateTxt"
+                android:textSize="26sp" />
+
+            <DatePicker
+                android:id="@+id/datePicker1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:orientation="vertical" >
+
+                <TextView
+                    android:id="@+id/startTimeTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/startTimeTxt"
+                    android:layout_gravity="center_horizontal"
+                    android:textSize="26sp" />
+
+                <TimePicker
+                    android:id="@+id/timePicker1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:orientation="vertical" >
+
+                <TextView
+                    android:id="@+id/finishTimeTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/finishTimeTxt"
+                    android:layout_gravity="center_horizontal"
+                    android:textSize="26sp" />
+
+                <TimePicker
+                    android:id="@+id/timePicker2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/doneBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="@string/Done" />
+
+        <Button
+            android:id="@+id/showScheduleViewBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="@string/showScheduleViewLabel" />
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
+
+</merge>
+
+

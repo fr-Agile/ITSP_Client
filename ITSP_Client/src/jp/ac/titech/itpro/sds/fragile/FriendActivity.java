@@ -100,8 +100,7 @@ OnNdefPushCompleteCallback{
 		//ボタン作成
 	    Button email_btn = (Button)findViewById(R.id.friend_email);
 	    email_btn.setOnClickListener(new View.OnClickListener() {
-			@Override
-	    	public void onClick(View v) {  //ログイン画面へ遷移
+			public void onClick(View v) {  //ログイン画面へ遷移
 				Intent intent = new Intent(Intent.ACTION_PICK, Contacts.CONTENT_URI);
 				startActivityForResult(intent, REQUEST_PICK_CONTACT);
 	    	}
@@ -306,7 +305,6 @@ OnNdefPushCompleteCallback{
 	        fEmailView.setText(fEmail);
 		}
 		
-		@Override
 		public void onNdefPushComplete(NfcEvent event) {
 			Log.d("DEBUG", "onNdefComplete");
 		}
@@ -314,7 +312,6 @@ OnNdefPushCompleteCallback{
 		/*
 		 * android beam が起動した時の処理
 		 */
-		@Override
 		public NdefMessage createNdefMessage(NfcEvent event) {
 			NdefMessage msg = null;
 			String myemail = pref.getString("email","");
