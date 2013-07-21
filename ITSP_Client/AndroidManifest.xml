@@ -59,6 +59,10 @@
             android:name=".ScheduleActivity"
             android:label="@string/title_activity_schedule">
         </activity>
+        <activity
+            android:name=".ShareTimeActivity"
+            android:label="@string/title_activity_schedule">
+        </activity>
     </application>
 
 </manifest>

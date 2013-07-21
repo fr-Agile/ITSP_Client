@@ -1,17 +1,15 @@
 package jp.ac.titech.itpro.sds.fragile;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import jp.ac.titech.itpro.sds.fragile.GetFriendTask.GetFriendFinishListener;
-import jp.ac.titech.itpro.sds.fragile.api.RemoteApi;
+import jp.ac.titech.itpro.sds.fragile.GetShareTimeTask.GetShareTimeFinishListener;
 
 import com.google.api.services.getFriendEndpoint.model.GetFriendResultV1Dto;
 import com.google.api.services.getFriendEndpoint.model.UserV1Dto;
-import com.google.api.services.getShareTimeEndpoint.GetShareTimeEndpoint;
-import com.google.api.services.getShareTimeEndpoint.GetShareTimeEndpoint.GetShareTimeV1Endpoint.GetShareTime;
 import com.google.api.services.getShareTimeEndpoint.model.GetShareTimeV1ResultDto;
+import com.google.api.services.getShareTimeEndpoint.model.GroupScheduleV1Dto;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -26,13 +24,9 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class ShareTimeActivity extends Activity implements GetFriendFinishListener {
-	/**
-	 * Keep track of the register task to ensure we can cancel it if requested.
-	 */
-	private UserRegisterTask mAuthTask = null;
+public class ShareTimeActivity extends Activity 
+							implements GetFriendFinishListener, GetShareTimeFinishListener {
 
-	// Values for firstName, lastName, email, password at the time of the register attempt.
 	private String mUserEmail;
 	private String mEmailCSV;
 	private long mStartTime;
@@ -65,7 +59,7 @@ public class ShareTimeActivity extends Activity implements GetFriendFinishListen
                 ListView listView = (ListView) parent;
                 // クリックされたアイテムを取得します
                 String item = (String) listView.getItemAtPosition(position);
-                mShareTimeTextView.setText(item);
+                getShareTimeWith(item);
             }
         });
 
@@ -78,11 +72,8 @@ public class ShareTimeActivity extends Activity implements GetFriendFinishListen
 	 */
 	private void initFriendList() {
 		try {
-			/*
 			SharedPreferences pref = getSharedPreferences("user", Activity.MODE_PRIVATE);
-			String userEmail = pref.getString("email", "");
-			*/
-			mUserEmail = "test@test.com";
+			mUserEmail = pref.getString("email", "");
 			
 			// friendのemailリストを取得する
 			GetFriendTask task = new GetFriendTask(this);
@@ -120,61 +111,47 @@ public class ShareTimeActivity extends Activity implements GetFriendFinishListen
 	}
 	
 	/**
-	 * Attempts to sign in or register the account specified by the register form.
-	 * If there are form errors (invalid email, missing fields, etc.), the
-	 * errors are presented and no actual register attempt is made.
+	 * 
 	 */
-	public void attemptRegister() {
-		if (mAuthTask != null) {
-			return;
+	public void getShareTimeWith(String friendEmail) {
+		try {
+			String emailCSV = mUserEmail + "," + friendEmail;
+			
+			// 共通空き時間を取得する
+			GetShareTimeTask task = new GetShareTimeTask(this);
+			task.setEmailCSV(emailCSV);
+			task.setStartTime(0);
+			task.setFinishTime(20);
+			task.execute();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			Log.d("DEBUG", "GetShareTime fail");
 		}
-
-		mAuthTask = new UserRegisterTask();
-		mAuthTask.execute((Void) null);
 	}
 	
 
-	
 	/**
-	 * Represents an asynchronous registration task used to authenticate
-	 * the user.
+	 * 共通空き時間を取得後の処理
 	 */
-	public class UserRegisterTask extends AsyncTask<Void, Void, Boolean> {
-		@Override
-		protected Boolean doInBackground(Void... args) {
-
-			try {
-				GetShareTimeEndpoint endpoint = RemoteApi.getGetShareTimeEndpoint();
-				GetShareTime getShareTime = endpoint.getShareTimeV1Endpoint().getShareTime(
-						mEmailCSV, mStartTime, mFinishTime);
-				GetShareTimeV1ResultDto result = getShareTime.execute();
-
-				
-				if (SUCCESS.equals(result.getResult())) {
-					return true;
-				} else {
-					return false;
-				}
-			} catch (Exception e) {
-				return false;
-			}
-		}
-
-		@Override
-		protected void onPostExecute(final Boolean success) {
-			mAuthTask = null;
-
-			if (success) {
-				Log.d("DEBUG", "getShareTime success");
-				//startActivity(new Intent(RegisterActivity.this, RegisteredActivity.class));
-				finish();
-			}
-		}
-
-		@Override
-		protected void onCancelled() {
-			mAuthTask = null;
-		}
+	@Override
+	public void onFinish(GetShareTimeV1ResultDto result) {
+		showSharetime(result);
 	}
-
+	
+	private void showSharetime(GetShareTimeV1ResultDto result) {
+		String str = "";
+		String BR = System.getProperty("line.separator");
+		
+		for (GroupScheduleV1Dto gs : result.getGroupScheduleList()) {
+			str += gs.getStartTime() + ", " + gs.getFinishTime();
+			if (gs.getUserList() != null) {
+				for (com.google.api.services.getShareTimeEndpoint.model.UserV1Dto user : gs.getUserList()) {
+					str += ", " + user.getEmail();
+				}
+			}
+			str += BR;
+		}
+        mShareTimeTextView.setText(str);
+	}
 }

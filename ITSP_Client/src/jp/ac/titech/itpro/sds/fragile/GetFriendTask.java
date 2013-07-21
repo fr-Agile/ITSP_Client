@@ -41,11 +41,11 @@ public class GetFriendTask extends AsyncTask<String, Void, GetFriendResultV1Dto>
 	@Override
 	protected void onPostExecute(final GetFriendResultV1Dto result) {
 		if (result == null) {
-			Log.d("DEBUG", "initTask fail");
+			Log.d("DEBUG", "getFriendTask fail");
 		} else if (SUCCESS.equals(result.getResult())) {
-			Log.d("DEBUG", "initTask success");
+			Log.d("DEBUG", "getFriendTask success");
 		} else {
-			Log.d("DEBUG", "initTask fail");
+			Log.d("DEBUG", "getFriendTask fail");
 		}
 		if (listener != null) {
 			listener.onFinish(result);
