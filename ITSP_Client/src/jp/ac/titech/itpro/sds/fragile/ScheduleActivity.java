@@ -13,6 +13,7 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
@@ -44,6 +45,8 @@ public class ScheduleActivity extends Activity {
 	private Long endOfWeek;
 	private int dayOfSunday;
 	
+	private Handler mHandler;
+	
 	private GetScheduleTask mCalTask = null; 
 	
 	@Override
@@ -57,6 +60,9 @@ public class ScheduleActivity extends Activity {
 	    		startActivity(new Intent(ScheduleActivity.this, ScheduleInputActivity.class));
 	    	}
 	    });
+	    
+	    // ハンドラを取得
+	    mHandler = new Handler();
 		
 		// 現在の時刻情報を色々取得
 		Calendar now = Calendar.getInstance();
@@ -170,8 +176,14 @@ public class ScheduleActivity extends Activity {
 				List<ScheduleV1Dto> schedules = getSchedule.execute().getItems();
 				
 				if(schedules.size() > 0){
-					for(ScheduleV1Dto schedule: schedules){
-						displaySchedule(schedule.getStartTime(), schedule.getFinishTime());
+					for(final ScheduleV1Dto schedule: schedules){
+						mHandler.post(new Runnable() {
+							@Override
+							public void run() {
+								displaySchedule(schedule.getStartTime(), schedule.getFinishTime());
+							}
+							
+						});
 					}
 
 					return true;

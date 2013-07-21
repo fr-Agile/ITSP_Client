@@ -128,6 +128,8 @@ public class ScheduleInputActivity extends Activity{
 			dateTime.set(Calendar.MINUTE,minute);
 			finishTimeLabel.setText(formatDateTime.format(dateTime.getTime()));
 			scheduleFinishTime = dateTime.getTime().getTime();
+			Log.d("DEBUG", Integer.toString(dateTime.get(Calendar.DAY_OF_MONTH)));
+			int i = dateTime.get(Calendar.DAY_OF_MONTH);
 			setButtonEnable();
 		}
 	};
@@ -152,6 +154,12 @@ public class ScheduleInputActivity extends Activity{
 				CreateSchedule schedule = endpoint.scheduleV1EndPoint().createSchedule(
 						scheduleStartTime, scheduleFinishTime, mEmail);
 				ScheduleResultV1Dto result = schedule.execute();
+				
+				Calendar test = Calendar.getInstance();
+				test.setTimeInMillis(scheduleStartTime);
+				int i = test.get(Calendar.DAY_OF_MONTH);
+				int j = test.get(Calendar.HOUR_OF_DAY);
+				int k = test.get(Calendar.MINUTE);
 
 				
 				if (SUCCESS.equals(result.getResult())) {
