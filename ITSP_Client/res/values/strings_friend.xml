@@ -7,4 +7,7 @@
     <string name="error_f_nullmy">再ログインしてください</string>
     <string name="error_f_nof">該当するユーザーが存在しません</string>
     <string name="error_f_empty">入力して下さい</string>
+    <string name="friend_progress_registering">Registering&#8230;</string>
+    <string name="friend_register_ok">友人登録成功</string>
+
 </resources>

@@ -1,6 +1,5 @@
 package jp.ac.titech.itpro.sds.fragile;
 
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -9,7 +8,7 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
-
+import android.widget.TextView;
 
 public class LoggedActivity extends Activity {
 
@@ -17,6 +16,13 @@ public class LoggedActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_logged);
+		
+		//遷移元からメッセージを受け取っている場合
+		Intent intent = getIntent();
+		if(intent.getStringExtra(FriendActivity.EXTRA_MESSAGE) != null){
+			TextView msg = (TextView)findViewById(R.id.menu_message);
+			msg.setText(intent.getStringExtra(FriendActivity.EXTRA_MESSAGE));
+		}
 		
 		//ボタン作成
 	    Button friend_btn = (Button)findViewById(R.id.go_to_friend_from_logged);

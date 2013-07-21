@@ -12,7 +12,7 @@ public class MainActivity extends Activity {
 
         super.onCreate(savedInstanceState);
 
-        Intent intent = new Intent(this, ScheduleActivity.class);
+        Intent intent = new Intent(this, LoginActivity.class);
 
         startActivity(intent);
     }

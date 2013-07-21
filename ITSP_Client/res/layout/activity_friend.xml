@@ -3,8 +3,36 @@
     android:layout_width="wrap_content"
     android:layout_height="match_parent"
     tools:context=".FriendActivity" >
+    
+    <!-- Login progress -->
+
+    <LinearLayout
+        android:id="@+id/friendreg_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:visibility="gone" >
+
+        <ProgressBar
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:id="@+id/friendreg_status_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:fontFamily="sans-serif-light"
+            android:text="@string/friend_progress_registering"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+    </LinearLayout>
 
     <ScrollView
+        android:id="@+id/friendreg_form"
         android:layout_width="match_parent"
         android:layout_height="match_parent" >
        
@@ -26,6 +54,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/friend_regist" />
+            
+            <Button
+                android:id="@+id/go_to_logged_from_friend"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/back" />
         </LinearLayout>
 </ScrollView>
 </merge>
