@@ -11,6 +11,7 @@
     <string name="button_go_to_inputschedule">スケジュール登録画面</string>
     <string name="button_go_to_register">新規登録画面</string>
     <string name="button_go_to_login">ログイン画面</string>
+    <string name="button_go_to_schedule">スケジュール表示画面</string>
     <string name="welcome_menu">メニュー画面へようこそ</string>        
 
 </resources>
