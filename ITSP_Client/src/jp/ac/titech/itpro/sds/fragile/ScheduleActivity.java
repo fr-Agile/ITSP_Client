@@ -161,7 +161,7 @@ public class ScheduleActivity extends Activity {
 				
 				if(schedules.size() > 0){
 					for(ScheduleV1Dto schedule: schedules){
-						displaySchedule(Long.parseLong(schedule.getStartTime()), Long.parseLong(schedule.getFinishTime()));
+						displaySchedule(schedule.getStartTime(), schedule.getFinishTime());
 					}
 
 					return true;
