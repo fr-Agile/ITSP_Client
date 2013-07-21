@@ -4,7 +4,13 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context=".ScheduleActivity" >
-
+    
+    <Button 
+        android:id="@+id/go_to_inputschedule_from_schedule"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/button_go_to_inputschedule" />
+    
     <GridView
         android:id="@+id/gridView1"
         android:layout_width="match_parent"

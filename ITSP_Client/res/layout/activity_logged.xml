@@ -21,12 +21,6 @@
         android:text="@string/button_go_to_friend" />
     
     <Button 
-        android:id="@+id/go_to_inputschedule_from_logged"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/button_go_to_inputschedule" />
-    
-    <Button 
         android:id="@+id/go_to_schedule_from_logged"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

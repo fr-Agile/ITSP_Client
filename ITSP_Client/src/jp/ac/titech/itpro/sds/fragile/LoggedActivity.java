@@ -31,12 +31,6 @@ public class LoggedActivity extends Activity {
 	    		startActivity(new Intent(LoggedActivity.this, FriendActivity.class));
 	    	}
 	    });
-	    Button scheduleinput_btn = (Button)findViewById(R.id.go_to_inputschedule_from_logged);
-	    scheduleinput_btn.setOnClickListener(new View.OnClickListener() {
-	    	public void onClick(View v) {   //スケジュール登録画面へ遷移
-	    		startActivity(new Intent(LoggedActivity.this, ScheduleInputActivity.class));
-	    	}
-	    });
 	    Button schedule_btn = (Button)findViewById(R.id.go_to_schedule_from_logged);
 	    schedule_btn.setOnClickListener(new View.OnClickListener() {
 	    	public void onClick(View v) {   //スケジュール表示画面へ遷移

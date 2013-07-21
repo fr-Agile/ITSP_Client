@@ -8,12 +8,15 @@ import jp.ac.titech.itpro.sds.fragile.utils.CalendarAdapter;
 import jp.ac.titech.itpro.sds.fragile.utils.DayAdapter;
 import jp.ac.titech.itpro.sds.fragile.utils.TimeAdapter;
 import android.app.Activity;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.GridView;
 import android.widget.TextView;
@@ -47,6 +50,13 @@ public class ScheduleActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_schedule);
+		
+		Button scheduleinput_btn = (Button)findViewById(R.id.go_to_inputschedule_from_schedule);
+	    scheduleinput_btn.setOnClickListener(new View.OnClickListener() {
+	    	public void onClick(View v) {   //スケジュール登録画面へ遷移
+	    		startActivity(new Intent(ScheduleActivity.this, ScheduleInputActivity.class));
+	    	}
+	    });
 		
 		// 現在の時刻情報を色々取得
 		Calendar now = Calendar.getInstance();
