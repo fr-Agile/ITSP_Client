@@ -1,5 +1,11 @@
 package jp.ac.titech.itpro.sds.fragile;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.UnsupportedEncodingException;
+
 import jp.ac.titech.itpro.sds.fragile.api.RemoteApi;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -10,9 +16,16 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
+import android.nfc.NdefMessage;
+import android.nfc.NdefRecord;
+import android.nfc.NfcAdapter;
+import android.nfc.NfcEvent;
+import android.nfc.NfcAdapter.CreateNdefMessageCallback;
+import android.nfc.NfcAdapter.OnNdefPushCompleteCallback;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.Contacts;
 import android.text.TextUtils;
@@ -31,7 +44,8 @@ import com.google.api.services.friendEndpoint.model.FriendResultV1Dto;
  * Activity which displays a login screen to the user, offering registration as
  * well.
  */
-public class FriendActivity extends Activity {
+public class FriendActivity extends Activity implements CreateNdefMessageCallback,
+OnNdefPushCompleteCallback{
 	private static final int REQUEST_PICK_CONTACT = 1;
 
 	/**
@@ -41,6 +55,8 @@ public class FriendActivity extends Activity {
 
 	private String fEmail;
 	private View focusView = null;
+	private NfcAdapter mNfcAdapter;
+	private SharedPreferences pref;
 	
 	//フレンド登録成功かどうかのメッセージを渡すためのラベル
 	public final static String EXTRA_MESSAGE = "Friend_register_check_message";
@@ -65,7 +81,7 @@ public class FriendActivity extends Activity {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.activity_friend);
-
+		pref = getSharedPreferences("user", Activity.MODE_PRIVATE);
 		fEmailView = (EditText) findViewById(R.id.femail);
 		findViewById(R.id.friend_regist).setOnClickListener(
 				new View.OnClickListener() {
@@ -95,17 +111,23 @@ public class FriendActivity extends Activity {
 				startActivityForResult(intent, REQUEST_PICK_CONTACT);
 	    	}
 	    });
-		}
+	
+	    mNfcAdapter = NfcAdapter.getDefaultAdapter(this);	 	
+	    if (mNfcAdapter != null) {
+	    	mNfcAdapter.setNdefPushMessageCallback(this, this);
+	    	mNfcAdapter.setOnNdefPushCompleteCallback(this, this);
+	    }
+	}
 
 		/**
 		 * Attempts to sign in or register the account specified by the login form.
 		 * If there are form errors (invalid email, missing fields, etc.), the
 		 * errors are presented and no actual login attempt is made.
 		 */
-		public void attemptFriend() {
-			if (mAuthTask != null) {
-				return;
-			}
+	public void attemptFriend() {
+		if (mAuthTask != null) {
+			return;
+		}
 
 			// Reset errors.
 			fEmailView.setError(null);
@@ -185,7 +207,7 @@ public class FriendActivity extends Activity {
 			String email = "";
 			Uri result = returnedIntent.getData();
 			String id = result.getLastPathSegment();
-			if (resultCode == Activity.RESULT_OK) {
+			if (requestCode == REQUEST_PICK_CONTACT && resultCode == Activity.RESULT_OK) {
 				ContentResolver resolver = getContentResolver();
 				Cursor mailCursor = resolver.query(
 						ContactsContract.CommonDataKinds.Email.CONTENT_URI,
@@ -210,8 +232,6 @@ public class FriendActivity extends Activity {
 			protected Boolean doInBackground(Void... args) {
 
 				try {
-					SharedPreferences pref = getSharedPreferences("user", Activity.MODE_PRIVATE);
-				
 					FriendEndpoint endpoint = RemoteApi.getFriendEndpoint();
 					Friendship friend = endpoint.friendV1Endpoint().friendship(fEmail,
 							pref.getString("email",""));
@@ -263,5 +283,56 @@ public class FriendActivity extends Activity {
 				mAuthTask = null;
 				showProgress(false);
 			}
+		}
+		
+		@Override
+		public void onResume() {
+			super.onResume();
+	        // Check to see that the Activity started due to an Android Beam
+	        if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(getIntent().getAction())) {
+	            processIntent(getIntent());
+	        }
+		}
+		
+		// android beam を受け取った時の処理
+		private void processIntent(Intent intent) {
+	        Parcelable[] rawMsgs = intent.getParcelableArrayExtra(
+	                NfcAdapter.EXTRA_NDEF_MESSAGES);
+	        // only one message sent during the beam
+	        NdefMessage msg = (NdefMessage) rawMsgs[0];
+	        
+	        byte[] data = msg.getRecords()[0].getPayload();
+	        try {
+				fEmail = new String(data,"UTF-8");
+			} catch (UnsupportedEncodingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} 
+	        fEmailView.setText(fEmail);
+		}
+		
+		@Override
+		public void onNdefPushComplete(NfcEvent event) {
+			Log.d("DEBUG", "onNdefComplete");
+		}
+		
+		/*
+		 * android beam が起動した時の処理
+		 */
+		@Override
+		public NdefMessage createNdefMessage(NfcEvent event) {
+			NdefMessage msg = null;
+			String myemail = pref.getString("email","");
+			if (myemail != null) {
+				byte[] data;
+				try { 
+				    data = myemail.getBytes("UTF-8");
+					msg = new NdefMessage(NdefRecord.createMime(
+							"application/jp.ac.titech.itpro.sds.fragile", data));
+				} catch (Exception e) {
+					Log.d("DEBUG", "serialize fail");
+				}
+			}
+			return msg;
 		}
 }
