@@ -7,7 +7,10 @@ import jp.ac.titech.itpro.sds.fragile.api.RemoteApi;
 import jp.ac.titech.itpro.sds.fragile.utils.CalendarAdapter;
 import jp.ac.titech.itpro.sds.fragile.utils.DayAdapter;
 import jp.ac.titech.itpro.sds.fragile.utils.TimeAdapter;
+import android.animation.AnimatorSet.Builder;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -60,6 +63,8 @@ public class ScheduleActivity extends Activity {
 	    		startActivity(new Intent(ScheduleActivity.this, ScheduleInputActivity.class));
 	    	}
 	    });
+	    initShareTimeBtn();
+		
 	    
 	    // ハンドラを取得
 	    mHandler = new Handler();
@@ -68,9 +73,10 @@ public class ScheduleActivity extends Activity {
 		Calendar now = Calendar.getInstance();
 		Calendar sunday = Calendar.getInstance();
 		Calendar saturday = Calendar.getInstance();
-		dayOfSunday = now.get(Calendar.DAY_OF_MONTH) - now.get(Calendar.DAY_OF_WEEK) - Calendar.SUNDAY;
+		dayOfSunday = now.get(Calendar.DAY_OF_MONTH) - now.get(Calendar.DAY_OF_WEEK) + Calendar.SUNDAY;
 		sunday.set(Calendar.DAY_OF_MONTH, dayOfSunday);
 		saturday.set(Calendar.DAY_OF_MONTH, dayOfSunday + 6);
+		// TODO 00:00スタート、23:59終了にする
 		beginOfWeek = sunday.getTime().getTime();
 		endOfWeek = saturday.getTime().getTime();
 
@@ -117,28 +123,54 @@ public class ScheduleActivity extends Activity {
 		displayCalendar(); // スケジュールを四角で表示
 	}
 	
-	private void displaySchedule(Long startTime, Long finishTime){
+	private void initShareTimeBtn() {
+		Button sharetime_btn = (Button)findViewById(R.id.go_to_sharetime_from_schedule);
+	    sharetime_btn.setOnClickListener(new View.OnClickListener() {
+	    	public void onClick(View v) {   
+	    		// 友人リストを取得
+	    		
+	    		
+	    		// 友人リストダイアログを表示
+	    		new AlertDialog.Builder(ScheduleActivity.this)
+	    		.setTitle("友達を選んでください")
+	    		.setItems(friend_list, new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						
+					}
+				});	
+	    	}
+	    });
+	}
+	
+	private void displaySchedule(Long startTime, Long finishTime) {
 		TextView sampleSched = new TextView(this);
 		int[] scheduleLayout = new int[3]; // scheduleの {x, y, height}
-		
+
 		Calendar start = Calendar.getInstance();
 		Calendar finish = Calendar.getInstance();
 		start.setTimeInMillis(startTime);
 		finish.setTimeInMillis(finishTime);
 
 		scheduleLayout[0] = start.get(Calendar.DAY_OF_MONTH) - dayOfSunday;
-		scheduleLayout[1] = start.get(Calendar.HOUR_OF_DAY) - 1; 
-		scheduleLayout[2] = finish.get(Calendar.HOUR_OF_DAY) - start.get(Calendar.HOUR_OF_DAY);
+		scheduleLayout[1] = start.get(Calendar.HOUR_OF_DAY);
+		scheduleLayout[2] = finish.get(Calendar.HOUR_OF_DAY)
+				- start.get(Calendar.HOUR_OF_DAY);
+
+		/* 5: 右側にあるなぞの隙間　たぶんバー？ */
+		int width = findViewById(R.id.gridView3).getWidth() - 5;
 
 		sampleSched.setText("sampleSchedule");
 		sampleSched.setBackgroundColor(Color.BLUE);
 		FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
-				(int)Math.ceil(78*metrics.scaledDensity), 
-				(int)Math.ceil(scheduleLayout[2]*50*metrics.scaledDensity));
-		lp.leftMargin = (int)Math.ceil(
-				78*metrics.scaledDensity*(scheduleLayout[0] + 1) + 40*metrics.scaledDensity);
-		lp.topMargin = (int)Math.ceil(
-				60*scheduleLayout[1]*metrics.scaledDensity);
+				(int) Math.ceil(width / 7.0),
+				(int) Math.ceil(scheduleLayout[2] * 1514 / 24.0
+						* metrics.scaledDensity));
+		lp.leftMargin = (int) Math.ceil(width / 7.0
+				* (scheduleLayout[0] + 1) + 40 * metrics.scaledDensity);
+		lp.topMargin = (int) Math.ceil(1514 * scheduleLayout[1] / 24.0
+				* metrics.scaledDensity);
 
 		sampleSched.setLayoutParams(lp);
 		mainFrame.addView(sampleSched);

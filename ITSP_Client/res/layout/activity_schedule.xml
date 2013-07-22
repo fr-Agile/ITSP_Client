@@ -5,11 +5,31 @@
     android:orientation="vertical"
     tools:context=".ScheduleActivity" >
     
-    <Button 
-        android:id="@+id/go_to_inputschedule_from_schedule"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/button_go_to_inputschedule" />
+	<FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp" >
+
+        
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" >
+
+	    <Button 
+	        android:id="@+id/go_to_inputschedule_from_schedule"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:text="@string/button_go_to_inputschedule" />
+	    
+        <Button
+            android:id="@+id/go_to_sharetime_from_schedule"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/button_go_to_sharetime" />
+
+    </LinearLayout>
+    
+    </FrameLayout>
     
     <GridView
         android:id="@+id/gridView1"
