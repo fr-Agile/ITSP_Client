@@ -37,12 +37,6 @@ public class LoggedActivity extends Activity {
 	    		startActivity(new Intent(LoggedActivity.this, ScheduleActivity.class));
 	    	}
 	    });
-	    Button sharetime_btn = (Button)findViewById(R.id.go_to_sharetime_from_logged);
-	    sharetime_btn.setOnClickListener(new View.OnClickListener() {
-	    	public void onClick(View v) {   //共通空き時間表示画面へ遷移
-	    		startActivity(new Intent(LoggedActivity.this, ShareTimeActivity.class));
-	    	}
-	    });
 	}
 	
 	@Override

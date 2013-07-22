@@ -1,8 +1,11 @@
 package jp.ac.titech.itpro.sds.fragile;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import jp.ac.titech.itpro.sds.fragile.GetFriendTask.GetFriendFinishListener;
+import jp.ac.titech.itpro.sds.fragile.GetShareTimeTask.GetShareTimeFinishListener;
 import jp.ac.titech.itpro.sds.fragile.api.RemoteApi;
 import jp.ac.titech.itpro.sds.fragile.utils.CalendarAdapter;
 import jp.ac.titech.itpro.sds.fragile.utils.DayAdapter;
@@ -25,11 +28,16 @@ import android.widget.FrameLayout;
 import android.widget.GridView;
 import android.widget.TextView;
 
+import com.google.api.services.getFriendEndpoint.model.GetFriendResultV1Dto;
+import com.google.api.services.getFriendEndpoint.model.UserV1Dto;
+import com.google.api.services.getShareTimeEndpoint.model.GetShareTimeV1ResultDto;
+import com.google.api.services.getShareTimeEndpoint.model.GroupScheduleV1Dto;
 import com.google.api.services.scheduleEndpoint.ScheduleEndpoint;
 import com.google.api.services.scheduleEndpoint.ScheduleEndpoint.ScheduleV1EndPoint.GetSchedule;
 import com.google.api.services.scheduleEndpoint.model.ScheduleV1Dto;
 
-public class ScheduleActivity extends Activity {
+public class ScheduleActivity extends Activity 
+	implements GetFriendFinishListener, GetShareTimeFinishListener {
 	private final String[] days = {"日", "月", "火", "水", "木", "金", "土"}; 
 	private String[] dayData = new String[7];
 	private String[] mainData = new String[7*24];
@@ -75,8 +83,16 @@ public class ScheduleActivity extends Activity {
 		Calendar saturday = Calendar.getInstance();
 		dayOfSunday = now.get(Calendar.DAY_OF_MONTH) - now.get(Calendar.DAY_OF_WEEK) + Calendar.SUNDAY;
 		sunday.set(Calendar.DAY_OF_MONTH, dayOfSunday);
+		sunday.set(Calendar.HOUR_OF_DAY, 0);
+		sunday.set(Calendar.MINUTE, 0);
+		sunday.set(Calendar.SECOND, 0);
+		sunday.set(Calendar.MILLISECOND, 0);
 		saturday.set(Calendar.DAY_OF_MONTH, dayOfSunday + 6);
-		// TODO 00:00スタート、23:59終了にする
+		saturday.set(Calendar.HOUR_OF_DAY, 23);
+		saturday.set(Calendar.MINUTE, 59);
+		saturday.set(Calendar.SECOND, 59);
+		saturday.set(Calendar.MILLISECOND, 999);
+		// 00:00スタート、23:59終了にする
 		beginOfWeek = sunday.getTime().getTime();
 		endOfWeek = saturday.getTime().getTime();
 
@@ -128,25 +144,105 @@ public class ScheduleActivity extends Activity {
 	    sharetime_btn.setOnClickListener(new View.OnClickListener() {
 	    	public void onClick(View v) {   
 	    		// 友人リストを取得
-	    		
-	    		
-	    		// 友人リストダイアログを表示
-	    		new AlertDialog.Builder(ScheduleActivity.this)
-	    		.setTitle("友達を選んでください")
-	    		.setItems(friend_list, new DialogInterface.OnClickListener() {
-					
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						
-					}
-				});	
+	    		getFriendList();
 	    	}
 	    });
 	}
+	/**
+	 * friend listを取得する
+	 */
+	private void getFriendList() {
+		try {
+			SharedPreferences pref = getSharedPreferences("user", Activity.MODE_PRIVATE);
+			String userEmail = pref.getString("email", "");
+			
+			// friendのemailリストを取得する
+			GetFriendTask task = new GetFriendTask(this);
+			task.execute(userEmail);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			Log.d("DEBUG", "get friend fail");
+		}
+	}
+	/**
+	 * GetFriendTask終了後の処理
+	 */
+	@Override
+	public void onFinish(GetFriendResultV1Dto result) {
+		try {
+			if (result != null) {
+				final List<String> friendEmailList = new ArrayList<String>();
+				List<UserV1Dto> friendList = result.getFriendList();
+				for (UserV1Dto friend : friendList) {
+					friendEmailList.add(friend.getEmail());
+				}
+				String[] emailStrList = friendEmailList.toArray(new String[friendEmailList.size()]);
+	    		// 友人リストダイアログを表示
+	    		new AlertDialog.Builder(ScheduleActivity.this)
+	    		.setTitle("友達を選んでください")
+	    		.setItems(emailStrList, new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						// 共通空き時間を検索
+						getShareTimeWith(friendEmailList.get(which));
+					}
+	    		}).show();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+		
+	/**
+	 * 
+	 */
+	public void getShareTimeWith(String friendEmail) {
+		try {
+			SharedPreferences pref = getSharedPreferences("user", Activity.MODE_PRIVATE);
+			String userEmail = pref.getString("email", "");
+			
+			String emailCSV = userEmail + "," + friendEmail;
+			
+			// 共通空き時間を取得する
+			GetShareTimeTask task = new GetShareTimeTask(this);
+			task.setEmailCSV(emailCSV);
+			task.setStartTime(beginOfWeek);
+			task.setFinishTime(endOfWeek);
+			task.execute();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			Log.d("DEBUG", "GetShareTime fail");
+		}
+	}
 	
-	private void displaySchedule(Long startTime, Long finishTime) {
+	/**
+	 * 共通空き時間取得後の処理
+	 */
+	@Override
+	public void onFinish(GetShareTimeV1ResultDto result) {
+		for (final GroupScheduleV1Dto gs : result.getGroupScheduleList()) {
+			if (gs.getUserList() != null) {
+				String temp = "";
+				for (com.google.api.services.getShareTimeEndpoint.model.UserV1Dto user 
+						: gs.getUserList()) {
+					temp += user.getEmail() + ",";
+				}
+				final String userList = temp;
+				mHandler.post(new Runnable() {
+					public void run() {
+						displaySchedule(gs.getStartTime(), gs.getFinishTime(), userList);
+					}
+				});
+			}
+		}
+	}
+	
+	private void displaySchedule(Long startTime, Long finishTime, String scheduleStr) {
 		TextView sampleSched = new TextView(this);
-		int[] scheduleLayout = new int[3]; // scheduleの {x, y, height}
+		double[] scheduleLayout = new double[3]; // scheduleの {x, y, height}
 
 		Calendar start = Calendar.getInstance();
 		Calendar finish = Calendar.getInstance();
@@ -154,21 +250,25 @@ public class ScheduleActivity extends Activity {
 		finish.setTimeInMillis(finishTime);
 
 		scheduleLayout[0] = start.get(Calendar.DAY_OF_MONTH) - dayOfSunday;
-		scheduleLayout[1] = start.get(Calendar.HOUR_OF_DAY);
+		scheduleLayout[1] = start.get(Calendar.HOUR_OF_DAY)
+							+ start.get(Calendar.MINUTE) / 60.0;
 		scheduleLayout[2] = finish.get(Calendar.HOUR_OF_DAY)
-				- start.get(Calendar.HOUR_OF_DAY);
+							+ finish.get(Calendar.MINUTE) / 60.0
+				- scheduleLayout[1];
 
 		/* 5: 右側にあるなぞの隙間　たぶんバー？ */
 		int width = findViewById(R.id.gridView3).getWidth() - 5;
 
-		sampleSched.setText("sampleSchedule");
+		sampleSched.setText(scheduleStr);
 		sampleSched.setBackgroundColor(Color.BLUE);
 		FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
 				(int) Math.ceil(width / 7.0),
 				(int) Math.ceil(scheduleLayout[2] * 1514 / 24.0
 						* metrics.scaledDensity));
+		
 		lp.leftMargin = (int) Math.ceil(width / 7.0
-				* (scheduleLayout[0] + 1) + 40 * metrics.scaledDensity);
+				* (scheduleLayout[0]) + 40 * metrics.scaledDensity);
+				//* (scheduleLayout[0] + 1) + 40 * metrics.scaledDensity);
 		lp.topMargin = (int) Math.ceil(1514 * scheduleLayout[1] / 24.0
 				* metrics.scaledDensity);
 
@@ -211,7 +311,7 @@ public class ScheduleActivity extends Activity {
 					for(final ScheduleV1Dto schedule: schedules){
 						mHandler.post(new Runnable() {
 							public void run() {
-								displaySchedule(schedule.getStartTime(), schedule.getFinishTime());
+								displaySchedule(schedule.getStartTime(), schedule.getFinishTime(), "sampleSchedule");
 							}
 							
 						});
@@ -227,4 +327,6 @@ public class ScheduleActivity extends Activity {
 		}
 
 	}
+
+
 }
