@@ -2,12 +2,12 @@
 
     <string name="friend_regist">友人登録</string>
     <string name="title_activity_friend">友人登録</string>
-    <string name="error_f_email">Eメールアドレスを入力して下さい</string>
-    <string name="error_f_already">その友だちとは既にフレンド登録しています</string>
-    <string name="error_f_nullmy">再ログインして下さい</string>
-    <string name="error_f_nof">該当するユーザーが存在しません</string>
+    <string name="error_f_email">メールアドレスを入力して下さい</string>
+    <string name="error_f_already">そのユーザーは既に友人です</string>
+    <string name="error_f_nullmy">再度ログインして下さい</string>
+    <string name="error_f_nof">該当するユーザーが見つかりません</string>
     <string name="error_f_empty">入力して下さい</string>
     <string name="friend_progress_registering">登録中&#8230;</string>
-    <string name="friend_register_ok">友人登録成功</string>
+    <string name="friend_register_ok">登録に成功しました</string>
 
 </resources>
