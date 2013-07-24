@@ -277,7 +277,8 @@ public class ScheduleActivity extends Activity implements
 		int width = findViewById(R.id.gridView3).getWidth() - 5;
 
 		sampleSched.setText(scheduleStr);
-		sampleSched.setBackgroundColor(Color.CYAN);
+		//sampleSched.setBackgroundColor(Color.CYAN);
+		sampleSched.setBackground(getResources().getDrawable(R.drawable.frame));
 		FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
 				(int) Math.ceil(width / 7.0), (int) Math.ceil(scheduleLayout[2]
 						* 1514 / 24.0 * metrics.scaledDensity));
