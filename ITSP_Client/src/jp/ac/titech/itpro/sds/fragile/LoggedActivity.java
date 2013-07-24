@@ -37,6 +37,12 @@ public class LoggedActivity extends Activity {
 	    		startActivity(new Intent(LoggedActivity.this, ScheduleActivity.class));
 	    	}
 	    });
+	    Button makegroup_btn = (Button)findViewById(R.id.go_to_makegroup_from_logged);
+	    makegroup_btn.setOnClickListener(new View.OnClickListener() {
+	    	public void onClick(View v) {   //グループ作成画面へ遷移
+	    		startActivity(new Intent(LoggedActivity.this, MakeGroupActivity.class));
+	    	}
+	    });
 	}
 	
 	@Override
