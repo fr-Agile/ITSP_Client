@@ -1,4 +1,5 @@
 package jp.ac.titech.itpro.sds.fragile;
+
 import java.io.UnsupportedEncodingException;
 
 import jp.ac.titech.itpro.sds.fragile.api.RemoteApi;
@@ -39,8 +40,8 @@ import com.google.api.services.friendEndpoint.model.FriendResultV1Dto;
  * Activity which displays a login screen to the user, offering registration as
  * well.
  */
-public class FriendActivity extends Activity implements CreateNdefMessageCallback,
-OnNdefPushCompleteCallback{
+public class FriendActivity extends Activity implements
+		CreateNdefMessageCallback, OnNdefPushCompleteCallback {
 	private static final int REQUEST_PICK_CONTACT = 1;
 
 	/**
@@ -52,25 +53,25 @@ OnNdefPushCompleteCallback{
 	private View focusView = null;
 	private NfcAdapter mNfcAdapter;
 	private SharedPreferences pref;
-	
-	//フレンド登録成功かどうかのメッセージを渡すためのラベル
+
+	// フレンド登録成功かどうかのメッセージを渡すためのラベル
 	public final static String EXTRA_MESSAGE = "Friend_register_check_message";
-	
+
 	// UI references.
 	private EditText fEmailView;
 
-	//ProgressDialog用
+	// ProgressDialog用
 	private View mFriendFormView;
 	private View mFriendStatusView;
 	private TextView mFriendStatusMessageView;
-	
+
 	private static String SUCCESS = "success";
 	private static String FAIL = "fail";
 
-    private static String NULLMY = "nullmy";
-    private static String NOFRIEND = "nofriend";
-    private static String ALREADY = "already";
-	
+	private static String NULLMY = "nullmy";
+	private static String NOFRIEND = "nofriend";
+	private static String ALREADY = "already";
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -82,123 +83,127 @@ OnNdefPushCompleteCallback{
 				new View.OnClickListener() {
 					public void onClick(View view) {
 						attemptFriend();
-						}
-					});
-		
-		//ボタン作成
-	    Button logged_btn = (Button)findViewById(R.id.go_to_logged_from_friend);
-	    logged_btn.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {  //メニュー画面へ遷移
-	    		startActivity(new Intent(FriendActivity.this, LoggedActivity.class));
-	    	}
-	    });
-	    
-	    //ProgressDialogのView作成
-	    mFriendFormView = findViewById(R.id.friendreg_form);  //レイアウト全体
-	    mFriendStatusView = findViewById(R.id.friendreg_status);
-	    mFriendStatusMessageView = (TextView) findViewById(R.id.friendreg_status_message);
-		//ボタン作成
-	    Button email_btn = (Button)findViewById(R.id.friend_email);
-	    email_btn.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {  //ログイン画面へ遷移
-				Intent intent = new Intent(Intent.ACTION_PICK, Contacts.CONTENT_URI);
+					}
+				});
+
+		// ボタン作成
+		Button logged_btn = (Button) findViewById(R.id.go_to_logged_from_friend);
+		logged_btn.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) { // メニュー画面へ遷移
+				startActivity(new Intent(FriendActivity.this,
+						LoggedActivity.class));
+			}
+		});
+
+		// ProgressDialogのView作成
+		mFriendFormView = findViewById(R.id.friendreg_form); // レイアウト全体
+		mFriendStatusView = findViewById(R.id.friendreg_status);
+		mFriendStatusMessageView = (TextView) findViewById(R.id.friendreg_status_message);
+		// ボタン作成
+		Button email_btn = (Button) findViewById(R.id.friend_email);
+		email_btn.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) { // ログイン画面へ遷移
+				Intent intent = new Intent(Intent.ACTION_PICK,
+						Contacts.CONTENT_URI);
 				startActivityForResult(intent, REQUEST_PICK_CONTACT);
-	    	}
-	    });
-	
-	    mNfcAdapter = NfcAdapter.getDefaultAdapter(this);	 	
-	    if (mNfcAdapter != null) {
-	    	mNfcAdapter.setNdefPushMessageCallback(this, this);
-	    	mNfcAdapter.setOnNdefPushCompleteCallback(this, this);
-	    }
+			}
+		});
+
+		mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
+		if (mNfcAdapter != null) {
+			mNfcAdapter.setNdefPushMessageCallback(this, this);
+			mNfcAdapter.setOnNdefPushCompleteCallback(this, this);
+		}
 	}
 
-		/**
-		 * Attempts to sign in or register the account specified by the login form.
-		 * If there are form errors (invalid email, missing fields, etc.), the
-		 * errors are presented and no actual login attempt is made.
-		 */
+	/**
+	 * Attempts to sign in or register the account specified by the login form.
+	 * If there are form errors (invalid email, missing fields, etc.), the
+	 * errors are presented and no actual login attempt is made.
+	 */
 	public void attemptFriend() {
 		if (mAuthTask != null) {
 			return;
 		}
 
-			// Reset errors.
-			fEmailView.setError(null);
-			// Store values at the time of the login attempt.
-			fEmail = fEmailView.getText().toString();
+		// Reset errors.
+		fEmailView.setError(null);
+		// Store values at the time of the login attempt.
+		fEmail = fEmailView.getText().toString();
 
-			boolean cancel = false;
+		boolean cancel = false;
 
-			
-			
-			// Check for a valid email address.
-			if (TextUtils.isEmpty(fEmail)) {
-				fEmailView.setError(getString(R.string.error_f_empty));
-				focusView = fEmailView;
-				cancel = true;
-			} else if (!fEmail.contains("@")) {
-				fEmailView.setError(getString(R.string.error_f_email));
-				focusView = fEmailView;
-				cancel = true;
-			}
-
-			if (cancel) {
-				focusView.requestFocus();
-			} else {
-				//ProgressDialogを表示
-				mFriendStatusMessageView.setText(R.string.friend_progress_registering);
-				showProgress(true);
-				
-				mAuthTask = new FriendTask();
-				mAuthTask.execute((Void) null);
-			}
+		// Check for a valid email address.
+		if (TextUtils.isEmpty(fEmail)) {
+			fEmailView.setError(getString(R.string.error_f_empty));
+			focusView = fEmailView;
+			cancel = true;
+		} else if (!fEmail.contains("@")) {
+			fEmailView.setError(getString(R.string.error_f_email));
+			focusView = fEmailView;
+			cancel = true;
 		}
-		
-		/**
-		 * Shows the progress UI and hides the friend form.
-		 */
-		@TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
-		private void showProgress(final boolean show) {
-			// On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
-			// for very easy animations. If available, use these APIs to fade-in
-			// the progress spinner.
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-				int shortAnimTime = getResources().getInteger(
-						android.R.integer.config_shortAnimTime);
 
-				mFriendStatusView.setVisibility(View.VISIBLE);
-				mFriendStatusView.animate().setDuration(shortAnimTime)
-						.alpha(show ? 1 : 0)
-						.setListener(new AnimatorListenerAdapter() {
-							@Override
-							public void onAnimationEnd(Animator animation) {
-								mFriendStatusView.setVisibility(show ? View.VISIBLE
-										: View.GONE);
-							}
-						});
+		if (cancel) {
+			focusView.requestFocus();
+		} else {
+			// ProgressDialogを表示
+			mFriendStatusMessageView
+					.setText(R.string.friend_progress_registering);
+			showProgress(true);
 
-				mFriendFormView.setVisibility(View.VISIBLE);
-				mFriendFormView.animate().setDuration(shortAnimTime)
-						.alpha(show ? 0 : 1)
-						.setListener(new AnimatorListenerAdapter() {
-							@Override
-							public void onAnimationEnd(Animator animation) {
-								mFriendFormView.setVisibility(show ? View.GONE
-										: View.VISIBLE);
-							}
-						});
-			} else {
-				// The ViewPropertyAnimator APIs are not available, so simply show
-				// and hide the relevant UI components.
-				mFriendStatusView.setVisibility(show ? View.VISIBLE : View.GONE);
-				mFriendFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-			}
+			mAuthTask = new FriendTask();
+			mAuthTask.execute((Void) null);
 		}
-		
-		public void onActivityResult(int requestCode, int resultCode, Intent returnedIntent) {
+	}
+
+	/**
+	 * Shows the progress UI and hides the friend form.
+	 */
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
+	private void showProgress(final boolean show) {
+		// On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
+		// for very easy animations. If available, use these APIs to fade-in
+		// the progress spinner.
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
+			int shortAnimTime = getResources().getInteger(
+					android.R.integer.config_shortAnimTime);
+
+			mFriendStatusView.setVisibility(View.VISIBLE);
+			mFriendStatusView.animate().setDuration(shortAnimTime)
+					.alpha(show ? 1 : 0)
+					.setListener(new AnimatorListenerAdapter() {
+						@Override
+						public void onAnimationEnd(Animator animation) {
+							mFriendStatusView.setVisibility(show ? View.VISIBLE
+									: View.GONE);
+						}
+					});
+
+			mFriendFormView.setVisibility(View.VISIBLE);
+			mFriendFormView.animate().setDuration(shortAnimTime)
+					.alpha(show ? 0 : 1)
+					.setListener(new AnimatorListenerAdapter() {
+						@Override
+						public void onAnimationEnd(Animator animation) {
+							mFriendFormView.setVisibility(show ? View.GONE
+									: View.VISIBLE);
+						}
+					});
+		} else {
+			// The ViewPropertyAnimator APIs are not available, so simply show
+			// and hide the relevant UI components.
+			mFriendStatusView.setVisibility(show ? View.VISIBLE : View.GONE);
+			mFriendFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+		}
+	}
+
+	public void onActivityResult(int requestCode, int resultCode, Intent returnedIntent) {
 			super.onActivityResult(requestCode, resultCode, returnedIntent);
 			String email = "";
+			if(returnedIntent == null) {
+				return;
+			}
 			Uri result = returnedIntent.getData();
 			String id = result.getLastPathSegment();
 			if (requestCode == REQUEST_PICK_CONTACT && resultCode == Activity.RESULT_OK) {
@@ -217,114 +222,116 @@ OnNdefPushCompleteCallback{
 			fEmailView.setText(email);
 		}
 
-		/**
-		 * Represents an asynchronous login/registration task used to authenticate
-		 * the user.
-		 */
-		public class FriendTask extends AsyncTask<Void, Void, Boolean> {
-			@Override
-			protected Boolean doInBackground(Void... args) {
+	/**
+	 * Represents an asynchronous login/registration task used to authenticate
+	 * the user.
+	 */
+	public class FriendTask extends AsyncTask<Void, Void, Boolean> {
+		@Override
+		protected Boolean doInBackground(Void... args) {
 
-				try {
-					FriendEndpoint endpoint = RemoteApi.getFriendEndpoint();
-					Friendship friend = endpoint.friendV1Endpoint().friendship(fEmail,
-							pref.getString("email",""));
-					
-					FriendResultV1Dto result = friend.execute();
+			try {
+				FriendEndpoint endpoint = RemoteApi.getFriendEndpoint();
+				Friendship friend = endpoint.friendV1Endpoint().friendship(
+						fEmail, pref.getString("email", ""));
 
-					if (SUCCESS.equals(result.getResult())) {
-						return true;
-					}else if (NULLMY.equals(result.getResult())){
-						fEmailView.setError(getString(R.string.error_f_nullmy));
-						focusView = fEmailView;
-						return false;
-					}else if (NOFRIEND.equals(result.getResult())){
-						fEmailView.setError(getString(R.string.error_f_nof));
-						focusView = fEmailView;
-						return false;
-					}else if (ALREADY.equals(result.getResult())){
-						fEmailView.setError(getString(R.string.error_f_already));
-						focusView = fEmailView;
-						return false;
-					}else{
-						return false;
-					}
+				FriendResultV1Dto result = friend.execute();
 
-				} catch (Exception e) {
+				if (SUCCESS.equals(result.getResult())) {
+					return true;
+				} else if (NULLMY.equals(result.getResult())) {
+					fEmailView.setError(getString(R.string.error_f_nullmy));
+					focusView = fEmailView;
+					return false;
+				} else if (NOFRIEND.equals(result.getResult())) {
+					fEmailView.setError(getString(R.string.error_f_nof));
+					focusView = fEmailView;
+					return false;
+				} else if (ALREADY.equals(result.getResult())) {
+					fEmailView.setError(getString(R.string.error_f_already));
+					focusView = fEmailView;
+					return false;
+				} else {
 					return false;
 				}
-			}
-			
-			@Override
-			protected void onPostExecute(final Boolean success) {
-				mAuthTask = null;
-				showProgress(false);
 
-				if (success) {
-					Log.d("DEBUG", "登録成功");
-					//成功した場合、トップ画面に戻る
-					Intent next_intent = new Intent(FriendActivity.this, LoggedActivity.class);
-					next_intent.putExtra(EXTRA_MESSAGE, getString(R.string.friend_register_ok));
-					startActivity(next_intent);
-					finish();
-				} else {
-					Log.d("DEBUG", "登録失敗");
-				}
-			}
-
-			@Override
-			protected void onCancelled() {
-				mAuthTask = null;
-				showProgress(false);
+			} catch (Exception e) {
+				return false;
 			}
 		}
-		
+
 		@Override
-		public void onResume() {
-			super.onResume();
-	        // Check to see that the Activity started due to an Android Beam
-	        if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(getIntent().getAction())) {
-	            processIntent(getIntent());
-	        }
-		}
-		
-		// android beam を受け取った時の処理
-		private void processIntent(Intent intent) {
-	        Parcelable[] rawMsgs = intent.getParcelableArrayExtra(
-	                NfcAdapter.EXTRA_NDEF_MESSAGES);
-	        // only one message sent during the beam
-	        NdefMessage msg = (NdefMessage) rawMsgs[0];
-	        
-	        byte[] data = msg.getRecords()[0].getPayload();
-	        try {
-				fEmail = new String(data,"UTF-8");
-			} catch (UnsupportedEncodingException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} 
-	        fEmailView.setText(fEmail);
-		}
-		
-		public void onNdefPushComplete(NfcEvent event) {
-			Log.d("DEBUG", "onNdefComplete");
-		}
-		
-		/*
-		 * android beam が起動した時の処理
-		 */
-		public NdefMessage createNdefMessage(NfcEvent event) {
-			NdefMessage msg = null;
-			String myemail = pref.getString("email","");
-			if (myemail != null) {
-				byte[] data;
-				try { 
-				    data = myemail.getBytes("UTF-8");
-					msg = new NdefMessage(NdefRecord.createMime(
-							"application/jp.ac.titech.itpro.sds.fragile", data));
-				} catch (Exception e) {
-					Log.d("DEBUG", "serialize fail");
-				}
+		protected void onPostExecute(final Boolean success) {
+			mAuthTask = null;
+			showProgress(false);
+
+			if (success) {
+				Log.d("DEBUG", "登録成功");
+				// 成功した場合、トップ画面に戻る
+				Intent next_intent = new Intent(FriendActivity.this,
+						LoggedActivity.class);
+				next_intent.putExtra(EXTRA_MESSAGE,
+						getString(R.string.friend_register_ok));
+				startActivity(next_intent);
+				finish();
+			} else {
+				Log.d("DEBUG", "登録失敗");
 			}
-			return msg;
 		}
+
+		@Override
+		protected void onCancelled() {
+			mAuthTask = null;
+			showProgress(false);
+		}
+	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
+		// Check to see that the Activity started due to an Android Beam
+		if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(getIntent().getAction())) {
+			processIntent(getIntent());
+		}
+	}
+
+	// android beam を受け取った時の処理
+	private void processIntent(Intent intent) {
+		Parcelable[] rawMsgs = intent
+				.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
+		// only one message sent during the beam
+		NdefMessage msg = (NdefMessage) rawMsgs[0];
+
+		byte[] data = msg.getRecords()[0].getPayload();
+		try {
+			fEmail = new String(data, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		fEmailView.setText(fEmail);
+	}
+
+	public void onNdefPushComplete(NfcEvent event) {
+		Log.d("DEBUG", "onNdefComplete");
+	}
+
+	/*
+	 * android beam が起動した時の処理
+	 */
+	public NdefMessage createNdefMessage(NfcEvent event) {
+		NdefMessage msg = null;
+		String myemail = pref.getString("email", "");
+		if (myemail != null) {
+			byte[] data;
+			try {
+				data = myemail.getBytes("UTF-8");
+				msg = new NdefMessage(NdefRecord.createMime(
+						"application/jp.ac.titech.itpro.sds.fragile", data));
+			} catch (Exception e) {
+				Log.d("DEBUG", "serialize fail");
+			}
+		}
+		return msg;
+	}
 }
