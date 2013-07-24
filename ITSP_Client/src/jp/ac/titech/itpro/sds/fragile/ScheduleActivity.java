@@ -235,15 +235,22 @@ public class ScheduleActivity extends Activity implements
 		for (final GroupScheduleV1Dto gs : result.getGroupScheduleList()) {
 			if (gs.getUserList() != null) {
 				String temp = "";
-				for (com.google.api.services.getShareTimeEndpoint.model.UserV1Dto user : gs
-						.getUserList()) {
-					temp += user.getEmail() + ",";
+				List<com.google.api.services.getShareTimeEndpoint.model.UserV1Dto> userList 
+					= gs.getUserList();
+				for (int i=0; i<userList.size(); i++) {
+					com.google.api.services.getShareTimeEndpoint.model.UserV1Dto user 
+						= userList.get(i);
+					temp += user.getLastName() + " " + user.getFirstName();
+					
+					if (i != userList.size() - 1) {
+						temp += ", ";
+					}
 				}
-				final String userList = temp;
+				final String userListStr = temp;
 				mHandler.post(new Runnable() {
 					public void run() {
 						displaySchedule(gs.getStartTime(), gs.getFinishTime(),
-								userList);
+								userListStr);
 					}
 				});
 			}
