@@ -60,8 +60,8 @@
 		        android:background="#EEEEEE"
 		        android:layout_width="40dp"
 		        android:layout_height="1514dp"
-        android:layout_marginLeft="0dp"
-        android:layout_marginRight="0dp"
+        		android:layout_marginLeft="0dp"
+        		android:layout_marginRight="0dp"
 		        android:numColumns="1" >
 		    </GridView>
 
@@ -70,7 +70,7 @@
 	            android:layout_width="wrap_content"
 	            android:layout_height="1514dp"
 	            android:layout_marginLeft="40dp"
-        android:layout_marginRight="0dp"
+        		android:layout_marginRight="0dp"
 	            android:background="#DDDDDD"
 	            android:listSelector="@layout/list_selector"
 	            android:numColumns="7" >
