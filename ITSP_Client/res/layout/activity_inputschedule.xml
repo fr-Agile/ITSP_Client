@@ -49,7 +49,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/dateTxt"
                 android:layout_gravity="center_horizontal"
-                android:textSize="26sp" />
+                android:textSize="28sp" />
 
             <DatePicker
                 android:id="@+id/datePicker1"
