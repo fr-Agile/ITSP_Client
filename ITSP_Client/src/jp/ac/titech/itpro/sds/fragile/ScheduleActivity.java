@@ -8,6 +8,7 @@ import jp.ac.titech.itpro.sds.fragile.GetFriendTask.GetFriendFinishListener;
 import jp.ac.titech.itpro.sds.fragile.GetShareTimeTask.GetShareTimeFinishListener;
 import jp.ac.titech.itpro.sds.fragile.api.RemoteApi;
 import jp.ac.titech.itpro.sds.fragile.utils.CalendarAdapter;
+import jp.ac.titech.itpro.sds.fragile.utils.CalendarUtils;
 import jp.ac.titech.itpro.sds.fragile.utils.DayAdapter;
 import jp.ac.titech.itpro.sds.fragile.utils.TimeAdapter;
 import android.app.Activity;
@@ -50,14 +51,17 @@ public class ScheduleActivity extends Activity implements
 	private DayAdapter dayAdapter;
 	private TimeAdapter timeAdapter;
 	private CalendarAdapter calendarAdapter;
+	
+	private List<View> viewOfSchedule = new ArrayList<View>();
 
-	private Long beginOfWeek;
-	private Long endOfWeek;
-	private int dayOfSunday;
+	private Calendar mBeginOfWeek;
+	private Calendar mEndOfWeek;
 
 	private Handler mHandler;
 
 	private GetScheduleTask mCalTask = null;
+	
+	private boolean[] mFlags;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -78,23 +82,23 @@ public class ScheduleActivity extends Activity implements
 
 		// 現在の時刻情報を色々取得
 		Calendar now = Calendar.getInstance();
-		Calendar sunday = Calendar.getInstance();
-		Calendar saturday = Calendar.getInstance();
-		dayOfSunday = now.get(Calendar.DAY_OF_MONTH)
-				- now.get(Calendar.DAY_OF_WEEK) + Calendar.SUNDAY;
-		sunday.set(Calendar.DAY_OF_MONTH, dayOfSunday);
-		sunday.set(Calendar.HOUR_OF_DAY, 0);
-		sunday.set(Calendar.MINUTE, 0);
-		sunday.set(Calendar.SECOND, 0);
-		sunday.set(Calendar.MILLISECOND, 0);
-		saturday.set(Calendar.DAY_OF_MONTH, dayOfSunday + 6);
-		saturday.set(Calendar.HOUR_OF_DAY, 23);
-		saturday.set(Calendar.MINUTE, 59);
-		saturday.set(Calendar.SECOND, 59);
-		saturday.set(Calendar.MILLISECOND, 999);
+		mBeginOfWeek = Calendar.getInstance();
+		mEndOfWeek = Calendar.getInstance();
+		int dayOfWeek = now.get(Calendar.DAY_OF_WEEK) - Calendar.SUNDAY;
+		
 		// 00:00スタート、23:59終了にする
-		beginOfWeek = sunday.getTime().getTime();
-		endOfWeek = saturday.getTime().getTime();
+		mBeginOfWeek.set(Calendar.DAY_OF_MONTH, now.get(Calendar.DAY_OF_MONTH));
+		mBeginOfWeek.add(Calendar.DAY_OF_MONTH, -dayOfWeek);
+		mBeginOfWeek.set(Calendar.HOUR_OF_DAY, 0);
+		mBeginOfWeek.set(Calendar.MINUTE, 0);
+		mBeginOfWeek.set(Calendar.SECOND, 0);
+		mBeginOfWeek.set(Calendar.MILLISECOND, 0);
+		mEndOfWeek.set(Calendar.DAY_OF_MONTH, mBeginOfWeek.get(Calendar.DAY_OF_MONTH));
+		mEndOfWeek.add(Calendar.DAY_OF_MONTH, 6);
+		mEndOfWeek.set(Calendar.HOUR_OF_DAY, 23);
+		mEndOfWeek.set(Calendar.MINUTE, 59);
+		mEndOfWeek.set(Calendar.SECOND, 59);
+		mEndOfWeek.set(Calendar.MILLISECOND, 999);
 
 		mainFrame = (FrameLayout) findViewById(R.id.calendarMainFrame);
 		dayGrid = (GridView) findViewById(R.id.gridView1);
@@ -114,7 +118,9 @@ public class ScheduleActivity extends Activity implements
 		}
 
 		for (int i = 0; i < 7; i++) {
-			dayData[i] = days[i] + " " + Integer.toString(dayOfSunday + i);
+			Calendar cal = (Calendar) mBeginOfWeek.clone();
+			cal.add(Calendar.DAY_OF_MONTH, i);
+			dayData[i] = days[i] + " " + Integer.toString(cal.get(Calendar.DAY_OF_MONTH));
 		}
 
 		dayAdapter = new DayAdapter(this, R.layout.day_row);
@@ -183,20 +189,55 @@ public class ScheduleActivity extends Activity implements
 				}
 				String[] emailStrList = friendEmailList
 						.toArray(new String[friendEmailList.size()]);
+				if (mFlags == null || mFlags.length != emailStrList.length) {
+					mFlags = new boolean[emailStrList.length];
+				}
+				final boolean[] flags2 = mFlags.clone();
 				// 友人リストダイアログを表示
 				new AlertDialog.Builder(ScheduleActivity.this)
 						.setTitle("友達を選んでください")
-						.setItems(emailStrList,
-								new DialogInterface.OnClickListener() {
-
+						.setMultiChoiceItems(emailStrList, mFlags,
+								new DialogInterface.OnMultiChoiceClickListener() {
+									
 									@Override
-									public void onClick(DialogInterface dialog,
-											int which) {
-										// 共通空き時間を検索
-										getShareTimeWith(friendEmailList
-												.get(which));
+									public void onClick(DialogInterface dialog, 
+											int which, boolean isChecked) {
+										// チェックしたものを配列へ
+										mFlags[which] = isChecked;														
 									}
-								}).show();
+								})
+						.setPositiveButton("OK", new DialogInterface.OnClickListener() {							
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								// 表示しているスケジュールをクリア
+								for (View view : viewOfSchedule) {
+									mainFrame.removeView(view);
+								}
+								viewOfSchedule.clear();
+								
+								// 選ばれたemailリストを作成
+								List<String> selectedList = new ArrayList<String>();
+								for (int i=0; i<friendEmailList.size(); i++) {
+									if (mFlags[i]) {
+										selectedList.add(friendEmailList.get(i));
+									}
+								}
+								if (selectedList.size() > 0) {
+									// 共通空き時間表示
+									displayShareTimeWith(selectedList);
+								} else {
+									// 自分のスケジュールを表示
+									displayCalendar();
+								}
+							}
+						})
+						.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								// 元に戻す
+								mFlags = flags2;
+							}
+						}).show();
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -204,21 +245,24 @@ public class ScheduleActivity extends Activity implements
 	}
 
 	/**
-	 * 
+	 * 複数との共通空き時間を表示
 	 */
-	public void getShareTimeWith(String friendEmail) {
+	public void displayShareTimeWith(List<String> emailList) {
 		try {
 			SharedPreferences pref = getSharedPreferences("user",
 					Activity.MODE_PRIVATE);
 			String userEmail = pref.getString("email", "");
 
-			String emailCSV = userEmail + "," + friendEmail;
+			String emailCSV = userEmail;
+			for (String email : emailList) {
+				emailCSV += "," + email;
+			}
 
 			// 共通空き時間を取得する
 			GetShareTimeTask task = new GetShareTimeTask(this);
 			task.setEmailCSV(emailCSV);
-			task.setStartTime(beginOfWeek);
-			task.setFinishTime(endOfWeek);
+			task.setStartTime(mBeginOfWeek.getTime().getTime());
+			task.setFinishTime(mEndOfWeek.getTime().getTime());
 			task.execute();
 
 		} catch (Exception e) {
@@ -226,7 +270,7 @@ public class ScheduleActivity extends Activity implements
 			Log.d("DEBUG", "GetShareTime fail");
 		}
 	}
-
+	
 	/**
 	 * 共通空き時間取得後の処理
 	 */
@@ -267,7 +311,7 @@ public class ScheduleActivity extends Activity implements
 		start.setTimeInMillis(startTime);
 		finish.setTimeInMillis(finishTime);
 
-		scheduleLayout[0] = start.get(Calendar.DAY_OF_MONTH) - dayOfSunday;
+		scheduleLayout[0] = CalendarUtils.calcDateDiff(start, mBeginOfWeek);
 		scheduleLayout[1] = start.get(Calendar.HOUR_OF_DAY)
 				+ start.get(Calendar.MINUTE) / 60.0;
 		scheduleLayout[2] = finish.get(Calendar.HOUR_OF_DAY)
@@ -291,6 +335,8 @@ public class ScheduleActivity extends Activity implements
 
 		sampleSched.setLayoutParams(lp);
 		mainFrame.addView(sampleSched);
+		
+		viewOfSchedule.add(sampleSched);
 	}
 
 	/**
@@ -322,7 +368,8 @@ public class ScheduleActivity extends Activity implements
 						Activity.MODE_PRIVATE);
 				String mEmail = pref.getString("email", "");
 				GetSchedule getSchedule = endpoint.scheduleV1EndPoint()
-						.getSchedule(beginOfWeek, endOfWeek, mEmail);
+						.getSchedule(mBeginOfWeek.getTime().getTime(), 
+								mEndOfWeek.getTime().getTime(), mEmail);
 
 				List<ScheduleV1Dto> schedules = getSchedule.execute()
 						.getItems();
@@ -346,7 +393,20 @@ public class ScheduleActivity extends Activity implements
 				return false;
 			}
 		}
-
+		
+		@Override
+		protected void onPostExecute(final Boolean success) {
+			mCalTask = null;
+			if (success) {
+				Log.d("DEBUG", "スケジュール表示成功");
+			} else {
+				Log.d("DEBUG", "スケジュール表示失敗");
+			}
+		}
+		
+		@Override
+		protected void onCancelled() {
+			mCalTask = null;
+		}
 	}
-
 }
