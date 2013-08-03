@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import jp.ac.titech.itpro.sds.fragile.utils.CommonUtils;
 
-
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.services.AbstractGoogleClient;
 import com.google.api.client.googleapis.services.AbstractGoogleClientRequest;
@@ -12,12 +11,13 @@ import com.google.api.client.googleapis.services.GoogleClientRequestInitializer;
 import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.json.jackson.JacksonFactory;
-import com.google.api.services.loginEndpoint.LoginEndpoint;
-import com.google.api.services.registerEndpoint.RegisterEndpoint;
-import com.google.api.services.scheduleEndpoint.ScheduleEndpoint;
 import com.google.api.services.friendEndpoint.FriendEndpoint;
 import com.google.api.services.getFriendEndpoint.GetFriendEndpoint;
 import com.google.api.services.getShareTimeEndpoint.GetShareTimeEndpoint;
+import com.google.api.services.loginEndpoint.LoginEndpoint;
+import com.google.api.services.groupEndpoint.GroupEndpoint;
+import com.google.api.services.registerEndpoint.RegisterEndpoint;
+import com.google.api.services.scheduleEndpoint.ScheduleEndpoint;
 
 
 public class RemoteApi {
@@ -99,6 +99,18 @@ public class RemoteApi {
 	
 	public static GetFriendEndpoint getGetFriendEndpoint() {
 		GetFriendEndpoint.Builder endpointBuilder = new GetFriendEndpoint.Builder(
+				AndroidHttp.newCompatibleTransport(), 
+				new JacksonFactory(), 
+				new HttpRequestInitializer() {
+					public void initialize(HttpRequest httpRequest) {
+					}
+				}); 
+		
+		return updateBuilder(endpointBuilder).build();
+	}
+	
+	public static GroupEndpoint getGroupEndpoint() {
+		GroupEndpoint.Builder endpointBuilder = new GroupEndpoint.Builder(
 				AndroidHttp.newCompatibleTransport(), 
 				new JacksonFactory(), 
 				new HttpRequestInitializer() {
