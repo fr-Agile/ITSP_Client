@@ -1,6 +1,7 @@
 package jp.ac.titech.itpro.sds.fragile;
 
 import jp.ac.titech.itpro.sds.fragile.api.RemoteApi;
+import jp.ac.titech.itpro.sds.fragile.api.constant.CommonConstant;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
@@ -45,8 +46,8 @@ public class LoginActivity extends Activity {
 	private View mLoginStatusView;
 	private TextView mLoginStatusMessageView;
 
-	private static String SUCCESS = "success";
-	private static String FAIL = "fail";
+	private static String SUCCESS = CommonConstant.SUCCESS;
+	private static String FAIL = CommonConstant.FAIL;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {

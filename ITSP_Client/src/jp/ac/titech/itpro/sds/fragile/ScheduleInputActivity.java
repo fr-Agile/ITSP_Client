@@ -4,6 +4,7 @@ import java.text.DateFormat;
 import java.util.Calendar;
 
 import jp.ac.titech.itpro.sds.fragile.api.RemoteApi;
+import jp.ac.titech.itpro.sds.fragile.api.constant.CommonConstant;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
@@ -42,7 +43,7 @@ public class ScheduleInputActivity extends Activity{
 	private View mSpinView;
 //	private TextView mLoginStatusMessageView;
 	
-	private static String SUCCESS = "success";
+	private static String SUCCESS = CommonConstant.SUCCESS;
 //	private static String FAIL = "fail";
 	
 	private ScheduleInputTask mAuthTask = null;

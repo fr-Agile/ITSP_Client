@@ -3,6 +3,8 @@ package jp.ac.titech.itpro.sds.fragile;
 import java.io.UnsupportedEncodingException;
 
 import jp.ac.titech.itpro.sds.fragile.api.RemoteApi;
+import jp.ac.titech.itpro.sds.fragile.api.constant.CommonConstant;
+import jp.ac.titech.itpro.sds.fragile.api.constant.FriendConstant;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
@@ -65,12 +67,12 @@ public class FriendActivity extends Activity implements
 	private View mFriendStatusView;
 	private TextView mFriendStatusMessageView;
 
-	private static String SUCCESS = "success";
-	private static String FAIL = "fail";
+	private static final String SUCCESS = CommonConstant.SUCCESS;
+	private static final String FAIL = CommonConstant.FAIL;
 
-	private static String NULLMY = "nullmy";
-	private static String NOFRIEND = "nofriend";
-	private static String ALREADY = "already";
+	private static final String NULLMY = FriendConstant.NULLMY;
+	private static final String NOFRIEND = FriendConstant.NOFRIEND;
+	private static final String ALREADY = FriendConstant.ALREADY;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {

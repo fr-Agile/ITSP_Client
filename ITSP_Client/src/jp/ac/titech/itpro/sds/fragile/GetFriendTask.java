@@ -1,6 +1,7 @@
 package jp.ac.titech.itpro.sds.fragile;
 
 import jp.ac.titech.itpro.sds.fragile.api.RemoteApi;
+import jp.ac.titech.itpro.sds.fragile.api.constant.CommonConstant;
 
 import com.google.api.services.getFriendEndpoint.GetFriendEndpoint;
 import com.google.api.services.getFriendEndpoint.GetFriendEndpoint.GetFriendV1Endpoint.GetFriendTo;
@@ -11,7 +12,7 @@ import android.util.Log;
 
 public class GetFriendTask extends AsyncTask<String, Void, GetFriendResultV1Dto> {
 
-	private static final String SUCCESS = "success";
+	private static final String SUCCESS = CommonConstant.SUCCESS;
 	
 	private GetFriendFinishListener listener = null;
 	

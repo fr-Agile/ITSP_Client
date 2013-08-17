@@ -5,6 +5,8 @@ import java.util.List;
 import jp.ac.titech.itpro.sds.fragile.utils.AddressChecker;
 
 import jp.ac.titech.itpro.sds.fragile.api.RemoteApi;
+import jp.ac.titech.itpro.sds.fragile.api.constant.CommonConstant;
+import jp.ac.titech.itpro.sds.fragile.api.constant.RegisterConstant;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
@@ -50,19 +52,19 @@ public class RegisterActivity extends Activity {
 	private View mRegisterStatusView;
 	private TextView mRegisterStatusMessageView;
 
-    private final static String SUCCESS = "success";
-    private final static String FAIL = "fail";
-    private final static String NULL_FNAME = "null_fname";
-    private final static String NULL_LNAME = "null_lname";
-    private final static String NULL_EMAIL = "null_email";
-    private final static String NULL_PASS = "null_pass";
-    private final static String NULL_PASSA = "null_passa";
-    private final static String INVALID_ADDRESS = "invalid_address";
-    private final static String EXISTING_ADDRESS = "existing_address";
-    private final static String SHORT_PASS = "short_pass";
-    private final static String DIFFERENT_PASS = "different_pass";
-    private final static String UNEXPECTED_ERROR = "unexpected_error";
-    private final static int PASS_LENGTH = 6;
+    private static final String SUCCESS = CommonConstant.SUCCESS;
+    private static final String FAIL = CommonConstant.FAIL;
+    private static final String NULL_FNAME = RegisterConstant.NULL_FNAME;
+    private static final String NULL_LNAME = RegisterConstant.NULL_LNAME;
+    private static final String NULL_EMAIL = RegisterConstant.NULL_EMAIL;
+    private static final String NULL_PASS = RegisterConstant.NULL_PASS;
+    private static final String NULL_PASSA = RegisterConstant.NULL_PASSA;
+    private static final String INVALID_ADDRESS = RegisterConstant.INVALID_ADDRESS;
+    private static final String EXISTING_ADDRESS = RegisterConstant.EXISTING_ADDRESS;
+    private static final String SHORT_PASS = RegisterConstant.SHORT_PASS;
+    private static final String DIFFERENT_PASS = RegisterConstant.DIFFERENT_PASS;
+    private static final String UNEXPECTED_ERROR = RegisterConstant.UNEXPECTED_ERROR;
+    private static final int PASS_LENGTH = RegisterConstant.PASS_LENGTH;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {

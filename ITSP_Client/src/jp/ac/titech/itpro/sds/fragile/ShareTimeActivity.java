@@ -5,6 +5,7 @@ import java.util.List;
 
 import jp.ac.titech.itpro.sds.fragile.GetFriendTask.GetFriendFinishListener;
 import jp.ac.titech.itpro.sds.fragile.GetShareTimeTask.GetShareTimeFinishListener;
+import jp.ac.titech.itpro.sds.fragile.api.constant.CommonConstant;
 
 import com.google.api.services.getFriendEndpoint.model.GetFriendResultV1Dto;
 import com.google.api.services.getFriendEndpoint.model.UserV1Dto;
@@ -38,8 +39,8 @@ public class ShareTimeActivity extends Activity
 	private ListView mFriendListView;
 	private TextView mShareTimeTextView;
 
-    private final static String SUCCESS = "success";
-    private final static String FAIL = "fail";
+    private final static String SUCCESS = CommonConstant.SUCCESS;
+    private final static String FAIL = CommonConstant.SUCCESS;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {

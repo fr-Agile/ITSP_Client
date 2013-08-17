@@ -3,6 +3,7 @@ package jp.ac.titech.itpro.sds.fragile;
 import java.util.Map;
 
 import jp.ac.titech.itpro.sds.fragile.api.RemoteApi;
+import jp.ac.titech.itpro.sds.fragile.api.constant.CommonConstant;
 
 import com.google.api.services.getShareTimeEndpoint.GetShareTimeEndpoint;
 import com.google.api.services.getShareTimeEndpoint.GetShareTimeEndpoint.GetShareTimeV1Endpoint.GetShareTime;
@@ -13,7 +14,7 @@ import android.util.Log;
 
 public class GetShareTimeTask extends AsyncTask<Void, Void, GetShareTimeV1ResultDto> {
 
-	private static final String SUCCESS = "success";
+	private static final String SUCCESS = CommonConstant.SUCCESS;
 	
 	private GetShareTimeFinishListener listener = null;
 	
