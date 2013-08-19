@@ -1,7 +1,9 @@
 package jp.ac.titech.itpro.sds.fragile;
 
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 import jp.ac.titech.itpro.sds.fragile.api.RemoteApi;
 import jp.ac.titech.itpro.sds.fragile.api.constant.CommonConstant;
@@ -17,12 +19,17 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.DatePicker.OnDateChangedListener;
 import android.widget.TimePicker;
 import android.widget.TimePicker.OnTimeChangedListener;
 import android.widget.Toast;
 
+import com.google.api.services.repeatScheduleEndpoint.RepeatScheduleEndpoint;
+import com.google.api.services.repeatScheduleEndpoint.RepeatScheduleEndpoint.RepeatScheduleV1EndPoint.CreateRepeatSchedule;
+import com.google.api.services.repeatScheduleEndpoint.model.RepeatScheduleContainer;
+import com.google.api.services.repeatScheduleEndpoint.model.RepeatScheduleResultV1Dto;
 import com.google.api.services.scheduleEndpoint.ScheduleEndpoint;
 import com.google.api.services.scheduleEndpoint.ScheduleEndpoint.ScheduleV1EndPoint.CreateSchedule;
 import com.google.api.services.scheduleEndpoint.model.ScheduleResultV1Dto;
@@ -39,6 +46,19 @@ public class ScheduleInputActivity extends Activity{
 	private TimePicker mStartTimePicker;
 	private TimePicker mFinishTimePicker;
 
+	private CheckBox repeatChk;
+	private CheckBox everydayChk;
+	private CheckBox monChk;
+	private CheckBox tueChk;
+	private CheckBox wedChk;
+	private CheckBox thuChk;
+	private CheckBox friChk;
+	private CheckBox satChk;
+	private CheckBox sunChk;
+	private View repeatdaysView; 
+	
+	private List<Integer> repeats;
+	
 	private View mInputScheduleView;
 	private View mSpinView;
 //	private TextView mLoginStatusMessageView;
@@ -134,11 +154,70 @@ public class ScheduleInputActivity extends Activity{
 				startActivity(new Intent(ScheduleInputActivity.this, ScheduleActivity.class));
 			}
 		});
+        
+        repeatdaysView = findViewById(R.id.repeatdaysView);
+        
+        repeatChk = (CheckBox) findViewById(R.id.repeartCheckbox);
+        repeatChk.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if (((CheckBox) v).isChecked()) {
+					repeatdaysView.setVisibility(View.VISIBLE);
+//	    			Toast.makeText(getApplicationContext(),"Repeat Checked:)", Toast.LENGTH_LONG).show();
+	    		} else {
+	    			repeatdaysView.setVisibility(View.GONE);
+	    		}
+			}
+		});
+        
+        monChk = (CheckBox)findViewById(R.id.mondayCheckbox);
+        tueChk = (CheckBox)findViewById(R.id.tuesdayCheckbox);
+        wedChk = (CheckBox)findViewById(R.id.wednesdayCheckbox);
+        thuChk = (CheckBox)findViewById(R.id.thursdayCheckbox);
+        friChk = (CheckBox)findViewById(R.id.fridayCheckbox);
+        satChk = (CheckBox)findViewById(R.id.saturdayCheckbox);
+        sunChk = (CheckBox)findViewById(R.id.sundayCheckbox);
+        
+        everydayChk = (CheckBox)findViewById(R.id.everydayCheckbox);
+        everydayChk.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				if (((CheckBox) v).isChecked()) {
+					monChk.setChecked(true);
+					tueChk.setChecked(true);
+					wedChk.setChecked(true);
+					thuChk.setChecked(true);
+					friChk.setChecked(true);
+					satChk.setChecked(true);
+					sunChk.setChecked(true);
+				} else {
+					monChk.setChecked(false);
+					tueChk.setChecked(false);
+					wedChk.setChecked(false);
+					thuChk.setChecked(false);
+					friChk.setChecked(false);
+					satChk.setChecked(false);
+					sunChk.setChecked(false);
+				}
+			}
+		});
+    	
     }
     
 
     
     public void clickDoneButton(){
+    	
+    	repeats = new ArrayList<Integer>();
+		if(monChk.isChecked()) repeats.add(0);
+		if(tueChk.isChecked()) repeats.add(1);
+		if(wedChk.isChecked()) repeats.add(2);
+		if(thuChk.isChecked()) repeats.add(3);
+		if(friChk.isChecked()) repeats.add(4);
+		if(satChk.isChecked()) repeats.add(5);
+		if(sunChk.isChecked()) repeats.add(6);
+		
     	showProgress(true);
     	mAuthTask = new ScheduleInputTask();
 		mAuthTask.execute((Void) null);
@@ -203,24 +282,44 @@ public class ScheduleInputActivity extends Activity{
 				SharedPreferences pref = getSharedPreferences("user", Activity.MODE_PRIVATE);
 				mEmail = pref.getString("email","");	
 				Log.d(TAG,"time:"+ scheduleStartTime + " and " + scheduleFinishTime + "email:" +mEmail);
-				ScheduleEndpoint endpoint = RemoteApi.getScheduleEndpoint();
-				CreateSchedule schedule = endpoint.scheduleV1EndPoint().createSchedule(
-						scheduleStartTime, scheduleFinishTime, mEmail);
-				ScheduleResultV1Dto result = schedule.execute();
-
 				
-				if (SUCCESS.equals(result.getResult())) {
-//					Toast.makeText(getApplicationContext(),"Successed",Toast.LENGTH_SHORT).show();
-					Log.d(TAG, "Successed");
-					return true;
+				if (!repeatChk.isChecked()) {
+					// schedule 
+					ScheduleEndpoint endpoint = RemoteApi.getScheduleEndpoint();
+					CreateSchedule schedule = endpoint.scheduleV1EndPoint().createSchedule(
+							scheduleStartTime, scheduleFinishTime, mEmail);
+					ScheduleResultV1Dto result = schedule.execute();
+					
+					if (SUCCESS.equals(result.getResult())) {
+//						Toast.makeText(getApplicationContext(),"Successed",Toast.LENGTH_SHORT).show();
+						Log.d(TAG, "Successed");
+						return true;
+					} else {
+//						Toast.makeText(getApplicationContext(),"Failed",Toast.LENGTH_SHORT).show();
+						Log.d(TAG, "Failed");
+						return false;
+					}
 				} else {
-//					Toast.makeText(getApplicationContext(),"Failed",Toast.LENGTH_SHORT).show();
-					Log.d(TAG, "Failed");
-					return false;
+					// repeat schedule
+					RepeatScheduleContainer contain = new RepeatScheduleContainer();
+					contain.setIntegers(repeats);
+					
+					RepeatScheduleEndpoint endpoint = RemoteApi.getRepeatScheduleEndpoint();
+					CreateRepeatSchedule repeatschedule = endpoint.repeatScheduleV1EndPoint().createRepeatSchedule(scheduleStartTime, scheduleFinishTime, mEmail, contain);
+					RepeatScheduleResultV1Dto result = repeatschedule.execute();
+					
+					if (SUCCESS.equals(result.getResult())) {
+//						Toast.makeText(getApplicationContext(),"Successed",Toast.LENGTH_SHORT).show();
+						Log.d(TAG, "RS Successed");
+						return true;
+					} else {
+//						Toast.makeText(getApplicationContext(),"Failed",Toast.LENGTH_SHORT).show();
+						Log.d(TAG, "RS Failed");
+						return false;
+					}
 				}
-
 			} catch (Exception e) {
-				Toast.makeText(getApplicationContext(),"Failed with exception:" + e,Toast.LENGTH_SHORT).show();
+//				Toast.makeText(getApplicationContext(),"Failed with exception:" + e,Toast.LENGTH_SHORT).show();
 				Log.d(TAG, "failed with exception:" + e);
 				return false;
 			}
@@ -246,6 +345,18 @@ public class ScheduleInputActivity extends Activity{
 			showProgress(false);
 		}
 	}
+
+//	@Override
+//	public void onClick(View v) {
+//		// TODO Auto-generated method stub
+//		switch (v.getId()) {
+//		case R.id.everydayCheckbox:
+//			
+//			break;
+//		default:
+//			break;
+//		}
+//	}
 }
 
 
