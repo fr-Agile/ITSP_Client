@@ -22,6 +22,7 @@ import android.widget.TextView;
 import com.appspot.fragile_t.registerEndpoint.RegisterEndpoint;
 import com.appspot.fragile_t.registerEndpoint.RegisterEndpoint.RegisterV1Endpoint.Register;
 import com.appspot.fragile_t.registerEndpoint.model.RegisterV1ResultDto;
+import com.google.api.client.util.Lists;
 
 /**
  * Activity which displays a register screen to the user
@@ -216,6 +217,10 @@ public class RegisterActivity extends Activity {
 					return false;
 				}
 			} catch (Exception e) {
+				RegisterV1ResultDto result = new RegisterV1ResultDto();
+				List<String> errorList = Lists.newArrayList();
+				errorList.add(UNEXPECTED_ERROR);
+				setErrorMessage(result);
 				return false;
 			}
 		}

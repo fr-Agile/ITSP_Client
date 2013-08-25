@@ -32,7 +32,9 @@ import com.appspot.fragile_t.getFriendEndpoint.model.GetFriendResultV1Dto;
 import com.appspot.fragile_t.getShareTimeEndpoint.model.GetShareTimeV1ResultDto;
 import com.appspot.fragile_t.getShareTimeEndpoint.model.GroupScheduleV1Dto;
 import com.appspot.fragile_t.scheduleEndpoint.ScheduleEndpoint;
+import com.appspot.fragile_t.scheduleEndpoint.ScheduleEndpoint.ScheduleV1EndPoint.DeleteSchedule;
 import com.appspot.fragile_t.scheduleEndpoint.ScheduleEndpoint.ScheduleV1EndPoint.GetSchedule;
+import com.appspot.fragile_t.scheduleEndpoint.model.ScheduleResultV1Dto;
 import com.appspot.fragile_t.scheduleEndpoint.model.ScheduleV1Dto;
 
 public class ScheduleActivity extends Activity implements
@@ -358,7 +360,8 @@ public class ScheduleActivity extends Activity implements
 		            public void onClick(DialogInterface dialog, int which) {  
 		            	ScheduleEndpoint endpoint = RemoteApi.getScheduleEndpoint();
 						try {
-							endpoint.scheduleV1EndPoint().deleteSchedule(keySS);
+							DeleteSchedule deleteSchedule = endpoint.scheduleV1EndPoint().deleteSchedule(keySS);
+							ScheduleResultV1Dto result = deleteSchedule.execute();
 							Toast.makeText(ScheduleActivity.this, keySS, Toast.LENGTH_SHORT).show();
 						} catch (IOException e) {
 							// TODO Auto-generated catch block
