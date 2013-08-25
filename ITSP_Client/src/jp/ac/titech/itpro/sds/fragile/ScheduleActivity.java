@@ -1,5 +1,6 @@
 package jp.ac.titech.itpro.sds.fragile;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -26,7 +27,7 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.GridView;
 import android.widget.TextView;
-
+import android.widget.Toast;
 import com.appspot.fragile_t.getFriendEndpoint.model.GetFriendResultV1Dto;
 import com.appspot.fragile_t.getShareTimeEndpoint.model.GetShareTimeV1ResultDto;
 import com.appspot.fragile_t.getShareTimeEndpoint.model.GroupScheduleV1Dto;
@@ -291,7 +292,7 @@ public class ScheduleActivity extends Activity implements
 				final String userListStr = temp;
 				mHandler.post(new Runnable() {
 					public void run() {
-						displaySchedule(gs.getStartTime(), gs.getFinishTime(),
+						displaySchedule(gs.getStartTime(), gs.getFinishTime(),"",
 								userListStr);
 					}
 				});
@@ -299,11 +300,15 @@ public class ScheduleActivity extends Activity implements
 		}
 	}
 
-	private void displaySchedule(Long startTime, Long finishTime,
-			String scheduleStr) {
+	private void displaySchedule(Long startTime, Long finishTime,final String keyS,
+	String scheduleStr) {
 		TextView sampleSched = new TextView(this);
 		double[] scheduleLayout = new double[3]; // scheduleの {x, y, height}
 
+		final long startE = startTime;
+		final long finishE = finishTime;
+		final String keySS = keyS;
+		
 		Calendar start = Calendar.getInstance();
 		Calendar finish = Calendar.getInstance();
 		start.setTimeInMillis(startTime);
@@ -330,8 +335,40 @@ public class ScheduleActivity extends Activity implements
 		// * (scheduleLayout[0] + 1) + 40 * metrics.scaledDensity);
 		lp.topMargin = (int) Math.ceil(1514 * scheduleLayout[1] / 24.0
 				* metrics.scaledDensity);
-
 		sampleSched.setLayoutParams(lp);
+		sampleSched.setOnClickListener(new View.OnClickListener(){
+			public void onClick(View v) {
+				new AlertDialog.Builder(ScheduleActivity.this)
+		        .setTitle("このスケジュールをどうしますか？")
+		        .setNegativeButton(
+		          "編集する", 
+		          new DialogInterface.OnClickListener() {
+		            @Override
+		            public void onClick(DialogInterface dialog, int which) {
+		            	Intent intentEdit = new Intent(ScheduleActivity.this,ScheduleEditActivity.class);
+						intentEdit.putExtra("start", startE);
+						intentEdit.putExtra("finish", finishE);
+						startActivity(intentEdit);
+		            }
+		          })
+		        .setPositiveButton(
+		          "削除する", 
+		          new DialogInterface.OnClickListener() {
+		            @Override
+		            public void onClick(DialogInterface dialog, int which) {  
+		            	ScheduleEndpoint endpoint = RemoteApi.getScheduleEndpoint();
+						//try {
+							Toast.makeText(ScheduleActivity.this, keySS, Toast.LENGTH_SHORT).show();
+							//endpoint.scheduleV1EndPoint().deleteSchedule(keySS);
+						//} catch (IOException e) {
+							// TODO Auto-generated catch block
+							//e.printStackTrace();
+						//}
+		            }
+		        })		        
+		        .show();
+			}
+		});
 		mainFrame.addView(sampleSched);
 		
 		viewOfSchedule.add(sampleSched);
@@ -376,8 +413,8 @@ public class ScheduleActivity extends Activity implements
 					for (final ScheduleV1Dto schedule : schedules) {
 						mHandler.post(new Runnable() {
 							public void run() {
-								displaySchedule(schedule.getStartTime(),
-										schedule.getFinishTime(), "予定");
+								displaySchedule(schedule.getStartTime(),schedule.getFinishTime(),
+										schedule.getKey(),"予定");
 							}
 
 						});
