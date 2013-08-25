@@ -6,6 +6,7 @@ import java.util.Calendar;
 import java.util.List;
 
 import jp.ac.titech.itpro.sds.fragile.GetFriendTask.GetFriendFinishListener;
+import jp.ac.titech.itpro.sds.fragile.GetGroupTask.GetGroupFinishListener;
 import jp.ac.titech.itpro.sds.fragile.GetShareTimeTask.GetShareTimeFinishListener;
 import jp.ac.titech.itpro.sds.fragile.api.RemoteApi;
 import jp.ac.titech.itpro.sds.fragile.utils.CalendarAdapter;
@@ -38,7 +39,12 @@ import com.appspot.fragile_t.scheduleEndpoint.model.ScheduleResultV1Dto;
 import com.appspot.fragile_t.scheduleEndpoint.model.ScheduleV1Dto;
 
 public class ScheduleActivity extends Activity implements
-		GetFriendFinishListener, GetShareTimeFinishListener {
+		GetFriendFinishListener, GetShareTimeFinishListener, GetGroupFinishListener {
+	
+	private static final long START_OF_DAY = 0;
+	private static final long END_OF_DAY = 24 * 60 * 60 * 1000;
+	
+	
 	private final String[] days = { "日", "月", "火", "水", "木", "金", "土" };
 	private String[] dayData = new String[7];
 	private String[] mainData = new String[7 * 24];
@@ -62,7 +68,11 @@ public class ScheduleActivity extends Activity implements
 
 	private GetScheduleTask mCalTask = null;
 	
-	private boolean[] mFlags;
+	private boolean[] mFriendCheckFlags;
+	private boolean[] mGroupCheckFlags;
+	
+	private List<UserV1Dto> mFriendList = null;
+	private List<GroupV1Dto> mGroupList = null;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -183,6 +193,7 @@ public class ScheduleActivity extends Activity implements
 	public void onFinish(GetFriendResultV1Dto result) {
 		try {
 			if (result != null) {
+<<<<<<< Upstream, based on origin/master
 				final List<String> friendEmailList = new ArrayList<String>();
 				List<com.appspot.fragile_t.getFriendEndpoint.model.UserV1Dto> friendList = result.getFriendList();
 				for (com.appspot.fragile_t.getFriendEndpoint.model.UserV1Dto friend : friendList) {
@@ -239,9 +250,131 @@ public class ScheduleActivity extends Activity implements
 								mFlags = flags2;
 							}
 						}).show();
+=======
+				mFriendList = result.getFriendList();
+				// friendListの取得が終わったら次はgroupList
+				getGroupList();
+>>>>>>> 7846db4 グループ表示、繰り返しスケジュール表示(暫定)
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * groupListを取得する
+	 */
+	private void getGroupList() {
+		try {
+			SharedPreferences pref = getSharedPreferences("user",
+					Activity.MODE_PRIVATE);
+			String userEmail = pref.getString("email", "");
+
+			// groupリストを取得する
+			GetGroupTask task = new GetGroupTask(this);
+			task.execute(userEmail);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			Log.d("DEBUG", "get friend fail");
+		}
+	}
+	/**
+	 * GetGroupTask終了後の処理
+	 */
+	@Override
+	public void onFinish(List<GroupV1Dto> result) {
+		try {
+			if (result != null) {
+				mGroupList = result;
+				// alertDialogを表示
+				makeShareTimeAlertDialog();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	/**
+	 * 共通空き時間のためのアラーとダイアログを生成
+	 */
+	private void makeShareTimeAlertDialog() {
+		// friendもgroupも両方つめるListを用意
+		final List<String> strList = new ArrayList<String>();
+		
+		// List<String>につめ直し
+		final List<String> groupNameList = new ArrayList<String>();
+		for (GroupV1Dto group : mGroupList) {
+			groupNameList.add(group.getName());
+			strList.add(group.getName());
+		}
+		
+		final List<String> friendEmailList = new ArrayList<String>();
+		for (UserV1Dto friend : mFriendList) {
+			friendEmailList.add(friend.getEmail());
+			strList.add(friend.getEmail());
+		}
+		
+		// もしチェック済みリストの長さと取得したリストの長さが違ったら初期化
+		if (mGroupCheckFlags == null || (mGroupCheckFlags.length != mGroupList.size())) {
+			mGroupCheckFlags = new boolean[mGroupList.size()];
+		}
+		if (mFriendCheckFlags == null || (mFriendCheckFlags.length != mFriendList.size())) {
+			mFriendCheckFlags = new boolean[mFriendList.size()];
+		}
+		
+		try {
+			String[] strArray = strList
+					.toArray(new String[strList.size()]);
+			
+			// 今のチェック状態を保存
+			final boolean[] groupFlags2 = mGroupCheckFlags.clone();
+			final boolean[] friendFlags2 = mFriendCheckFlags.clone();
+			new AlertDialog.Builder(ScheduleActivity.this)
+					.setTitle("友達を選んでください")
+					.setMultiChoiceItems(strArray, mFriendCheckFlags,
+							new DialogInterface.OnMultiChoiceClickListener() {
+								
+								@Override
+								public void onClick(DialogInterface dialog, 
+										int which, boolean isChecked) {
+									// チェックしたものを配列へ
+									mFriendCheckFlags[which] = isChecked;														
+								}
+							})
+					.setPositiveButton("OK", new DialogInterface.OnClickListener() {							
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							// 表示しているスケジュールをクリア
+							for (View view : viewOfSchedule) {
+								mainFrame.removeView(view);
+							}
+							viewOfSchedule.clear();
+							
+							// 選ばれたemailのリストを作成
+							List<String> selectedList = new ArrayList<String>();
+							for (int i=0; i<friendEmailList.size(); i++) {
+								if (mFriendCheckFlags[i]) {
+									selectedList.add(friendEmailList.get(i));
+								}
+							}
+							if (selectedList.size() > 0) {
+								// 共通空き時間表示
+								displayShareTimeWith(selectedList);
+							} else {
+								// 自分のスケジュールを表示
+								displayCalendar();
+							}
+						}
+					})
+					.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							// 元に戻す
+							mFriendCheckFlags = friendFlags2;
+						}
+					}).show();
+		} catch (Exception e) {
+			
 		}
 	}
 
@@ -409,8 +542,7 @@ public class ScheduleActivity extends Activity implements
 						.getSchedule(mBeginOfWeek.getTime().getTime(), 
 								mEndOfWeek.getTime().getTime(), mEmail);
 
-				List<ScheduleV1Dto> schedules = getSchedule.execute()
-						.getItems();
+				List<ScheduleV1Dto> schedules = getSchedule.execute().getItems();
 
 				if (schedules.size() > 0) {
 					for (final ScheduleV1Dto schedule : schedules) {
@@ -422,11 +554,41 @@ public class ScheduleActivity extends Activity implements
 
 						});
 					}
-
-					return true;
-				} else {
-					return false;
 				}
+				
+				// 繰り返しスケジュール
+				RepeatScheduleEndpoint repeatEndpoint = RemoteApi.getRepeatScheduleEndpoint();
+				GetRepeatSchedule getRepeatSchedule = repeatEndpoint.repeatScheduleV1EndPoint()
+						.getRepeatSchedule(START_OF_DAY, END_OF_DAY, mEmail);
+				List<RepeatScheduleV1Dto> repeatList = getRepeatSchedule.execute().getItems();
+				if (repeatList.size() > 0) {
+					for (RepeatScheduleV1Dto repeat : repeatList) {
+						for (int day : repeat.getRepeatDays().getList()) {
+							// TODO exceptの処理を行う
+							final Calendar start = (Calendar) mBeginOfWeek.clone();
+							final Calendar finish = (Calendar) mBeginOfWeek.clone();
+							
+							// dayは曜日を表す。今週の日曜日からのずれを足し込む
+							start.add(Calendar.DAY_OF_MONTH, day);
+							finish.add(Calendar.DAY_OF_MONTH, day);
+							
+							// startTimeとfinishTimeを設定する
+							start.add(Calendar.MILLISECOND, repeat.getStartTime().intValue());
+							finish.add(Calendar.MILLISECOND, repeat.getFinishTime().intValue());
+							
+							mHandler.post(new Runnable() {
+								public void run() {
+									displaySchedule(start.getTime().getTime(),
+											finish.getTime().getTime(), "予定");
+								}
+	
+							});
+						}
+					}
+				}
+				
+				
+				return true;
 			} catch (Exception e) {
 				return false;
 			}
@@ -447,4 +609,5 @@ public class ScheduleActivity extends Activity implements
 			mCalTask = null;
 		}
 	}
+
 }

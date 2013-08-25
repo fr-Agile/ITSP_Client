@@ -56,13 +56,13 @@ public class MakeGroupActivity extends Activity implements
 		context = this;
 		alertDialog = new AlertDialog.Builder(this);
 		emails = new ArrayList<String>();
-		task = new MakeGroupTask();
 
 		// ボタン作成
 		Button makegroup_btn = (Button) findViewById(R.id.make_group_button);
 		makegroup_btn.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				// DBにグループを作成
+				task = new MakeGroupTask();
 				task.execute();
 
 			}

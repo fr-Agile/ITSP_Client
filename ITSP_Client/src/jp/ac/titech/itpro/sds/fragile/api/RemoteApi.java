@@ -134,4 +134,16 @@ public class RemoteApi {
 		
 		return updateBuilder(endpointBuilder).build();
 	}
+	
+	public static RepeatScheduleEndpoint getRepeatScheduleEndpoint() {
+		RepeatScheduleEndpoint.Builder endpointBuilder = new RepeatScheduleEndpoint.Builder(
+				AndroidHttp.newCompatibleTransport(), 
+				new JacksonFactory(), 
+				new HttpRequestInitializer() {
+					public void initialize(HttpRequest httpRequest) {
+					}
+				}); 
+		
+		return updateBuilder(endpointBuilder).build();
+	}
 }
