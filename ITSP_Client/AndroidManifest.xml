@@ -56,6 +56,10 @@
             android:label="@string/title_activity_inputschedule">
         </activity>
         <activity
+            android:name=".ScheduleEditActivity"
+            android:label="@string/title_activity_editschedule">
+        </activity>
+        <activity
             android:name=".ScheduleActivity"
             android:label="@string/title_activity_schedule">
         </activity>

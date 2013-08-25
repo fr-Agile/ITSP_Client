@@ -357,13 +357,13 @@ public class ScheduleActivity extends Activity implements
 		            @Override
 		            public void onClick(DialogInterface dialog, int which) {  
 		            	ScheduleEndpoint endpoint = RemoteApi.getScheduleEndpoint();
-						//try {
+						try {
+							endpoint.scheduleV1EndPoint().deleteSchedule(keySS);
 							Toast.makeText(ScheduleActivity.this, keySS, Toast.LENGTH_SHORT).show();
-							//endpoint.scheduleV1EndPoint().deleteSchedule(keySS);
-						//} catch (IOException e) {
+						} catch (IOException e) {
 							// TODO Auto-generated catch block
-							//e.printStackTrace();
-						//}
+							e.printStackTrace();
+						}
 		            }
 		        })		        
 		        .show();
@@ -373,7 +373,7 @@ public class ScheduleActivity extends Activity implements
 		
 		viewOfSchedule.add(sampleSched);
 	}
-
+	
 	/**
 	 * Attempts to sign in or register the account specified by the login form.
 	 * If there are form errors (invalid email, missing fields, etc.), the
