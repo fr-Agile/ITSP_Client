@@ -3,9 +3,6 @@ package jp.ac.titech.itpro.sds.fragile.utils;
 import java.util.ArrayList;
 
 import jp.ac.titech.itpro.sds.fragile.R;
-import jp.ac.titech.itpro.sds.fragile.R.drawable;
-import jp.ac.titech.itpro.sds.fragile.R.id;
-
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;

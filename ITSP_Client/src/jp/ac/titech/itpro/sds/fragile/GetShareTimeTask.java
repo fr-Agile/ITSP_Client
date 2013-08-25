@@ -1,16 +1,13 @@
 package jp.ac.titech.itpro.sds.fragile;
 
-import java.util.Map;
-
 import jp.ac.titech.itpro.sds.fragile.api.RemoteApi;
 import jp.ac.titech.itpro.sds.fragile.api.constant.CommonConstant;
-
-import com.google.api.services.getShareTimeEndpoint.GetShareTimeEndpoint;
-import com.google.api.services.getShareTimeEndpoint.GetShareTimeEndpoint.GetShareTimeV1Endpoint.GetShareTime;
-import com.google.api.services.getShareTimeEndpoint.model.GetShareTimeV1ResultDto;
-
 import android.os.AsyncTask;
 import android.util.Log;
+
+import com.appspot.fragile_t.getShareTimeEndpoint.GetShareTimeEndpoint;
+import com.appspot.fragile_t.getShareTimeEndpoint.GetShareTimeEndpoint.GetShareTimeV1Endpoint.GetShareTime;
+import com.appspot.fragile_t.getShareTimeEndpoint.model.GetShareTimeV1ResultDto;
 
 public class GetShareTimeTask extends AsyncTask<Void, Void, GetShareTimeV1ResultDto> {
 

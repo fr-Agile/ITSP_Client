@@ -2,13 +2,12 @@ package jp.ac.titech.itpro.sds.fragile;
 
 import jp.ac.titech.itpro.sds.fragile.api.RemoteApi;
 import jp.ac.titech.itpro.sds.fragile.api.constant.CommonConstant;
-
-import com.google.api.services.getFriendEndpoint.GetFriendEndpoint;
-import com.google.api.services.getFriendEndpoint.GetFriendEndpoint.GetFriendV1Endpoint.GetFriendTo;
-import com.google.api.services.getFriendEndpoint.model.GetFriendResultV1Dto;
-
 import android.os.AsyncTask;
 import android.util.Log;
+
+import com.appspot.fragile_t.getFriendEndpoint.GetFriendEndpoint;
+import com.appspot.fragile_t.getFriendEndpoint.GetFriendEndpoint.GetFriendV1Endpoint.GetFriendTo;
+import com.appspot.fragile_t.getFriendEndpoint.model.GetFriendResultV1Dto;
 
 public class GetFriendTask extends AsyncTask<String, Void, GetFriendResultV1Dto> {
 

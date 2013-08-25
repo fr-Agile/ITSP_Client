@@ -14,16 +14,15 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.Menu;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.google.api.services.loginEndpoint.LoginEndpoint;
-import com.google.api.services.loginEndpoint.LoginEndpoint.LoginV1Endpoint.Login;
-import com.google.api.services.loginEndpoint.model.LoginResultV1Dto;
+import com.appspot.fragile_t.loginEndpoint.LoginEndpoint;
+import com.appspot.fragile_t.loginEndpoint.LoginEndpoint.LoginV1Endpoint.Login;
+import com.appspot.fragile_t.loginEndpoint.model.LoginResultV1Dto;
 
 /**
  * Activity which displays a login screen to the user, offering registration as

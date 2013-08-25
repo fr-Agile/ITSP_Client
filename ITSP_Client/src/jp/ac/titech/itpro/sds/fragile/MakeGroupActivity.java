@@ -6,9 +6,6 @@ import java.util.List;
 
 import jp.ac.titech.itpro.sds.fragile.GetFriendTask.GetFriendFinishListener;
 import jp.ac.titech.itpro.sds.fragile.api.RemoteApi;
-
-import org.json.JSONObject;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -25,15 +22,12 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 
-import com.google.api.services.getFriendEndpoint.model.GetFriendResultV1Dto;
-import com.google.api.services.getFriendEndpoint.model.UserV1Dto;
-import com.google.api.services.groupEndpoint.GroupEndpoint;
-import com.google.api.services.groupEndpoint.GroupEndpoint.GroupV1Endpoint.MakeGroup;
-import com.google.api.services.groupEndpoint.model.GroupResultV1Dto;
-import com.google.api.services.groupEndpoint.model.StringListContainer;
-import com.google.api.services.loginEndpoint.LoginEndpoint;
-import com.google.api.services.loginEndpoint.LoginEndpoint.LoginV1Endpoint.Login;
-import com.google.api.services.loginEndpoint.model.LoginResultV1Dto;
+import com.appspot.fragile_t.getFriendEndpoint.model.GetFriendResultV1Dto;
+import com.appspot.fragile_t.getFriendEndpoint.model.UserV1Dto;
+import com.appspot.fragile_t.groupEndpoint.GroupEndpoint;
+import com.appspot.fragile_t.groupEndpoint.GroupEndpoint.GroupV1Endpoint.MakeGroup;
+import com.appspot.fragile_t.groupEndpoint.model.GroupResultV1Dto;
+import com.appspot.fragile_t.groupEndpoint.model.StringListContainer;
 
 public class MakeGroupActivity extends Activity implements
 		GetFriendFinishListener {

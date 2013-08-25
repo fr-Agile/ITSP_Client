@@ -17,9 +17,9 @@ import android.net.Uri;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
-import android.nfc.NfcEvent;
 import android.nfc.NfcAdapter.CreateNdefMessageCallback;
 import android.nfc.NfcAdapter.OnNdefPushCompleteCallback;
+import android.nfc.NfcEvent;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -28,15 +28,14 @@ import android.provider.ContactsContract;
 import android.provider.ContactsContract.Contacts;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.google.api.services.friendEndpoint.FriendEndpoint;
-import com.google.api.services.friendEndpoint.FriendEndpoint.FriendV1Endpoint.Friendship;
-import com.google.api.services.friendEndpoint.model.FriendResultV1Dto;
+import com.appspot.fragile_t.friendEndpoint.FriendEndpoint;
+import com.appspot.fragile_t.friendEndpoint.FriendEndpoint.FriendV1Endpoint.Friendship;
+import com.appspot.fragile_t.friendEndpoint.model.FriendResultV1Dto;
 
 /**
  * Activity which displays a login screen to the user, offering registration as

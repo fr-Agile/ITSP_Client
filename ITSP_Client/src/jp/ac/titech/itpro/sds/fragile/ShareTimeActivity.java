@@ -6,16 +6,8 @@ import java.util.List;
 import jp.ac.titech.itpro.sds.fragile.GetFriendTask.GetFriendFinishListener;
 import jp.ac.titech.itpro.sds.fragile.GetShareTimeTask.GetShareTimeFinishListener;
 import jp.ac.titech.itpro.sds.fragile.api.constant.CommonConstant;
-
-import com.google.api.services.getFriendEndpoint.model.GetFriendResultV1Dto;
-import com.google.api.services.getFriendEndpoint.model.UserV1Dto;
-import com.google.api.services.getShareTimeEndpoint.model.GetShareTimeV1ResultDto;
-import com.google.api.services.getShareTimeEndpoint.model.GroupScheduleV1Dto;
-
 import android.app.Activity;
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -25,6 +17,10 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.appspot.fragile_t.getFriendEndpoint.model.GetFriendResultV1Dto;
+import com.appspot.fragile_t.getShareTimeEndpoint.model.GetShareTimeV1ResultDto;
+import com.appspot.fragile_t.getShareTimeEndpoint.model.GroupScheduleV1Dto;
+
 public class ShareTimeActivity extends Activity 
 							implements GetFriendFinishListener, GetShareTimeFinishListener {
 
@@ -32,7 +28,7 @@ public class ShareTimeActivity extends Activity
 	private String mEmailCSV;
 	private long mStartTime;
 	private long mFinishTime;
-	private List<UserV1Dto> mFriendList;
+	private List<com.appspot.fragile_t.getFriendEndpoint.model.UserV1Dto> mFriendList;
 	private List<String> mFriendEmailList;
 
 	// UI references.
@@ -93,7 +89,7 @@ public class ShareTimeActivity extends Activity
 		if (result != null) {
 			mFriendEmailList = new ArrayList<String>();
 			mFriendList = result.getFriendList();
-			for (UserV1Dto friend : mFriendList) {
+			for (com.appspot.fragile_t.getFriendEndpoint.model.UserV1Dto friend : mFriendList) {
 				mFriendEmailList.add(friend.getEmail());
 			}
 			
@@ -147,7 +143,7 @@ public class ShareTimeActivity extends Activity
 		for (GroupScheduleV1Dto gs : result.getGroupScheduleList()) {
 			str += gs.getStartTime() + ", " + gs.getFinishTime();
 			if (gs.getUserList() != null) {
-				for (com.google.api.services.getShareTimeEndpoint.model.UserV1Dto user : gs.getUserList()) {
+				for (com.appspot.fragile_t.getShareTimeEndpoint.model.UserV1Dto user : gs.getUserList()) {
 					str += ", " + user.getEmail();
 				}
 			}

@@ -2,11 +2,10 @@ package jp.ac.titech.itpro.sds.fragile;
 
 import java.util.List;
 
-import jp.ac.titech.itpro.sds.fragile.utils.AddressChecker;
-
 import jp.ac.titech.itpro.sds.fragile.api.RemoteApi;
 import jp.ac.titech.itpro.sds.fragile.api.constant.CommonConstant;
 import jp.ac.titech.itpro.sds.fragile.api.constant.RegisterConstant;
+import jp.ac.titech.itpro.sds.fragile.utils.AddressChecker;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
@@ -17,13 +16,12 @@ import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.Menu;
 import android.view.View;
 import android.widget.TextView;
 
-import com.google.api.services.registerEndpoint.RegisterEndpoint;
-import com.google.api.services.registerEndpoint.RegisterEndpoint.RegisterV1Endpoint.Register;
-import com.google.api.services.registerEndpoint.model.RegisterV1ResultDto;
+import com.appspot.fragile_t.registerEndpoint.RegisterEndpoint;
+import com.appspot.fragile_t.registerEndpoint.RegisterEndpoint.RegisterV1Endpoint.Register;
+import com.appspot.fragile_t.registerEndpoint.model.RegisterV1ResultDto;
 
 /**
  * Activity which displays a register screen to the user

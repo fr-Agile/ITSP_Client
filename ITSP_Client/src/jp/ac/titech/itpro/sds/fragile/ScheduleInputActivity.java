@@ -26,13 +26,13 @@ import android.widget.TimePicker;
 import android.widget.TimePicker.OnTimeChangedListener;
 import android.widget.Toast;
 
-import com.google.api.services.repeatScheduleEndpoint.RepeatScheduleEndpoint;
-import com.google.api.services.repeatScheduleEndpoint.RepeatScheduleEndpoint.RepeatScheduleV1EndPoint.CreateRepeatSchedule;
-import com.google.api.services.repeatScheduleEndpoint.model.RepeatScheduleContainer;
-import com.google.api.services.repeatScheduleEndpoint.model.RepeatScheduleResultV1Dto;
-import com.google.api.services.scheduleEndpoint.ScheduleEndpoint;
-import com.google.api.services.scheduleEndpoint.ScheduleEndpoint.ScheduleV1EndPoint.CreateSchedule;
-import com.google.api.services.scheduleEndpoint.model.ScheduleResultV1Dto;
+import com.appspot.fragile_t.repeatScheduleEndpoint.RepeatScheduleEndpoint;
+import com.appspot.fragile_t.repeatScheduleEndpoint.RepeatScheduleEndpoint.RepeatScheduleV1EndPoint.CreateRepeatSchedule;
+import com.appspot.fragile_t.repeatScheduleEndpoint.model.RepeatScheduleContainer;
+import com.appspot.fragile_t.repeatScheduleEndpoint.model.RepeatScheduleResultV1Dto;
+import com.appspot.fragile_t.scheduleEndpoint.ScheduleEndpoint;
+import com.appspot.fragile_t.scheduleEndpoint.ScheduleEndpoint.ScheduleV1EndPoint.CreateSchedule;
+import com.appspot.fragile_t.scheduleEndpoint.model.ScheduleResultV1Dto;
 
 public class ScheduleInputActivity extends Activity{
 		

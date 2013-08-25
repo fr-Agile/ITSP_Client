@@ -4,6 +4,14 @@ import java.io.IOException;
 
 import jp.ac.titech.itpro.sds.fragile.utils.CommonUtils;
 
+import com.appspot.fragile_t.friendEndpoint.FriendEndpoint;
+import com.appspot.fragile_t.getFriendEndpoint.GetFriendEndpoint;
+import com.appspot.fragile_t.getShareTimeEndpoint.GetShareTimeEndpoint;
+import com.appspot.fragile_t.groupEndpoint.GroupEndpoint;
+import com.appspot.fragile_t.loginEndpoint.LoginEndpoint;
+import com.appspot.fragile_t.registerEndpoint.RegisterEndpoint;
+import com.appspot.fragile_t.repeatScheduleEndpoint.RepeatScheduleEndpoint;
+import com.appspot.fragile_t.scheduleEndpoint.ScheduleEndpoint;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.services.AbstractGoogleClient;
 import com.google.api.client.googleapis.services.AbstractGoogleClientRequest;
@@ -11,14 +19,6 @@ import com.google.api.client.googleapis.services.GoogleClientRequestInitializer;
 import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.json.jackson.JacksonFactory;
-import com.google.api.services.friendEndpoint.FriendEndpoint;
-import com.google.api.services.getFriendEndpoint.GetFriendEndpoint;
-import com.google.api.services.getShareTimeEndpoint.GetShareTimeEndpoint;
-import com.google.api.services.loginEndpoint.LoginEndpoint;
-import com.google.api.services.groupEndpoint.GroupEndpoint;
-import com.google.api.services.registerEndpoint.RegisterEndpoint;
-import com.google.api.services.repeatScheduleEndpoint.RepeatScheduleEndpoint;
-import com.google.api.services.scheduleEndpoint.ScheduleEndpoint;
 
 
 public class RemoteApi {

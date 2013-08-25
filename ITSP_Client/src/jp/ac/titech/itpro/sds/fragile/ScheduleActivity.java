@@ -16,7 +16,6 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -28,13 +27,12 @@ import android.widget.FrameLayout;
 import android.widget.GridView;
 import android.widget.TextView;
 
-import com.google.api.services.getFriendEndpoint.model.GetFriendResultV1Dto;
-import com.google.api.services.getFriendEndpoint.model.UserV1Dto;
-import com.google.api.services.getShareTimeEndpoint.model.GetShareTimeV1ResultDto;
-import com.google.api.services.getShareTimeEndpoint.model.GroupScheduleV1Dto;
-import com.google.api.services.scheduleEndpoint.ScheduleEndpoint;
-import com.google.api.services.scheduleEndpoint.ScheduleEndpoint.ScheduleV1EndPoint.GetSchedule;
-import com.google.api.services.scheduleEndpoint.model.ScheduleV1Dto;
+import com.appspot.fragile_t.getFriendEndpoint.model.GetFriendResultV1Dto;
+import com.appspot.fragile_t.getShareTimeEndpoint.model.GetShareTimeV1ResultDto;
+import com.appspot.fragile_t.getShareTimeEndpoint.model.GroupScheduleV1Dto;
+import com.appspot.fragile_t.scheduleEndpoint.ScheduleEndpoint;
+import com.appspot.fragile_t.scheduleEndpoint.ScheduleEndpoint.ScheduleV1EndPoint.GetSchedule;
+import com.appspot.fragile_t.scheduleEndpoint.model.ScheduleV1Dto;
 
 public class ScheduleActivity extends Activity implements
 		GetFriendFinishListener, GetShareTimeFinishListener {
@@ -183,8 +181,8 @@ public class ScheduleActivity extends Activity implements
 		try {
 			if (result != null) {
 				final List<String> friendEmailList = new ArrayList<String>();
-				List<UserV1Dto> friendList = result.getFriendList();
-				for (UserV1Dto friend : friendList) {
+				List<com.appspot.fragile_t.getFriendEndpoint.model.UserV1Dto> friendList = result.getFriendList();
+				for (com.appspot.fragile_t.getFriendEndpoint.model.UserV1Dto friend : friendList) {
 					friendEmailList.add(friend.getEmail());
 				}
 				String[] emailStrList = friendEmailList
@@ -279,10 +277,10 @@ public class ScheduleActivity extends Activity implements
 		for (final GroupScheduleV1Dto gs : result.getGroupScheduleList()) {
 			if (gs.getUserList() != null) {
 				String temp = "";
-				List<com.google.api.services.getShareTimeEndpoint.model.UserV1Dto> userList 
+				List<com.appspot.fragile_t.getShareTimeEndpoint.model.UserV1Dto> userList 
 					= gs.getUserList();
 				for (int i=0; i<userList.size(); i++) {
-					com.google.api.services.getShareTimeEndpoint.model.UserV1Dto user 
+					com.appspot.fragile_t.getShareTimeEndpoint.model.UserV1Dto user 
 						= userList.get(i);
 					temp += user.getLastName() + " " + user.getFirstName();
 					
