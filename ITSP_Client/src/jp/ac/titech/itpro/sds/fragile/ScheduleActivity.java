@@ -30,8 +30,13 @@ import android.widget.GridView;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.appspot.fragile_t.getFriendEndpoint.model.GetFriendResultV1Dto;
+import com.appspot.fragile_t.getFriendEndpoint.model.UserV1Dto;
 import com.appspot.fragile_t.getShareTimeEndpoint.model.GetShareTimeV1ResultDto;
 import com.appspot.fragile_t.getShareTimeEndpoint.model.GroupScheduleV1Dto;
+import com.appspot.fragile_t.groupEndpoint.model.GroupV1Dto;
+import com.appspot.fragile_t.repeatScheduleEndpoint.RepeatScheduleEndpoint;
+import com.appspot.fragile_t.repeatScheduleEndpoint.RepeatScheduleEndpoint.RepeatScheduleV1EndPoint.GetRepeatSchedule;
+import com.appspot.fragile_t.repeatScheduleEndpoint.model.RepeatScheduleV1Dto;
 import com.appspot.fragile_t.scheduleEndpoint.ScheduleEndpoint;
 import com.appspot.fragile_t.scheduleEndpoint.ScheduleEndpoint.ScheduleV1EndPoint.DeleteSchedule;
 import com.appspot.fragile_t.scheduleEndpoint.ScheduleEndpoint.ScheduleV1EndPoint.GetSchedule;
@@ -193,68 +198,9 @@ public class ScheduleActivity extends Activity implements
 	public void onFinish(GetFriendResultV1Dto result) {
 		try {
 			if (result != null) {
-<<<<<<< Upstream, based on origin/master
-				final List<String> friendEmailList = new ArrayList<String>();
-				List<com.appspot.fragile_t.getFriendEndpoint.model.UserV1Dto> friendList = result.getFriendList();
-				for (com.appspot.fragile_t.getFriendEndpoint.model.UserV1Dto friend : friendList) {
-					friendEmailList.add(friend.getEmail());
-				}
-				String[] emailStrList = friendEmailList
-						.toArray(new String[friendEmailList.size()]);
-				if (mFlags == null || mFlags.length != emailStrList.length) {
-					mFlags = new boolean[emailStrList.length];
-				}
-				final boolean[] flags2 = mFlags.clone();
-				// 友人リストダイアログを表示
-				new AlertDialog.Builder(ScheduleActivity.this)
-						.setTitle("友達を選んでください")
-						.setMultiChoiceItems(emailStrList, mFlags,
-								new DialogInterface.OnMultiChoiceClickListener() {
-									
-									@Override
-									public void onClick(DialogInterface dialog, 
-											int which, boolean isChecked) {
-										// チェックしたものを配列へ
-										mFlags[which] = isChecked;														
-									}
-								})
-						.setPositiveButton("OK", new DialogInterface.OnClickListener() {							
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								// 表示しているスケジュールをクリア
-								for (View view : viewOfSchedule) {
-									mainFrame.removeView(view);
-								}
-								viewOfSchedule.clear();
-								
-								// 選ばれたemailリストを作成
-								List<String> selectedList = new ArrayList<String>();
-								for (int i=0; i<friendEmailList.size(); i++) {
-									if (mFlags[i]) {
-										selectedList.add(friendEmailList.get(i));
-									}
-								}
-								if (selectedList.size() > 0) {
-									// 共通空き時間表示
-									displayShareTimeWith(selectedList);
-								} else {
-									// 自分のスケジュールを表示
-									displayCalendar();
-								}
-							}
-						})
-						.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								// 元に戻す
-								mFlags = flags2;
-							}
-						}).show();
-=======
 				mFriendList = result.getFriendList();
 				// friendListの取得が終わったら次はgroupList
 				getGroupList();
->>>>>>> 7846db4 グループ表示、繰り返しスケジュール表示(暫定)
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -298,6 +244,57 @@ public class ScheduleActivity extends Activity implements
 	 * 共通空き時間のためのアラーとダイアログを生成
 	 */
 	private void makeShareTimeAlertDialog() {
+		// もしチェック済みリストの長さと取得したリストの長さが違ったら初期化
+		if (mGroupCheckFlags == null || (mGroupCheckFlags.length != mGroupList.size())) {
+			mGroupCheckFlags = new boolean[mGroupList.size()];
+		}
+		if (mFriendCheckFlags == null || (mFriendCheckFlags.length != mFriendList.size())) {
+			mFriendCheckFlags = new boolean[mFriendList.size()];
+		}
+		try {
+			// 今のチェック状態を保存
+			final boolean[] groupTempFlags = mGroupCheckFlags.clone();
+			final boolean[] friendTempFlags = mFriendCheckFlags.clone();
+			new GroupFriendAlertDialogBuilder(ScheduleActivity.this)
+					.setGroupAndFriend(mGroupList, mGroupCheckFlags, mFriendList, mFriendCheckFlags)
+					.setTitle("友達を選んでください")
+					.setPositiveButton("OK", new DialogInterface.OnClickListener() {							
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							// 表示しているスケジュールをクリア
+							for (View view : viewOfSchedule) {
+								mainFrame.removeView(view);
+							}
+							viewOfSchedule.clear();
+							
+							// 選ばれたemailのリストを作成
+							List<String> selectedList = new ArrayList<String>();
+							for (int i=0; i<mFriendList.size(); i++) {
+								if (mFriendCheckFlags[i]) {
+									selectedList.add(mFriendList.get(i).getEmail());
+								}
+							}
+							if (selectedList.size() > 0) {
+								// 共通空き時間表示
+								displayShareTimeWith(selectedList);
+							} else {
+								// 自分のスケジュールを表示
+								displayCalendar();
+							}
+						}
+					})
+					.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							// 元に戻す
+							mGroupCheckFlags = groupTempFlags;
+							mFriendCheckFlags = friendTempFlags;
+						}
+					}).show();
+		} catch (Exception e) {
+			
+		}
+		/*
 		// friendもgroupも両方つめるListを用意
 		final List<String> strList = new ArrayList<String>();
 		
@@ -323,8 +320,9 @@ public class ScheduleActivity extends Activity implements
 		}
 		
 		try {
-			String[] strArray = strList
-					.toArray(new String[strList.size()]);
+			//String[] strArray = strList
+			//		.toArray(new String[strList.size()]);
+			String[] strArray = friendEmailList.toArray(new String[friendEmailList.size()]);
 			
 			// 今のチェック状態を保存
 			final boolean[] groupFlags2 = mGroupCheckFlags.clone();
@@ -338,7 +336,7 @@ public class ScheduleActivity extends Activity implements
 								public void onClick(DialogInterface dialog, 
 										int which, boolean isChecked) {
 									// チェックしたものを配列へ
-									mFriendCheckFlags[which] = isChecked;														
+									//mFriendCheckFlags[which] = isChecked;														
 								}
 							})
 					.setPositiveButton("OK", new DialogInterface.OnClickListener() {							
@@ -376,6 +374,7 @@ public class ScheduleActivity extends Activity implements
 		} catch (Exception e) {
 			
 		}
+		*/
 	}
 
 	/**
@@ -563,7 +562,7 @@ public class ScheduleActivity extends Activity implements
 				List<RepeatScheduleV1Dto> repeatList = getRepeatSchedule.execute().getItems();
 				if (repeatList.size() > 0) {
 					for (RepeatScheduleV1Dto repeat : repeatList) {
-						for (int day : repeat.getRepeatDays().getList()) {
+						for (int day : repeat.getRepeatDays()) {
 							// TODO exceptの処理を行う
 							final Calendar start = (Calendar) mBeginOfWeek.clone();
 							final Calendar finish = (Calendar) mBeginOfWeek.clone();
@@ -590,6 +589,8 @@ public class ScheduleActivity extends Activity implements
 				
 				return true;
 			} catch (Exception e) {
+				Log.d("DEBUG", "show repeatSchedule fail");
+				e.printStackTrace();
 				return false;
 			}
 		}
