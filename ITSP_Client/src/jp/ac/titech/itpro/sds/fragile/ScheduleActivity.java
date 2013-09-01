@@ -1,6 +1,5 @@
 package jp.ac.titech.itpro.sds.fragile;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -37,6 +36,9 @@ import com.appspot.fragile_t.groupEndpoint.model.GroupV1Dto;
 import com.appspot.fragile_t.repeatScheduleEndpoint.RepeatScheduleEndpoint;
 import com.appspot.fragile_t.repeatScheduleEndpoint.RepeatScheduleEndpoint.RepeatScheduleV1EndPoint.GetRepeatSchedule;
 import com.appspot.fragile_t.repeatScheduleEndpoint.model.RepeatScheduleV1Dto;
+import com.appspot.fragile_t.loginEndpoint.LoginEndpoint;
+import com.appspot.fragile_t.loginEndpoint.LoginEndpoint.LoginV1Endpoint.Login;
+import com.appspot.fragile_t.loginEndpoint.model.LoginResultV1Dto;
 import com.appspot.fragile_t.scheduleEndpoint.ScheduleEndpoint;
 import com.appspot.fragile_t.scheduleEndpoint.ScheduleEndpoint.ScheduleV1EndPoint.DeleteSchedule;
 import com.appspot.fragile_t.scheduleEndpoint.ScheduleEndpoint.ScheduleV1EndPoint.GetSchedule;
@@ -72,6 +74,7 @@ public class ScheduleActivity extends Activity implements
 	private Handler mHandler;
 
 	private GetScheduleTask mCalTask = null;
+	private DeleteScheduleTask mDelTask = null;
 	
 	private boolean[] mFriendCheckFlags;
 	private boolean[] mGroupCheckFlags;
@@ -480,7 +483,8 @@ public class ScheduleActivity extends Activity implements
 		            @Override
 		            public void onClick(DialogInterface dialog, int which) {
 		            	Intent intentEdit = new Intent(ScheduleActivity.this,ScheduleEditActivity.class);
-						intentEdit.putExtra("start", startE);
+						intentEdit.putExtra("key", keySS);
+		            	intentEdit.putExtra("start", startE);
 						intentEdit.putExtra("finish", finishE);
 						startActivity(intentEdit);
 		            }
@@ -490,15 +494,26 @@ public class ScheduleActivity extends Activity implements
 		          new DialogInterface.OnClickListener() {
 		            @Override
 		            public void onClick(DialogInterface dialog, int which) {  
-		            	ScheduleEndpoint endpoint = RemoteApi.getScheduleEndpoint();
-						try {
-							DeleteSchedule deleteSchedule = endpoint.scheduleV1EndPoint().deleteSchedule(keySS);
-							ScheduleResultV1Dto result = deleteSchedule.execute();
-							Toast.makeText(ScheduleActivity.this, keySS, Toast.LENGTH_SHORT).show();
-						} catch (IOException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
+		            	new AlertDialog.Builder(ScheduleActivity.this)
+				        .setTitle("本当に削除しますか？")
+				        .setNegativeButton(
+				          "はい", 
+				          new DialogInterface.OnClickListener() {
+				            @Override
+				            public void onClick(DialogInterface dialog, int which) {
+				            	DeleteScheduleTask task = new DeleteScheduleTask();
+				            	task.execute(keySS);
+				            	Toast.makeText(ScheduleActivity.this, "削除しました", Toast.LENGTH_SHORT).show();
+				            }
+				          })
+				        .setPositiveButton(
+				          "いいえ", 
+				          new DialogInterface.OnClickListener() {
+				            @Override
+				            public void onClick(DialogInterface dialog, int which) {  
+				            }
+				        })		        
+				        .show();					
 		            }
 		        })		        
 		        .show();
@@ -585,8 +600,6 @@ public class ScheduleActivity extends Activity implements
 						}
 					}
 				}
-				
-				
 				return true;
 			} catch (Exception e) {
 				Log.d("DEBUG", "show repeatSchedule fail");
@@ -610,5 +623,36 @@ public class ScheduleActivity extends Activity implements
 			mCalTask = null;
 		}
 	}
+	
+	public class DeleteScheduleTask extends AsyncTask<String, Void, Boolean> {
+		@Override
+		protected Boolean doInBackground(String... args) {
+			String keySS = args[0];
+			try {
+				ScheduleEndpoint endpoint = RemoteApi.getScheduleEndpoint();
+				DeleteSchedule deleteSchedule = endpoint.scheduleV1EndPoint().deleteSchedule(keySS);
+				deleteSchedule.execute();
+				return true;
+			} catch (Exception e) {
+				return false;
+			}
+		}
 
+		@Override
+		protected void onPostExecute(final Boolean success) {
+			mDelTask = null;
+			if (success) {
+				Intent intentDel = new Intent(ScheduleActivity.this,ScheduleActivity.class);
+				startActivity(intentDel);
+				Log.d("DEBUG", "スケジュール表示成功");
+			} else {
+				Log.d("DEBUG", "スケジュール表示失敗");
+			}
+		}
+
+		@Override
+		protected void onCancelled() {
+			mDelTask = null;
+		}
+	}
 }
