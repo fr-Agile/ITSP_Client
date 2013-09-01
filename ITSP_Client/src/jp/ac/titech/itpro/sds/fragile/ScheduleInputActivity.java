@@ -169,13 +169,13 @@ public class ScheduleInputActivity extends Activity{
 			}
 		});
         
+        sunChk = (CheckBox)findViewById(R.id.sundayCheckbox);
         monChk = (CheckBox)findViewById(R.id.mondayCheckbox);
         tueChk = (CheckBox)findViewById(R.id.tuesdayCheckbox);
         wedChk = (CheckBox)findViewById(R.id.wednesdayCheckbox);
         thuChk = (CheckBox)findViewById(R.id.thursdayCheckbox);
         friChk = (CheckBox)findViewById(R.id.fridayCheckbox);
         satChk = (CheckBox)findViewById(R.id.saturdayCheckbox);
-        sunChk = (CheckBox)findViewById(R.id.sundayCheckbox);
         
         everydayChk = (CheckBox)findViewById(R.id.everydayCheckbox);
         everydayChk.setOnClickListener(new View.OnClickListener() {
@@ -183,21 +183,21 @@ public class ScheduleInputActivity extends Activity{
 			@Override
 			public void onClick(View v) {
 				if (((CheckBox) v).isChecked()) {
+					sunChk.setChecked(true);
 					monChk.setChecked(true);
 					tueChk.setChecked(true);
 					wedChk.setChecked(true);
 					thuChk.setChecked(true);
 					friChk.setChecked(true);
 					satChk.setChecked(true);
-					sunChk.setChecked(true);
 				} else {
+					sunChk.setChecked(false);
 					monChk.setChecked(false);
 					tueChk.setChecked(false);
 					wedChk.setChecked(false);
 					thuChk.setChecked(false);
 					friChk.setChecked(false);
 					satChk.setChecked(false);
-					sunChk.setChecked(false);
 				}
 			}
 		});
@@ -209,13 +209,13 @@ public class ScheduleInputActivity extends Activity{
     public void clickDoneButton(){
     	
     	repeats = new ArrayList<Integer>();
-		if(monChk.isChecked()) repeats.add(0);
-		if(tueChk.isChecked()) repeats.add(1);
-		if(wedChk.isChecked()) repeats.add(2);
-		if(thuChk.isChecked()) repeats.add(3);
-		if(friChk.isChecked()) repeats.add(4);
-		if(satChk.isChecked()) repeats.add(5);
-		if(sunChk.isChecked()) repeats.add(6);
+		if(sunChk.isChecked()) repeats.add(0);
+		if(monChk.isChecked()) repeats.add(1);
+		if(tueChk.isChecked()) repeats.add(2);
+		if(wedChk.isChecked()) repeats.add(3);
+		if(thuChk.isChecked()) repeats.add(4);
+		if(friChk.isChecked()) repeats.add(5);
+		if(satChk.isChecked()) repeats.add(6);
 		
     	showProgress(true);
     	mAuthTask = new ScheduleInputTask();
@@ -303,8 +303,20 @@ public class ScheduleInputActivity extends Activity{
 					RepeatScheduleContainer contain = new RepeatScheduleContainer();
 					contain.setIntegers(repeats);
 					
+					// startTimeとfinishTimeを今日の00:00からのミリ秒を表すlongにする
+					// そのため今日の00:00をCalendar型で作成
+					Calendar startOfToday = Calendar.getInstance();
+					startOfToday.set(Calendar.HOUR_OF_DAY, 0);
+					startOfToday.set(Calendar.MINUTE, 0);
+					startOfToday.set(Calendar.SECOND, 0);
+					startOfToday.set(Calendar.MILLISECOND, 0);
+					
+					
 					RepeatScheduleEndpoint endpoint = RemoteApi.getRepeatScheduleEndpoint();
-					CreateRepeatSchedule repeatschedule = endpoint.repeatScheduleV1EndPoint().createRepeatSchedule(scheduleStartTime, scheduleFinishTime, mEmail, contain);
+					CreateRepeatSchedule repeatschedule = 
+							endpoint.repeatScheduleV1EndPoint().createRepeatSchedule(
+							scheduleStartTime - startOfToday.getTimeInMillis(), 
+							scheduleFinishTime - startOfToday.getTimeInMillis(), mEmail, contain);
 					RepeatScheduleResultV1Dto result = repeatschedule.execute();
 					
 					if (SUCCESS.equals(result.getResult())) {

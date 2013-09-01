@@ -143,6 +143,13 @@
                         android:text="Everyday" />
                     
                     <CheckBox
+                        android:id="@+id/sundayCheckbox"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checked="false"
+                        android:text="Sun" />
+                    
+                    <CheckBox
                         android:id="@+id/mondayCheckbox"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -183,13 +190,6 @@
                         android:layout_height="wrap_content"
                         android:checked="false"
                         android:text="Sat" />
-                    
-                    <CheckBox
-                        android:id="@+id/sundayCheckbox"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:checked="false"
-                        android:text="Sun" />
                     
                 </LinearLayout>
                 
