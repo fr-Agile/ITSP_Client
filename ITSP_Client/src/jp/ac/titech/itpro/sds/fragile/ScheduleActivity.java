@@ -578,7 +578,7 @@ public class ScheduleActivity extends Activity implements
 							mHandler.post(new Runnable() {
 								public void run() {
 									displaySchedule(start.getTime().getTime(),
-											finish.getTime().getTime(), "予定");
+											finish.getTime().getTime(), "", "予定");
 								}
 	
 							});
