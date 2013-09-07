@@ -1,5 +1,7 @@
 package jp.ac.titech.itpro.sds.fragile;
 
+import java.util.Calendar;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -33,7 +35,16 @@ public class LoggedActivity extends Activity {
 	    Button schedule_btn = (Button)findViewById(R.id.go_to_schedule_from_logged);
 	    schedule_btn.setOnClickListener(new View.OnClickListener() {
 	    	public void onClick(View v) {   //スケジュール表示画面へ遷移
-	    		startActivity(new Intent(LoggedActivity.this, ScheduleActivity.class));
+	    		
+//	    		startActivity(new Intent(LoggedActivity.this, ScheduleActivity.class));
+	    		
+	    		Intent intent = new Intent(LoggedActivity.this, ScheduleActivity.class);
+	    		Calendar nowCal = Calendar.getInstance();
+//	    		nowCal.add(Calendar.DAY_OF_YEAR, 7);
+	    		StoreData data = new StoreData(nowCal);
+	    		intent.putExtra("StoreData", data);
+	    		intent.setAction(Intent.ACTION_VIEW);
+		        startActivity(intent);
 	    	}
 	    });
 	    Button makegroup_btn = (Button)findViewById(R.id.go_to_makegroup_from_logged);
