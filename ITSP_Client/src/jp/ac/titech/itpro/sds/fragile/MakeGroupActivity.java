@@ -56,13 +56,13 @@ public class MakeGroupActivity extends Activity implements
 		context = this;
 		alertDialog = new AlertDialog.Builder(this);
 		emails = new ArrayList<String>();
-		task = new MakeGroupTask();
 
 		// ボタン作成
 		Button makegroup_btn = (Button) findViewById(R.id.make_group_button);
 		makegroup_btn.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				// DBにグループを作成
+				task = new MakeGroupTask();
 				task.execute();
 
 			}
@@ -85,7 +85,7 @@ public class MakeGroupActivity extends Activity implements
 	}
 
 	// チェックされている友達の名前を取得
-	private ArrayList<String> GetCheckedFriend() {
+	private ArrayList<String> getCheckedFriend() {
 		int max = layout.getChildCount();
 		ArrayList<String> checked_names = new ArrayList<String>();
 		for (int i = 0; i < max; i++) {
@@ -98,7 +98,7 @@ public class MakeGroupActivity extends Activity implements
 	}
 
 	// チェックされている友達のメールアドレスのリストを取得
-	private List<String> GetCheckedMail() {
+	private List<String> getCheckedMail() {
 		int max = layout.getChildCount();
 		List<String> checked_emails = new ArrayList<String>();
 		for (int i = 0; i < max; i++) {
@@ -171,7 +171,7 @@ public class MakeGroupActivity extends Activity implements
 			String email = pref.getString("email", "");
 
 			StringListContainer container = new StringListContainer();
-			container.setList(emails);
+			container.setList(MakeGroupActivity.this.getCheckedMail());
 
 			GroupEndpoint endpoint = RemoteApi.getGroupEndpoint();
 			MakeGroup group;
@@ -202,7 +202,7 @@ public class MakeGroupActivity extends Activity implements
 			if (success) {
 				Log.d("DEBUG", "グループ作れました");
 				String title = "タイトル：" + group_title.getText().toString();
-				ArrayList<String> names = GetCheckedFriend();
+				ArrayList<String> names = getCheckedFriend();
 				String message = "";
 
 				for(int i=0;i<names.size();i++){

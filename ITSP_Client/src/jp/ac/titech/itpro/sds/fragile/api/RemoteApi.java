@@ -86,19 +86,6 @@ public class RemoteApi {
 		return updateBuilder(endpointBuilder).build();
 	}
 	
-	public static RepeatScheduleEndpoint getRepeatScheduleEndpoint() {
-		RepeatScheduleEndpoint.Builder endpointBuilder = new RepeatScheduleEndpoint.Builder(
-				AndroidHttp.newCompatibleTransport(), 
-				new JacksonFactory(), 
-				new HttpRequestInitializer() {
-					public void initialize(HttpRequest httpRequest) {
-					}
-				}); 
-		
-		return updateBuilder(endpointBuilder).build();
-	}
-	
-
 	public static GetShareTimeEndpoint getGetShareTimeEndpoint() {
 		GetShareTimeEndpoint.Builder endpointBuilder = new GetShareTimeEndpoint.Builder(
 				AndroidHttp.newCompatibleTransport(), 
@@ -125,6 +112,18 @@ public class RemoteApi {
 	
 	public static GroupEndpoint getGroupEndpoint() {
 		GroupEndpoint.Builder endpointBuilder = new GroupEndpoint.Builder(
+				AndroidHttp.newCompatibleTransport(), 
+				new JacksonFactory(), 
+				new HttpRequestInitializer() {
+					public void initialize(HttpRequest httpRequest) {
+					}
+				}); 
+		
+		return updateBuilder(endpointBuilder).build();
+	}
+	
+	public static RepeatScheduleEndpoint getRepeatScheduleEndpoint() {
+		RepeatScheduleEndpoint.Builder endpointBuilder = new RepeatScheduleEndpoint.Builder(
 				AndroidHttp.newCompatibleTransport(), 
 				new JacksonFactory(), 
 				new HttpRequestInitializer() {

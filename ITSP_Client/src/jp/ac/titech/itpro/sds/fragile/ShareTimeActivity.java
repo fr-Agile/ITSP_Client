@@ -21,6 +21,10 @@ import com.appspot.fragile_t.getFriendEndpoint.model.GetFriendResultV1Dto;
 import com.appspot.fragile_t.getShareTimeEndpoint.model.GetShareTimeV1ResultDto;
 import com.appspot.fragile_t.getShareTimeEndpoint.model.GroupScheduleV1Dto;
 
+/**
+ * 現在、使っていない。
+ * ScheduleActivityに吸収された。
+ */
 public class ShareTimeActivity extends Activity 
 							implements GetFriendFinishListener, GetShareTimeFinishListener {
 
