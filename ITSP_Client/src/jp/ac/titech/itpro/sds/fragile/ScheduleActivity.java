@@ -471,100 +471,43 @@ public class ScheduleActivity extends Activity implements
 					.setGroupAndFriend(mGroupList, mGroupCheckFlags,
 							mFriendList, mFriendCheckFlags)
 					.setTitle("友達を選んでください")
-					.setPositiveButton("OK",
-							new DialogInterface.OnClickListener() {
-								@Override
-								public void onClick(DialogInterface dialog,
-										int which) {
-									// 表示しているスケジュールをクリア
-									for (View view : viewOfSchedule) {
-										mainFrame.removeView(view);
-									}
-									viewOfSchedule.clear();
-
-									// 選ばれたemailのリストを作成
-									List<String> selectedList = new ArrayList<String>();
-									for (int i = 0; i < mFriendList.size(); i++) {
-										if (mFriendCheckFlags[i]) {
-											selectedList.add(mFriendList.get(i)
-													.getEmail());
-										}
-									}
-									if (selectedList.size() > 0) {
-										// 共通空き時間表示
-										displayShareTimeWith(selectedList);
-									} else {
-										// 自分のスケジュールを表示
-										displayCalendar();
-									}
+					.setPositiveButton("OK", new DialogInterface.OnClickListener() {							
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							// 表示しているスケジュールをクリア
+							for (View view : viewOfSchedule) {
+								mainFrame.removeView(view);
+							}
+							viewOfSchedule.clear();
+							
+							// 選ばれたemailのリストを作成
+							List<String> selectedList = new ArrayList<String>();
+							for (int i=0; i<mFriendList.size(); i++) {
+								if (mFriendCheckFlags[i]) {
+									selectedList.add(mFriendList.get(i).getEmail());
 								}
-							})
-					.setNegativeButton("Cancel",
-							new DialogInterface.OnClickListener() {
-								@Override
-								public void onClick(DialogInterface dialog,
-										int which) {
-									// 元に戻す
-									mGroupCheckFlags = groupTempFlags;
-									mFriendCheckFlags = friendTempFlags;
-								}
-							}).show();
+							}
+							if (selectedList.size() > 0) {
+								// 共通空き時間表示
+								displayShareTimeWith(selectedList);
+							} else {
+								// 自分のスケジュールを表示
+								displayCalendar();
+							}
+						}
+					})
+					.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							// 元に戻す
+							mGroupCheckFlags = groupTempFlags;
+							mFriendCheckFlags = friendTempFlags;
+						}
+					}).show();
 		} catch (Exception e) {
-
+			e.printStackTrace();
+			Log.d("DEBUG", "GroupFriendAlertDialog fail");
 		}
-		/*
-		 * // friendもgroupも両方つめるListを用意 final List<String> strList = new
-		 * ArrayList<String>();
-		 * 
-		 * // List<String>につめ直し final List<String> groupNameList = new
-		 * ArrayList<String>(); for (GroupV1Dto group : mGroupList) {
-		 * groupNameList.add(group.getName()); strList.add(group.getName()); }
-		 * 
-		 * final List<String> friendEmailList = new ArrayList<String>(); for
-		 * (UserV1Dto friend : mFriendList) {
-		 * friendEmailList.add(friend.getEmail());
-		 * strList.add(friend.getEmail()); }
-		 * 
-		 * // もしチェック済みリストの長さと取得したリストの長さが違ったら初期化 if (mGroupCheckFlags == null ||
-		 * (mGroupCheckFlags.length != mGroupList.size())) { mGroupCheckFlags =
-		 * new boolean[mGroupList.size()]; } if (mFriendCheckFlags == null ||
-		 * (mFriendCheckFlags.length != mFriendList.size())) { mFriendCheckFlags
-		 * = new boolean[mFriendList.size()]; }
-		 * 
-		 * try { //String[] strArray = strList // .toArray(new
-		 * String[strList.size()]); String[] strArray =
-		 * friendEmailList.toArray(new String[friendEmailList.size()]);
-		 * 
-		 * // 今のチェック状態を保存 final boolean[] groupFlags2 =
-		 * mGroupCheckFlags.clone(); final boolean[] friendFlags2 =
-		 * mFriendCheckFlags.clone(); new
-		 * AlertDialog.Builder(ScheduleActivity.this) .setTitle("友達を選んでください")
-		 * .setMultiChoiceItems(strArray, mFriendCheckFlags, new
-		 * DialogInterface.OnMultiChoiceClickListener() {
-		 * 
-		 * @Override public void onClick(DialogInterface dialog, int which,
-		 * boolean isChecked) { // チェックしたものを配列へ //mFriendCheckFlags[which] =
-		 * isChecked; } }) .setPositiveButton("OK", new
-		 * DialogInterface.OnClickListener() {
-		 * 
-		 * @Override public void onClick(DialogInterface dialog, int which) { //
-		 * 表示しているスケジュールをクリア for (View view : viewOfSchedule) {
-		 * mainFrame.removeView(view); } viewOfSchedule.clear();
-		 * 
-		 * // 選ばれたemailのリストを作成 List<String> selectedList = new
-		 * ArrayList<String>(); for (int i=0; i<friendEmailList.size(); i++) {
-		 * if (mFriendCheckFlags[i]) { selectedList.add(friendEmailList.get(i));
-		 * } } if (selectedList.size() > 0) { // 共通空き時間表示
-		 * displayShareTimeWith(selectedList); } else { // 自分のスケジュールを表示
-		 * displayCalendar(); } } }) .setNegativeButton("Cancel", new
-		 * DialogInterface.OnClickListener() {
-		 * 
-		 * @Override public void onClick(DialogInterface dialog, int which) { //
-		 * 元に戻す mFriendCheckFlags = friendFlags2; } }).show(); } catch
-		 * (Exception e) {
-		 * 
-		 * }
-		 */
 	}
 
 	/**
