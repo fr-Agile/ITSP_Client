@@ -17,6 +17,7 @@
     <color name="compl_extra_light">#f4b072</color>
     
     <color name="light_gray">#eeeeee</color>
+    <color name="dark_gray">#333333</color>
 
     <color name="transparent">#00000000</color>
 </resources>

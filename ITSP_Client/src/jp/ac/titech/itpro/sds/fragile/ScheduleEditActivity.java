@@ -116,8 +116,7 @@ public class ScheduleEditActivity extends Activity{
         showScheduleViewBtn.setOnClickListener(new View.OnClickListener() {
 			
 			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				startActivity(new Intent(ScheduleEditActivity.this, ScheduleActivity.class));
+				finish();
 			}
 		});
     }

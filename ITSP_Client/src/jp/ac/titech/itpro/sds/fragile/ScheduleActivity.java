@@ -162,6 +162,13 @@ public class ScheduleActivity extends Activity implements
 	}
 
 	@Override
+	protected void onResume(){
+		super.onResume();
+
+		displayCalendar();
+	}
+
+	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 	    // Inflate the menu items for use in the action bar
 	    MenuInflater inflater = getMenuInflater();

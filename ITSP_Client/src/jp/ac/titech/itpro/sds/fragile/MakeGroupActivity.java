@@ -69,9 +69,8 @@ public class MakeGroupActivity extends Activity implements
 		});
 		Button back_btn = (Button) findViewById(R.id.go_to_logged_from_makegroup);
 		back_btn.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) { // トップ画面へ遷移
-				startActivity(new Intent(MakeGroupActivity.this,
-						LoggedActivity.class));
+			public void onClick(View v) {
+				finish();
 			}
 		});
 

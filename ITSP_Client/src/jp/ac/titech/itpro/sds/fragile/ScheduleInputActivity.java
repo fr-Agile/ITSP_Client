@@ -149,8 +149,7 @@ public class ScheduleInputActivity extends Activity{
         showScheduleViewBtn.setOnClickListener(new View.OnClickListener() {
 			
 			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				startActivity(new Intent(ScheduleInputActivity.this, ScheduleActivity.class));
+				finish();
 			}
 		});
         

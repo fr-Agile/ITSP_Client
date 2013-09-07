@@ -90,9 +90,8 @@ public class FriendActivity extends Activity implements
 		// ボタン作成
 		Button logged_btn = (Button) findViewById(R.id.go_to_logged_from_friend);
 		logged_btn.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) { // メニュー画面へ遷移
-				startActivity(new Intent(FriendActivity.this,
-						LoggedActivity.class));
+			public void onClick(View v) { 
+				finish();
 			}
 		});
 

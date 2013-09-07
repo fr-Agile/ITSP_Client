@@ -34,6 +34,7 @@
     <LinearLayout
 		android:layout_width="match_parent"
 		android:layout_height="match_parent" 
+		android:layout_gravity="center_horizontal"
 		android:gravity="center_horizontal"
 		android:id="@+id/login_form"
 		style="@style/LoginFormContainer"
@@ -42,16 +43,17 @@
 		<EditText
 			android:id="@+id/email"
 			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-            android:hint="@string/prompt_email"
-            android:inputType="textEmailAddress"
-            android:maxLines="1"
-            android:singleLine="true" />
+			android:layout_height="42dp"
+			android:hint="@string/prompt_email"
+			android:inputType="textEmailAddress"
+			android:maxLines="1"
+			android:singleLine="true" />
 
         <EditText
             android:id="@+id/password"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+			android:layout_height="42dp"
+            android:layout_marginTop="16dp"
             android:hint="@string/prompt_password"
             android:imeActionId="@+id/login"
             android:imeActionLabel="@string/action_sign_in_short"
@@ -60,16 +62,17 @@
             android:maxLines="1"
             android:singleLine="true" />
 
-          <Button
-              android:id="@+id/sign_in_button"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:layout_gravity="center"
-              android:layout_marginTop="16dp"
-              android:paddingLeft="32dp"
-              android:paddingRight="32dp"
-              android:text="@string/action_sign_in" />
-    </LinearLayout>
+		<Button
+		    android:id="@+id/sign_in_button"
+		    style="@style/MyButton"
+		    android:layout_width="match_parent"
+		    android:layout_height="wrap_content"
+		    android:layout_gravity="center"
+		    android:layout_marginTop="16dp"
+		    android:paddingLeft="32dp"
+		    android:paddingRight="32dp"
+		    android:text="@string/action_sign_in" />
+	</LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"

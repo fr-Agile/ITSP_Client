@@ -2,15 +2,14 @@ package jp.ac.titech.itpro.sds.fragile;
 
 import java.util.List;
 
+import jp.ac.titech.itpro.sds.fragile.api.RemoteApi;
+import jp.ac.titech.itpro.sds.fragile.api.constant.CommonConstant;
+import android.os.AsyncTask;
+import android.util.Log;
+
 import com.appspot.fragile_t.groupEndpoint.GroupEndpoint;
 import com.appspot.fragile_t.groupEndpoint.GroupEndpoint.GroupV1Endpoint.GetGroupList;
 import com.appspot.fragile_t.groupEndpoint.model.GroupV1Dto;
-
-
-import android.os.AsyncTask;
-import android.util.Log;
-import jp.ac.titech.itpro.sds.fragile.api.RemoteApi;
-import jp.ac.titech.itpro.sds.fragile.api.constant.CommonConstant;
 
 public class GetGroupTask extends AsyncTask<String, Void, List<GroupV1Dto>> {
 
