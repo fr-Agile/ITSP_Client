@@ -99,35 +99,6 @@ public class ScheduleActivity extends Activity implements
         mEndOfWeek = (Calendar)data.getCal().clone();
 		
 
-		Button showNextWeekBtn = (Button)findViewById(R.id.go_to_next_week);
-		showNextWeekBtn.setOnClickListener(new View.OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				Intent intent = new Intent(ScheduleActivity.this, ScheduleActivity.class);
-	    		Calendar nowCal = (Calendar)data.getCal().clone();
-	    		nowCal.add(Calendar.DAY_OF_YEAR, 7);
-	    		StoreData data = new StoreData(nowCal);
-	    		intent.putExtra("StoreData", data);
-	    		intent.setAction(Intent.ACTION_VIEW);
-		        startActivity(intent);
-			}
-		});
-		
-		Button showPreviousWeekBtn = (Button)findViewById(R.id.go_to_previous_week);
-		showPreviousWeekBtn.setOnClickListener(new View.OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				Intent intent = new Intent(ScheduleActivity.this, ScheduleActivity.class);
-	    		Calendar nowCal = (Calendar)data.getCal().clone();
-	    		nowCal.add(Calendar.DAY_OF_YEAR, -7);
-	    		StoreData data = new StoreData(nowCal);
-	    		intent.putExtra("StoreData", data);
-	    		intent.setAction(Intent.ACTION_VIEW);
-		        startActivity(intent);
-			}
-		});
 		
 		// ハンドラを取得
 		mHandler = new Handler();
@@ -224,13 +195,43 @@ public class ScheduleActivity extends Activity implements
 	    menu.getItem(0).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener(){
 			@Override
 			public boolean onMenuItemClick(MenuItem item) {
+				Intent intent = new Intent(ScheduleActivity.this, ScheduleActivity.class);
+	    		Calendar nowCal = (Calendar)data.getCal().clone();
+	    		nowCal.add(Calendar.DAY_OF_YEAR, -7);
+	    		StoreData data = new StoreData(nowCal);
+	    		intent.putExtra("StoreData", data);
+	    		intent.setAction(Intent.ACTION_VIEW);
+		        startActivity(intent);
+		        
+		        return true;
+			}
+		});
+
+	    menu.getItem(1).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener(){
+			@Override
+			public boolean onMenuItemClick(MenuItem item) {
+				Intent intent = new Intent(ScheduleActivity.this, ScheduleActivity.class);
+	    		Calendar nowCal = (Calendar)data.getCal().clone();
+	    		nowCal.add(Calendar.DAY_OF_YEAR, 7);
+	    		StoreData data = new StoreData(nowCal);
+	    		intent.putExtra("StoreData", data);
+	    		intent.setAction(Intent.ACTION_VIEW);
+		        startActivity(intent);
+		        
+		        return true;
+			}
+		});
+
+	    menu.getItem(2).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener(){
+			@Override
+			public boolean onMenuItemClick(MenuItem item) {
 				// 友人リストを取得
 				getFriendList();
 				return true;
 			}
 		});
 
-	    menu.getItem(1).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener(){
+	    menu.getItem(3).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener(){
 			@Override
 			public boolean onMenuItemClick(MenuItem item) {
 				startActivity(new Intent(ScheduleActivity.this,
@@ -240,7 +241,7 @@ public class ScheduleActivity extends Activity implements
 			}
 	    });
 
-	    menu.getItem(2).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener(){
+	    menu.getItem(4).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener(){
 			@Override
 			public boolean onMenuItemClick(MenuItem item) {
 				startActivity(new Intent(ScheduleActivity.this,
@@ -250,7 +251,7 @@ public class ScheduleActivity extends Activity implements
 			}
 	    });
 
-	    menu.getItem(3).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener(){
+	    menu.getItem(5).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener(){
 			@Override
 			public boolean onMenuItemClick(MenuItem item) {
 				startActivity(new Intent(ScheduleActivity.this,
@@ -260,7 +261,7 @@ public class ScheduleActivity extends Activity implements
 			}
 	    });
 
-	    menu.getItem(4).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+	    menu.getItem(6).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
 			@Override
 			public boolean onMenuItemClick(MenuItem item) {
 				SharedPreferences pref = getSharedPreferences("user", Activity.MODE_PRIVATE);

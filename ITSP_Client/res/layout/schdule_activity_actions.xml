@@ -1,5 +1,15 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
+    <item android:id="@+id/go_to_previous_week"
+          android:icon="@drawable/allow_left"
+          android:showAsAction="ifRoom"
+          android:text="@string/button_go_to_previous_week" />
+
+    <item android:id="@+id/go_to_next_week"
+          android:icon="@drawable/allow_right"
+          android:showAsAction="ifRoom"
+          android:text="@string/button_go_to_next_week" />
+
     <item android:id="@+id/compare_schedule_button"
           android:icon="@drawable/compare_schedule_off"
           android:showAsAction="ifRoom"
