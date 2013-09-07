@@ -1,5 +1,7 @@
 package jp.ac.titech.itpro.sds.fragile;
 
+import java.util.Calendar;
+
 import jp.ac.titech.itpro.sds.fragile.api.RemoteApi;
 import jp.ac.titech.itpro.sds.fragile.api.constant.CommonConstant;
 import android.animation.Animator;
@@ -217,7 +219,14 @@ public class LoginActivity extends Activity {
 
 			if (success) {
 				Log.d("DEBUG", "ログイン成功");
-				startActivity(new Intent(LoginActivity.this, ScheduleActivity.class));
+	    		Intent intent = new Intent(LoginActivity.this, ScheduleActivity.class);
+	    		Calendar nowCal = Calendar.getInstance();
+//	    		nowCal.add(Calendar.DAY_OF_YEAR, 7);
+	    		StoreData data = new StoreData(nowCal);
+	    		intent.putExtra("StoreData", data);
+	    		intent.setAction(Intent.ACTION_VIEW);
+		        startActivity(intent);
+		        
 				finish();
 			} else {
 				mPasswordView
