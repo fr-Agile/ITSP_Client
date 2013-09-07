@@ -74,6 +74,7 @@ public class ScheduleActivity extends Activity implements
 
 	private Calendar mBeginOfWeek;
 	private Calendar mEndOfWeek;
+	private StoreData data;
 
 	private Handler mHandler;
 
@@ -91,14 +92,57 @@ public class ScheduleActivity extends Activity implements
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_schedule);
 
+		Intent intent = getIntent();
+        data = (StoreData)intent.getSerializableExtra("StoreData");
+        Calendar now = (Calendar)data.getCal().clone();
+        mBeginOfWeek = (Calendar)data.getCal().clone();
+        mEndOfWeek = (Calendar)data.getCal().clone();
+		
 
+		Button showNextWeekBtn = (Button)findViewById(R.id.go_to_next_week);
+		showNextWeekBtn.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent(ScheduleActivity.this, ScheduleActivity.class);
+	    		Calendar nowCal = (Calendar)data.getCal().clone();
+	    		nowCal.add(Calendar.DAY_OF_YEAR, 7);
+	    		StoreData data = new StoreData(nowCal);
+	    		intent.putExtra("StoreData", data);
+	    		intent.setAction(Intent.ACTION_VIEW);
+		        startActivity(intent);
+			}
+		});
+		
+		Button showPreviousWeekBtn = (Button)findViewById(R.id.go_to_previous_week);
+		showPreviousWeekBtn.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent(ScheduleActivity.this, ScheduleActivity.class);
+	    		Calendar nowCal = (Calendar)data.getCal().clone();
+	    		nowCal.add(Calendar.DAY_OF_YEAR, -7);
+	    		StoreData data = new StoreData(nowCal);
+	    		intent.putExtra("StoreData", data);
+	    		intent.setAction(Intent.ACTION_VIEW);
+		        startActivity(intent);
+			}
+		});
+		
 		// ハンドラを取得
 		mHandler = new Handler();
 
 		// 現在の時刻情報を色々取得
-		Calendar now = Calendar.getInstance();
-		mBeginOfWeek = Calendar.getInstance();
-		mEndOfWeek = Calendar.getInstance();
+		
+        
+        
+        
+        Log.d("Calendar", "Year: " + now.get(Calendar.YEAR) + "Month: " + (now.get(Calendar.MONTH) + 1) + "Days: " + now.get(Calendar.DAY_OF_MONTH) + "Day of week: " + now.get(Calendar.DAY_OF_WEEK));
+        
+//		Calendar now = Calendar.getInstance();
+//		mBeginOfWeek = Calendar.getInstance();
+//		mEndOfWeek = Calendar.getInstance();
+        
 		int dayOfWeek = now.get(Calendar.DAY_OF_WEEK) - Calendar.SUNDAY;
 		
 		// 00:00スタート、23:59終了にする
@@ -115,6 +159,9 @@ public class ScheduleActivity extends Activity implements
 		mEndOfWeek.set(Calendar.SECOND, 59);
 		mEndOfWeek.set(Calendar.MILLISECOND, 999);
 
+		Log.d("Calendar begin of week", "Year: " + mBeginOfWeek.get(Calendar.YEAR) + "Month: " + (mBeginOfWeek.get(Calendar.MONTH) + 1) + "Days: " + mBeginOfWeek.get(Calendar.DAY_OF_MONTH) + "Day of week: " + mBeginOfWeek.get(Calendar.DAY_OF_WEEK));
+		Log.d("Calendar end of week", "Year: " + mEndOfWeek.get(Calendar.YEAR) + "Month: " + (mEndOfWeek.get(Calendar.MONTH) + 1) + "Days: " + mEndOfWeek.get(Calendar.DAY_OF_MONTH) + "Day of week: " + mEndOfWeek.get(Calendar.DAY_OF_WEEK));
+		
 		mainFrame = (FrameLayout) findViewById(R.id.calendarMainFrame);
 		dayGrid = (GridView) findViewById(R.id.gridView1);
 		timeGrid = (GridView) findViewById(R.id.gridView2);
@@ -135,7 +182,7 @@ public class ScheduleActivity extends Activity implements
 		for (int i = 0; i < 7; i++) {
 			Calendar cal = (Calendar) mBeginOfWeek.clone();
 			cal.add(Calendar.DAY_OF_MONTH, i);
-			dayData[i] = days[i] + " " + Integer.toString(cal.get(Calendar.DAY_OF_MONTH));
+			dayData[i] = days[i] + "  " + Integer.toString(cal.get(Calendar.DAY_OF_MONTH));
 		}
 
 		dayAdapter = new DayAdapter(this, R.layout.day_row);
