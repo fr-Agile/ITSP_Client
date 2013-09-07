@@ -12,5 +12,6 @@
     <string name="error_invalid_password">パスワードが短すぎます</string>
     <string name="error_incorrect_password">パスワードが間違っています</string>
     <string name="error_field_required">入力して下さい</string>
+    <string name="big_logo">big_logo</string>
 
 </resources>

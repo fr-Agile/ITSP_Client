@@ -232,7 +232,7 @@ public class RegisterActivity extends Activity {
 
 			if (success) {
 				Log.d("DEBUG", "register success");
-				startActivity(new Intent(RegisterActivity.this, RegisteredActivity.class));
+				startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
 				finish();
 			}
 		}

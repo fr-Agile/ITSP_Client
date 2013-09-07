@@ -217,7 +217,7 @@ public class LoginActivity extends Activity {
 
 			if (success) {
 				Log.d("DEBUG", "ログイン成功");
-				startActivity(new Intent(LoginActivity.this, LoggedActivity.class));
+				startActivity(new Intent(LoginActivity.this, ScheduleActivity.class));
 				finish();
 			} else {
 				mPasswordView

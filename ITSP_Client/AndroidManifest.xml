@@ -15,11 +15,12 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@drawable/ic_launcher"
+        android:icon="@drawable/button"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
             android:name="jp.ac.titech.itpro.sds.fragile.MainActivity"
+            android:theme="@style/AppTheme"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -28,6 +29,7 @@
         </activity>
         <activity
             android:name=".LoginActivity"
+            android:theme="@style/ColorBackTheme"
             android:label="@string/login_progress_signing_in">
         </activity>
         <activity
@@ -36,6 +38,7 @@
         </activity>
         <activity
             android:name=".RegisterActivity"
+            android:theme="@style/ColorBackTheme"
             android:label="@string/title_activity_register">
         </activity>
         <activity
@@ -53,22 +56,27 @@
         </activity>
         <activity
             android:name=".ScheduleInputActivity"
+            android:theme="@style/AppTheme"
             android:label="@string/title_activity_inputschedule">
         </activity>
         <activity
             android:name=".ScheduleEditActivity"
+            android:theme="@style/AppTheme"
             android:label="@string/title_activity_editschedule">
         </activity>
         <activity
             android:name=".ScheduleActivity"
+            android:theme="@style/AppTheme"
             android:label="@string/title_activity_schedule">
         </activity>
         <activity
             android:name=".ShareTimeActivity"
+            android:theme="@style/AppTheme"
             android:label="@string/title_activity_schedule">
         </activity>
         <activity
             android:name=".MakeGroupActivity"
+            android:theme="@style/AppTheme"
             android:label="@string/title_activity_makegroup">
         </activity>
     </application>

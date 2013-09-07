@@ -4,4 +4,19 @@
     <color name="frame_frame">#008080</color>
     <color name="frame_back">#00FFFF</color>
     
+    <color name="base">#489C96</color>
+    <color name="base_extra_light">#61CDC9</color>
+    <color name="base_light">#61cec8</color>
+    <color name="base_dark">#347471</color>
+    <color name="base_extra_dark">#2c6561</color>
+
+    <color name="compl">#ed6f33</color>
+    <color name="compl_extra_dark">#a64a21</color>
+    <color name="compl_dark">#bf6f30</color>
+    <color name="compl_light">#f1933d</color>
+    <color name="compl_extra_light">#f4b072</color>
+    
+    <color name="light_gray">#eeeeee</color>
+
+    <color name="transparent">#00000000</color>
 </resources>

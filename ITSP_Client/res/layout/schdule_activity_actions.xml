@@ -1,0 +1,21 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item android:id="@+id/compare_schedule_button"
+          android:icon="@drawable/compare_schedule_off"
+          android:showAsAction="ifRoom"
+          android:title="@string/button_sample" />
+
+    <item android:id="@+id/add_schedule_button"
+          android:icon="@drawable/add_schedule"
+          android:showAsAction="ifRoom"
+          android:title="@string/button_sample"/>
+
+    <item android:id="@+id/make_group_button"
+          android:title="@string/button_go_to_makegroup"/>
+
+    <item android:id="@+id/add_friend_button"
+          android:title="@string/button_go_to_friend"/>
+
+    <item android:id="@+id/logout_button"
+          android:title="@string/button_logout"/>
+</menu>

@@ -6,14 +6,16 @@
     <string name="message_logged_in">メニュー</string>
     <string name="logged_title">ユーザーページ</string>
     <string name="back">トップへ戻る</string>    
-    <string name="button_go_to_friend">友人登録</string>
+    <string name="button_go_to_friend">友人を登録</string>
     <string name="button_go_to_inputschedule">予定を追加</string>
-    <string name="button_go_to_makegroup">グループ作成</string>
-    <string name="button_go_to_register">新規登録</string>
+    <string name="button_go_to_makegroup">グループを作成</string>
+    <string name="button_go_to_register">FrAgileアプリに登録</string>
     <string name="button_go_to_login">ログイン</string>
     <string name="button_go_to_schedule">スケジュール</string>
     <string name="button_go_to_sharetime">予定を比較</string>
     <string name="welcome_menu">ようこそ</string>        
     <string name="title_activity_makegroup">グループ作成</string>
+    <string name="button_sample">Sample Button</string>
+    <string name="button_logout">ログアウト</string>
 
 </resources>

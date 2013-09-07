@@ -22,12 +22,16 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.GridView;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.appspot.fragile_t.getFriendEndpoint.model.GetFriendResultV1Dto;
 import com.appspot.fragile_t.getShareTimeEndpoint.model.GetShareTimeV1ResultDto;
 import com.appspot.fragile_t.getShareTimeEndpoint.model.GroupScheduleV1Dto;
@@ -69,14 +73,6 @@ public class ScheduleActivity extends Activity implements
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_schedule);
 
-		Button scheduleinput_btn = (Button) findViewById(R.id.go_to_inputschedule_from_schedule);
-		scheduleinput_btn.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) { // スケジュール登録画面へ遷移
-				startActivity(new Intent(ScheduleActivity.this,
-						ScheduleInputActivity.class));
-			}
-		});
-		initShareTimeBtn();
 
 		// ハンドラを取得
 		mHandler = new Handler();
@@ -147,14 +143,67 @@ public class ScheduleActivity extends Activity implements
 		displayCalendar(); // スケジュールを四角で表示
 	}
 
-	private void initShareTimeBtn() {
-		Button sharetime_btn = (Button) findViewById(R.id.go_to_sharetime_from_schedule);
-		sharetime_btn.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+	    // Inflate the menu items for use in the action bar
+	    MenuInflater inflater = getMenuInflater();
+	    inflater.inflate(R.layout.schdule_activity_actions, menu);
+
+	    menu.getItem(0).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener(){
+			@Override
+			public boolean onMenuItemClick(MenuItem item) {
 				// 友人リストを取得
 				getFriendList();
+				return true;
 			}
 		});
+
+	    menu.getItem(1).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener(){
+			@Override
+			public boolean onMenuItemClick(MenuItem item) {
+				startActivity(new Intent(ScheduleActivity.this,
+						ScheduleInputActivity.class));
+				
+				return true;
+			}
+	    });
+
+	    menu.getItem(2).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener(){
+			@Override
+			public boolean onMenuItemClick(MenuItem item) {
+				startActivity(new Intent(ScheduleActivity.this,
+						MakeGroupActivity.class));
+				
+				return true;
+			}
+	    });
+
+	    menu.getItem(3).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener(){
+			@Override
+			public boolean onMenuItemClick(MenuItem item) {
+				startActivity(new Intent(ScheduleActivity.this,
+						FriendActivity.class));
+				
+				return true;
+			}
+	    });
+
+	    menu.getItem(4).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+			@Override
+			public boolean onMenuItemClick(MenuItem item) {
+				SharedPreferences pref = getSharedPreferences("user", Activity.MODE_PRIVATE);
+				SharedPreferences.Editor editor = pref.edit();
+				editor.remove("email");  
+			    editor.commit();
+
+				startActivity(new Intent(ScheduleActivity.this,
+						LoginActivity.class));
+				
+				return true;
+			}
+	    });
+
+	    return super.onCreateOptionsMenu(menu);
 	}
 
 	/**
