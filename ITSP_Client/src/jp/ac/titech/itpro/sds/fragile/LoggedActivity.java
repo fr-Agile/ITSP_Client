@@ -40,7 +40,7 @@ public class LoggedActivity extends Activity {
 	    		
 	    		Intent intent = new Intent(LoggedActivity.this, ScheduleActivity.class);
 	    		Calendar nowCal = Calendar.getInstance();
-	    		nowCal.add(Calendar.DAY_OF_YEAR, 7);
+//	    		nowCal.add(Calendar.DAY_OF_YEAR, 7);
 	    		StoreData data = new StoreData(nowCal);
 	    		intent.putExtra("StoreData", data);
 	    		intent.setAction(Intent.ACTION_VIEW);

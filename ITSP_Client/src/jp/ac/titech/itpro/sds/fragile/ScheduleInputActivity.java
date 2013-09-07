@@ -150,7 +150,16 @@ public class ScheduleInputActivity extends Activity{
 			
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
-				startActivity(new Intent(ScheduleInputActivity.this, ScheduleActivity.class));
+//				startActivity(new Intent(ScheduleInputActivity.this, ScheduleActivity.class));
+				
+				Intent intent = new Intent(ScheduleInputActivity.this, ScheduleActivity.class);
+	    		Calendar nowCal = Calendar.getInstance();
+//	    		nowCal.add(Calendar.DAY_OF_YEAR, 7);
+	    		StoreData data = new StoreData(nowCal);
+	    		intent.putExtra("StoreData", data);
+	    		intent.setAction(Intent.ACTION_VIEW);
+		        startActivity(intent);
+				
 			}
 		});
         
