@@ -26,7 +26,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
+import android.widget.AdapterView;
 import android.widget.FrameLayout;
 import android.widget.GridView;
 import android.widget.TextView;
@@ -40,13 +40,9 @@ import com.appspot.fragile_t.groupEndpoint.model.GroupV1Dto;
 import com.appspot.fragile_t.repeatScheduleEndpoint.RepeatScheduleEndpoint;
 import com.appspot.fragile_t.repeatScheduleEndpoint.RepeatScheduleEndpoint.RepeatScheduleV1EndPoint.GetRepeatSchedule;
 import com.appspot.fragile_t.repeatScheduleEndpoint.model.RepeatScheduleV1Dto;
-import com.appspot.fragile_t.loginEndpoint.LoginEndpoint;
-import com.appspot.fragile_t.loginEndpoint.LoginEndpoint.LoginV1Endpoint.Login;
-import com.appspot.fragile_t.loginEndpoint.model.LoginResultV1Dto;
 import com.appspot.fragile_t.scheduleEndpoint.ScheduleEndpoint;
 import com.appspot.fragile_t.scheduleEndpoint.ScheduleEndpoint.ScheduleV1EndPoint.DeleteSchedule;
 import com.appspot.fragile_t.scheduleEndpoint.ScheduleEndpoint.ScheduleV1EndPoint.GetSchedule;
-import com.appspot.fragile_t.scheduleEndpoint.model.ScheduleResultV1Dto;
 import com.appspot.fragile_t.scheduleEndpoint.model.ScheduleV1Dto;
 
 public class ScheduleActivity extends Activity implements
@@ -57,7 +53,10 @@ public class ScheduleActivity extends Activity implements
 	
 	
 	private final String[] days = { "日", "月", "火", "水", "木", "金", "土" };
-	private String[] dayData = new String[7];
+	private int[] dayData = new int[7];
+	private int[] monthData = new int[7];
+	private int[] yearData = new int[7];
+	private String[] dayLabel = new String[7];
 	private String[] mainData = new String[7 * 24];
 	private String[] timeData = new String[24];
 
@@ -153,11 +152,14 @@ public class ScheduleActivity extends Activity implements
 		for (int i = 0; i < 7; i++) {
 			Calendar cal = (Calendar) mBeginOfWeek.clone();
 			cal.add(Calendar.DAY_OF_MONTH, i);
-			dayData[i] = days[i] + "  " + Integer.toString(cal.get(Calendar.DAY_OF_MONTH));
+			dayData[i] = cal.get(Calendar.DAY_OF_MONTH);
+			monthData[i] = cal.get(Calendar.MONTH);
+			yearData[i] = cal.get(Calendar.YEAR);
+			dayLabel[i] = days[i] + "  " + Integer.toString(dayData[i]);
 		}
 
 		dayAdapter = new DayAdapter(this, R.layout.day_row);
-		for (String d : dayData) {
+		for (String d : dayLabel) {
 			dayAdapter.add(d);
 		}
 		dayGrid.setAdapter(dayAdapter);
@@ -175,6 +177,21 @@ public class ScheduleActivity extends Activity implements
 			calendarAdapter.add(d);
 		}
 		mainGrid.setAdapter(calendarAdapter);
+		mainGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent intent = new Intent(ScheduleActivity.this, ScheduleInputActivity.class);
+                Calendar startTime = Calendar.getInstance();
+                startTime.set(Calendar.YEAR, yearData[position % 7]);
+                startTime.set(Calendar.MONTH, monthData[position % 7]);
+                startTime.set(Calendar.DAY_OF_MONTH, dayData[position % 7]);
+                startTime.set(Calendar.HOUR_OF_DAY, position / 7);
+                startTime.set(Calendar.MINUTE, 0);
+                startTime.set(Calendar.SECOND, 0);
+                intent.putExtra("startTime", startTime);
+
+                startActivity(intent);
+            }
+        });
 
 		displayCalendar(); // スケジュールを四角で表示
 	}

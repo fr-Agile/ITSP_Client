@@ -269,7 +269,7 @@ public class FriendActivity extends Activity implements
 				Log.d("DEBUG", "登録成功");
 				// 成功した場合、トップ画面に戻る
 				Intent next_intent = new Intent(FriendActivity.this,
-						LoggedActivity.class);
+						ScheduleActivity.class);
 				next_intent.putExtra(EXTRA_MESSAGE,
 						getString(R.string.friend_register_ok));
 				startActivity(next_intent);

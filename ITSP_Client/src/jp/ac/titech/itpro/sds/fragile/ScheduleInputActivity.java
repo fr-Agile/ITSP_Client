@@ -68,12 +68,8 @@ public class ScheduleInputActivity extends Activity{
 	private ScheduleInputTask mAuthTask = null;
 	
 	DateFormat formatDateTime = DateFormat.getDateTimeInstance();
-//	Calendar dateTime=Calendar.getInstance();
 	Calendar startTime=Calendar.getInstance();
 	Calendar finishTime=Calendar.getInstance();
-	
-//	private TextView startTimeLabel;
-//	private TextView finishTimeLabel;
 	
 	/** Called when the activity is first created. */
     @Override
@@ -81,20 +77,30 @@ public class ScheduleInputActivity extends Activity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_inputschedule);
         
+        Intent intent = getIntent();
+        Bundle extras = intent.getExtras();
+
         mInputScheduleView = findViewById(R.id.inputScheduleView);
 		mSpinView = findViewById(R.id.spinView);
         
-//        startTimeLabel=(TextView)findViewById(R.id.startTimeTxt);
-//        finishTimeLabel=(TextView)findViewById(R.id.finishTimeTxt);
-       
+		// 時間指定でスケジュール作成画面に飛んできた場合の、
+		// startTime, finishTimeの調整
+		if (extras != null) {
+		    if (extras.containsKey("startTime")) {
+		    	Calendar cal = (Calendar)extras.get("startTime");
+				Log.d("myDEBUG", extras.get("startTime").toString());
+		    	startTime = (Calendar)cal.clone();
+		    	cal.add(Calendar.HOUR_OF_DAY, 1);
+		    	finishTime = (Calendar)cal.clone();
+		    }
+		}
+		
         scheduleStartTime = startTime.getTime().getTime();
-//        startTimeLabel.setText(formatDateTime.format(dateTime.getTime()));
 		scheduleFinishTime = finishTime.getTime().getTime();
         
         mDatepicker = (DatePicker)findViewById(R.id.datePicker1);
         mStartTimePicker = (TimePicker)findViewById(R.id.timePicker1);
         mFinishTimePicker = (TimePicker)findViewById(R.id.timePicker2);
-//        finishTimeLabel.setText(formatDateTime.format(dateTime.getTime()));
                 
         mDatepicker.init(startTime.get(Calendar.YEAR), 
         				 startTime.get(Calendar.MONTH), 
