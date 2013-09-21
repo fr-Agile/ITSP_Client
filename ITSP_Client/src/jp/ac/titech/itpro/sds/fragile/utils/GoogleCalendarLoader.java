@@ -17,24 +17,18 @@ public class GoogleCalendarLoader extends CursorLoader {
         Time time = new Time(tz);
         time.setToNow();
         time.allDay = true;
-        /*
+        // 去年の1月1日から
         time.year = time.year - 1;
         time.month = 0;
         time.monthDay = 1;
-        */
-        time.month = 8;
-        time.monthDay = 15;
         time.hour = 0;
         time.minute = 0;
         time.second = 0;
         int begin = Time.getJulianDay(time.toMillis(true), 0);
-        /*
+        // 3年後の11月31日までの予定を取得
         time.year += 4;
         time.month = 11;
         time.monthDay = 31;
-        */
-        time.month = 8;
-        time.monthDay = 30;
         int end = Time.getJulianDay(time.toMillis(true), 0);
         Uri content_by_day_uri;
         String[] instance_projection;

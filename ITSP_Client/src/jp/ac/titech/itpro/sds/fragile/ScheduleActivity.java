@@ -396,6 +396,11 @@ public class ScheduleActivity extends Activity implements
 				mainFrame.removeView(v);
 			}
 		}
+		viewOfSchedule.clear();
+		
+		// 予定を表示
+		displayCalendar();
+		
 	}
 
 	/**
