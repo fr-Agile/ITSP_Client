@@ -288,7 +288,8 @@ public class ScheduleActivity extends Activity implements
 
 						startActivity(new Intent(ScheduleActivity.this,
 								LoginActivity.class));
-
+						
+						ScheduleActivity.this.onDestroy();
 						return true;
 					}
 				});

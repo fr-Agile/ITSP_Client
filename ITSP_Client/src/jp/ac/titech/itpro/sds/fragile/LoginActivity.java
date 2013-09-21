@@ -49,12 +49,16 @@ public class LoginActivity extends Activity {
 
 	private static String SUCCESS = CommonConstant.SUCCESS;
 	private static String FAIL = CommonConstant.FAIL;
+	
+	private static SharedPreferences pref;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.activity_login);
+		
+		pref = getSharedPreferences("user", Activity.MODE_PRIVATE);
 
 		// Set up the login form.
 		mEmailView = (EditText) findViewById(R.id.email);
@@ -91,6 +95,18 @@ public class LoginActivity extends Activity {
 	    		startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
 	    	}
 	    });
+	    
+	    // 2回目以降の起動時（メールアドレスが保存されているとき）
+		if (!pref.getString("email", "").equals("")) {
+			// スケジュール画面へ遷移
+			Intent intent = new Intent(LoginActivity.this, ScheduleActivity.class);
+    		Calendar nowCal = Calendar.getInstance();
+//    		nowCal.add(Calendar.DAY_OF_YEAR, 7);
+    		StoreData data = new StoreData(nowCal);
+    		intent.putExtra("StoreData", data);
+    		intent.setAction(Intent.ACTION_VIEW);
+	        startActivity(intent);
+		}
 	}
 
 	/**
@@ -194,7 +210,6 @@ public class LoginActivity extends Activity {
 						mPassword);
 				
 				//ログイン中のユーザー情報をpreferenceに格納して用いることができるようにする
-				SharedPreferences pref = getSharedPreferences("user", Activity.MODE_PRIVATE);
 				SharedPreferences.Editor editor = pref.edit();
 				editor.putString("email",mEmail);  
 			    editor.commit();

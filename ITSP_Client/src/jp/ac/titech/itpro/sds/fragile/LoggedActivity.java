@@ -66,6 +66,7 @@ public class LoggedActivity extends Activity {
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		if(keyCode==KeyEvent.KEYCODE_BACK){
 	    	startActivity(new Intent(LoggedActivity.this, LoginActivity.class));
+	    	this.onDestroy();
 	    	return true;
 		}
 	    return false;
