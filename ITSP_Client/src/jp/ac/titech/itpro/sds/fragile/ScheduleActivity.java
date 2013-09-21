@@ -2,21 +2,29 @@ package jp.ac.titech.itpro.sds.fragile;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.List;
 
+import jp.ac.titech.itpro.sds.fragile.CreateScheduleListTask.CreateScheduleListFinishListener;
+import jp.ac.titech.itpro.sds.fragile.DeleteAllScheduleTask.DeleteAllScheduleFinishListener;
 import jp.ac.titech.itpro.sds.fragile.GetFriendTask.GetFriendFinishListener;
 import jp.ac.titech.itpro.sds.fragile.GetGroupTask.GetGroupFinishListener;
 import jp.ac.titech.itpro.sds.fragile.GetShareTimeTask.GetShareTimeFinishListener;
 import jp.ac.titech.itpro.sds.fragile.api.RemoteApi;
+import jp.ac.titech.itpro.sds.fragile.api.constant.CommonConstant;
 import jp.ac.titech.itpro.sds.fragile.utils.CalendarAdapter;
 import jp.ac.titech.itpro.sds.fragile.utils.CalendarUtils;
 import jp.ac.titech.itpro.sds.fragile.utils.DayAdapter;
+import jp.ac.titech.itpro.sds.fragile.utils.GoogleCalendarLoader;
 import jp.ac.titech.itpro.sds.fragile.utils.TimeAdapter;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.LoaderManager.LoaderCallbacks;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.Loader;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -43,16 +51,19 @@ import com.appspot.fragile_t.repeatScheduleEndpoint.model.RepeatScheduleV1Dto;
 import com.appspot.fragile_t.scheduleEndpoint.ScheduleEndpoint;
 import com.appspot.fragile_t.scheduleEndpoint.ScheduleEndpoint.ScheduleV1EndPoint.DeleteSchedule;
 import com.appspot.fragile_t.scheduleEndpoint.ScheduleEndpoint.ScheduleV1EndPoint.GetSchedule;
+import com.appspot.fragile_t.scheduleEndpoint.model.ScheduleResultV1Dto;
 import com.appspot.fragile_t.scheduleEndpoint.model.ScheduleV1Dto;
 
 public class ScheduleActivity extends Activity implements
-		GetFriendFinishListener, GetShareTimeFinishListener,
-		GetGroupFinishListener {
-
+		GetFriendFinishListener, GetShareTimeFinishListener, GetGroupFinishListener,
+		LoaderCallbacks<Cursor>, DeleteAllScheduleFinishListener, CreateScheduleListFinishListener {
+	
 	private static final long START_OF_DAY = 0;
 	private static final long END_OF_DAY = 24 * 60 * 60 * 1000;
 	private static final long ONE_DAY = 24 * 60 * 60 * 1000;
-
+	private static final String SUCCESS = CommonConstant.SUCCESS;
+	
+	
 	private final String[] days = { "日", "月", "火", "水", "木", "金", "土" };
 	private int[] dayData = new int[7];
 	private int[] monthData = new int[7];
@@ -89,6 +100,7 @@ public class ScheduleActivity extends Activity implements
 
 	private List<UserV1Dto> mFriendList = null;
 	private List<GroupV1Dto> mGroupList = null;
+	private List<ScheduleV1Dto> mCreateScheduleList = null;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -293,6 +305,14 @@ public class ScheduleActivity extends Activity implements
 						return true;
 					}
 				});
+	    menu.getItem(7).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener(){
+			@Override
+			public boolean onMenuItemClick(MenuItem item) {
+				getLoaderManager().initLoader(0, null, ScheduleActivity.this);
+				
+				return true;
+			}
+	    });
 
 		return super.onCreateOptionsMenu(menu);
 	}
@@ -376,8 +396,6 @@ public class ScheduleActivity extends Activity implements
 				mainFrame.removeView(v);
 			}
 		}
-
-		displayCalendar();
 	}
 
 	/**
@@ -806,4 +824,107 @@ public class ScheduleActivity extends Activity implements
 			mDelTask = null;
 		}
 	}
+
+	/**
+	 * GoogleCalendarのインポート処理
+	 */
+	@Override
+	public Loader<Cursor> onCreateLoader(int arg0, Bundle arg1) {
+		return new GoogleCalendarLoader(this);
+	}
+
+	/**
+	 * ロードした予定をリストに保存
+	 */
+	@Override
+	public void onLoadFinished(Loader<Cursor> arg0, Cursor arg1) {
+		if (arg1.moveToFirst()) {
+			mCreateScheduleList = new ArrayList<ScheduleV1Dto>();
+			
+			do {
+				ScheduleV1Dto sche = new ScheduleV1Dto();
+				sche.setKey(arg1.getString(4)); // 意味ない。デバッグ用。後々、タイトルとして使う
+				
+				String test = arg1.getString(5);
+				if ("1".equals(arg1.getString(5))) {
+					// 終日の予定の場合
+					// 今のところ予定は一日で終わるのでスタートの日で登録する
+					long startJulianDay = Long.parseLong(arg1.getString(6));
+					Calendar time = Calendar.getInstance();
+					time.setTimeInMillis(julianDayToTime(startJulianDay));
+					sche.setStartTime(time.getTimeInMillis());
+					
+					time.add(Calendar.DAY_OF_MONTH, 1);
+					time.add(Calendar.MILLISECOND, -1);
+					sche.setFinishTime(time.getTimeInMillis());
+				} else {
+					sche.setStartTime(Long.parseLong(arg1.getString(2)));
+					sche.setFinishTime(Long.parseLong(arg1.getString(3)));
+				}
+				mCreateScheduleList.add(sche);
+				
+				/* debug */
+				Calendar cal = Calendar.getInstance();
+				cal.setTimeInMillis(sche.getStartTime());
+				long g = cal.getTimeInMillis();
+				/* degugここまで */
+				
+			} while (arg1.moveToNext());
+			// まず、登録されている予定を削除
+			SharedPreferences pref = getSharedPreferences("user",
+					Activity.MODE_PRIVATE);
+			String email = pref.getString("email", "");
+			DeleteAllScheduleTask delAllTask = new DeleteAllScheduleTask(this);
+			delAllTask.execute(email);
+		} else {
+			Log.d("DEBUG", "import GoogleCalendar failed?");
+		}
+	}
+
+	/**
+	 * ユリウス日を1970年1月1日0時UCTからのミリ秒に変換. 日本標準時より9時間ずれている。-9時間すればok
+	 * さらにユリウス日は正午に変わる。-12時間する。よって-21時間する。
+	 */
+	private long julianDayToTime(long startJulianDay) {
+		return (long) ((startJulianDay - 2440587.5) * (24.0*60*60*1000) - (21.0*60*60*1000));
+	}
+
+	@Override
+	public void onLoaderReset(Loader<Cursor> arg0) {
+		Log.d("DEBUG", "import GoogleCalendar canceled");
+	}
+
+	@Override
+	public void onDeleteAllScheduleTaskFinish(ScheduleResultV1Dto result) {
+		if (SUCCESS.equals(result.getResult())) {
+			// 予定を削除したらリストを追加
+			SharedPreferences pref = getSharedPreferences("user",
+					Activity.MODE_PRIVATE);
+			String email = pref.getString("email", "");
+			CreateScheduleListTask createScheListTask = 
+					new CreateScheduleListTask(this, email, mCreateScheduleList);
+			createScheListTask.execute();
+		} else {
+			Log.d("DEBUG", "delete all schedule failed");
+		}
+	}
+
+	@Override
+	public void onCreateScheduleListTaskFinish(ScheduleResultV1Dto result) {
+		if (SUCCESS.equals(result.getResult())) {
+			// 予定を書き換え終わったので再描画
+			// 表示しているスケジュールをクリア
+			for (View view : viewOfSchedule) {
+				mainFrame.removeView(view);
+			}
+			viewOfSchedule.clear();
+			displayCalendar();
+		} else {
+			Log.d("DEBUG", "create schedule list failed");
+		}
+	}
+	
+	/**
+	 * GoogleCalendarのインポート処理ここまで
+	 */
 }

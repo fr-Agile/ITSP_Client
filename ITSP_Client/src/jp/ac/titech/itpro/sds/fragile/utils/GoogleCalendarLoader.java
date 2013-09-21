@@ -17,16 +17,24 @@ public class GoogleCalendarLoader extends CursorLoader {
         Time time = new Time(tz);
         time.setToNow();
         time.allDay = true;
+        /*
         time.year = time.year - 1;
         time.month = 0;
         time.monthDay = 1;
+        */
+        time.month = 8;
+        time.monthDay = 15;
         time.hour = 0;
         time.minute = 0;
         time.second = 0;
         int begin = Time.getJulianDay(time.toMillis(true), 0);
+        /*
         time.year += 4;
         time.month = 11;
         time.monthDay = 31;
+        */
+        time.month = 8;
+        time.monthDay = 30;
         int end = Time.getJulianDay(time.toMillis(true), 0);
         Uri content_by_day_uri;
         String[] instance_projection;
@@ -42,15 +50,21 @@ public class GoogleCalendarLoader extends CursorLoader {
                 Instances.EVENT_ID,
                 Instances.BEGIN,
                 Instances.END,
-                Instances.TITLE
+                Instances.TITLE,
+                Instances.ALL_DAY,
+                Instances.START_DAY,
+                Instances.END_DAY,
             };
-/* アドレスを指定する場合は以下を記述する。そうでない場合、端末に登録されたgmailアカウントが使用されるっぽい
+            /*
+            // アドレス?カレンダー?を限定する場合は以下を記述する。
+            // そうでない場合、端末に登録されたカレンダー全てが使用されるっぽい
             selection = "((" + Calendars.ACCOUNT_NAME + " = ?) AND (" 
                     + Calendars.ACCOUNT_TYPE + " = ?) AND ("
                     + Calendars.OWNER_ACCOUNT + " = ?))";
-            selectionArgs = new String[] {"gos415345@gmail.com", "com.google",
-            	"gos415345@gmail.com"};
-*/
+            selectionArgs = new String[] {"a@gmail.com", "com.google",
+            	"a@gmail.com"};
+            */
+
             
             sort_order =
                 Instances.BEGIN + " ASC, " + Instances.END + " DESC, "
@@ -64,7 +78,10 @@ public class GoogleCalendarLoader extends CursorLoader {
                 "event_id",
                 "begin",
                 "end",
-                "title"
+                "title",
+                "allDay",
+                "startDay",
+                "endDay"
             };
             sort_order = "begin ASC, end DESC, title ASC";
         }
