@@ -33,14 +33,14 @@ import com.appspot.fragile_t.scheduleEndpoint.ScheduleEndpoint;
 import com.appspot.fragile_t.scheduleEndpoint.ScheduleEndpoint.ScheduleV1EndPoint.CreateSchedule;
 import com.appspot.fragile_t.scheduleEndpoint.model.ScheduleResultV1Dto;
 
-public class ScheduleInputActivity extends Activity{
-		
+public class ScheduleInputActivity extends Activity {
+
 	private static final String TAG = "ScheduleInputActivity";
 	private Button doneBtn, showScheduleViewBtn;
 	private long scheduleStartTime;
 	private long scheduleFinishTime;
 	private String mEmail;
-	
+
 	private DatePicker mDatepicker;
 	private TimePicker mStartTimePicker;
 	private TimePicker mFinishTimePicker;
@@ -54,147 +54,169 @@ public class ScheduleInputActivity extends Activity{
 	private CheckBox friChk;
 	private CheckBox satChk;
 	private CheckBox sunChk;
-	private View repeatdaysView; 
-	
+	private View repeatdaysView;
+
 	private List<Integer> repeats;
-	
+
 	private View mInputScheduleView;
 	private View mSpinView;
-//	private TextView mLoginStatusMessageView;
-	
-	private static String SUCCESS = CommonConstant.SUCCESS;
-//	private static String FAIL = "fail";
-	
-	private ScheduleInputTask mAuthTask = null;
-	
-	DateFormat formatDateTime = DateFormat.getDateTimeInstance();
-	Calendar startTime=Calendar.getInstance();
-	Calendar finishTime=Calendar.getInstance();
-	
-	/** Called when the activity is first created. */
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_inputschedule);
-        
-        Intent intent = getIntent();
-        Bundle extras = intent.getExtras();
+	// private TextView mLoginStatusMessageView;
 
-        mInputScheduleView = findViewById(R.id.inputScheduleView);
+	private static String SUCCESS = CommonConstant.SUCCESS;
+	// private static String FAIL = "fail";
+
+	private ScheduleInputTask mAuthTask = null;
+
+	DateFormat formatDateTime = DateFormat.getDateTimeInstance();
+	Calendar startTime = Calendar.getInstance();
+	Calendar finishTime = Calendar.getInstance();
+
+	/** Called when the activity is first created. */
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_inputschedule);
+
+		Intent intent = getIntent();
+		Bundle extras = intent.getExtras();
+
+		mInputScheduleView = findViewById(R.id.inputScheduleView);
 		mSpinView = findViewById(R.id.spinView);
-        
+
 		// 時間指定でスケジュール作成画面に飛んできた場合の、
 		// startTime, finishTimeの調整
 		if (extras != null) {
-		    if (extras.containsKey("startTime")) {
-		    	Calendar cal = (Calendar)extras.get("startTime");
+			if (extras.containsKey("startTime")) {
+				Calendar cal = (Calendar) extras.get("startTime");
 				Log.d("myDEBUG", extras.get("startTime").toString());
-		    	startTime = (Calendar)cal.clone();
-		    	cal.add(Calendar.HOUR_OF_DAY, 1);
-		    	finishTime = (Calendar)cal.clone();
-		    }
+				startTime = (Calendar) cal.clone();
+				cal.add(Calendar.HOUR_OF_DAY, 1);
+				finishTime = (Calendar) cal.clone();
+			}
 		}
-		
-        scheduleStartTime = startTime.getTime().getTime();
+
+		scheduleStartTime = startTime.getTime().getTime();
 		scheduleFinishTime = finishTime.getTime().getTime();
-        
-        mDatepicker = (DatePicker)findViewById(R.id.datePicker1);
-        mStartTimePicker = (TimePicker)findViewById(R.id.timePicker1);
-        mFinishTimePicker = (TimePicker)findViewById(R.id.timePicker2);
-                
-        mDatepicker.init(startTime.get(Calendar.YEAR), 
-        				 startTime.get(Calendar.MONTH), 
-        				 startTime.get(Calendar.DAY_OF_MONTH), 
-        				 new OnDateChangedListener(){
-        	public void onDateChanged(DatePicker view, int year, int monthOfYear,int dayOfMonth) {
-        		startTime.set(year, monthOfYear, dayOfMonth);
-        		finishTime.set(year, monthOfYear, dayOfMonth);
-    			scheduleStartTime = startTime.getTime().getTime();
-    			scheduleFinishTime = finishTime.getTime().getTime();
-//    			Toast.makeText(getApplicationContext(), "onDateChanged"+ scheduleStartTime + " and " + scheduleFinishTime, Toast.LENGTH_SHORT).show();
-        		setButtonEnable();
-        		Log.d(TAG,"time:"+ formatDateTime.format(startTime.getTime()) + " and " + formatDateTime.format(finishTime.getTime()));
-        	}});
-        
-        mStartTimePicker.setCurrentHour(startTime.get(Calendar.HOUR_OF_DAY));
-        mStartTimePicker.setCurrentMinute(startTime.get(Calendar.MINUTE));
-        mStartTimePicker.setOnTimeChangedListener(new OnTimeChangedListener(){
-        	public void onTimeChanged(TimePicker view, int hourOfDay, int minute) {
-        		
-        		startTime.set(Calendar.HOUR_OF_DAY, hourOfDay);
-        		startTime.set(Calendar.MINUTE,minute);
-    			scheduleStartTime = startTime.getTime().getTime();
-//    			Toast.makeText(getApplicationContext(), "onStartTimeChanged" + scheduleStartTime + " and " + scheduleFinishTime, Toast.LENGTH_SHORT).show();
-    			setButtonEnable();
-    			Log.d(TAG,"time:"+ formatDateTime.format(startTime.getTime()) + " and " + formatDateTime.format(finishTime.getTime()));
-        	}});
-        
-        mFinishTimePicker.setCurrentHour(finishTime.get(Calendar.HOUR_OF_DAY));
-        mFinishTimePicker.setCurrentMinute(finishTime.get(Calendar.MINUTE));
-        mFinishTimePicker.setOnTimeChangedListener(new OnTimeChangedListener(){
-        	public void onTimeChanged(TimePicker view, int hourOfDay, int minute) {
-        		
-        		finishTime.set(Calendar.HOUR_OF_DAY, hourOfDay);
-        		finishTime.set(Calendar.MINUTE,minute);
-    			scheduleFinishTime = finishTime.getTime().getTime();
-//    			Toast.makeText(getApplicationContext(), "onFinishTimeChanged" + scheduleStartTime + " and " + scheduleFinishTime, Toast.LENGTH_SHORT).show();
-    			setButtonEnable();
-    			Log.d(TAG,"time:"+ formatDateTime.format(startTime.getTime()) + " and " + formatDateTime.format(finishTime.getTime()));
-        	}});
-        
-        doneBtn = (Button)findViewById(R.id.doneBtn);
-        doneBtn.setEnabled(false);
-        doneBtn.setOnClickListener(
-        		new View.OnClickListener() {
-        			public void onClick(View view) {
-        				clickDoneButton();
-        			}
-        		});
-        
-        showScheduleViewBtn = (Button)findViewById(R.id.showScheduleViewBtn);
-        showScheduleViewBtn.setOnClickListener(new View.OnClickListener() {
-			
-			public void onClick(View v) {
-				// TODO Auto-generated method stub
-//				startActivity(new Intent(ScheduleInputActivity.this, ScheduleActivity.class));
-				
-				Intent intent = new Intent(ScheduleInputActivity.this, ScheduleActivity.class);
-	    		Calendar nowCal = Calendar.getInstance();
-//	    		nowCal.add(Calendar.DAY_OF_YEAR, 7);
-	    		StoreData data = new StoreData(nowCal);
-	    		intent.putExtra("StoreData", data);
-	    		intent.setAction(Intent.ACTION_VIEW);
-		        startActivity(intent);
-				
+
+		mDatepicker = (DatePicker) findViewById(R.id.datePicker1);
+		mStartTimePicker = (TimePicker) findViewById(R.id.timePicker1);
+		mFinishTimePicker = (TimePicker) findViewById(R.id.timePicker2);
+
+		mDatepicker.init(startTime.get(Calendar.YEAR),
+				startTime.get(Calendar.MONTH),
+				startTime.get(Calendar.DAY_OF_MONTH),
+				new OnDateChangedListener() {
+					public void onDateChanged(DatePicker view, int year,
+							int monthOfYear, int dayOfMonth) {
+						startTime.set(year, monthOfYear, dayOfMonth);
+						finishTime.set(year, monthOfYear, dayOfMonth);
+						scheduleStartTime = startTime.getTime().getTime();
+						scheduleFinishTime = finishTime.getTime().getTime();
+						// Toast.makeText(getApplicationContext(),
+						// "onDateChanged"+ scheduleStartTime + " and " +
+						// scheduleFinishTime, Toast.LENGTH_SHORT).show();
+						setButtonEnable();
+						Log.d(TAG,
+								"time:"
+										+ formatDateTime.format(startTime
+												.getTime())
+										+ " and "
+										+ formatDateTime.format(finishTime
+												.getTime()));
+					}
+				});
+
+		mStartTimePicker.setCurrentHour(startTime.get(Calendar.HOUR_OF_DAY));
+		mStartTimePicker.setCurrentMinute(startTime.get(Calendar.MINUTE));
+		mStartTimePicker.setOnTimeChangedListener(new OnTimeChangedListener() {
+			public void onTimeChanged(TimePicker view, int hourOfDay, int minute) {
+
+				startTime.set(Calendar.HOUR_OF_DAY, hourOfDay);
+				startTime.set(Calendar.MINUTE, minute);
+				scheduleStartTime = startTime.getTime().getTime();
+				// Toast.makeText(getApplicationContext(), "onStartTimeChanged"
+				// + scheduleStartTime + " and " + scheduleFinishTime,
+				// Toast.LENGTH_SHORT).show();
+				setButtonEnable();
+				Log.d(TAG, "time:" + formatDateTime.format(startTime.getTime())
+						+ " and " + formatDateTime.format(finishTime.getTime()));
 			}
 		});
-        
-        repeatdaysView = findViewById(R.id.repeatdaysView);
-        
-        repeatChk = (CheckBox) findViewById(R.id.repeartCheckbox);
-        repeatChk.setOnClickListener(new View.OnClickListener() {
+
+		mFinishTimePicker.setCurrentHour(finishTime.get(Calendar.HOUR_OF_DAY));
+		mFinishTimePicker.setCurrentMinute(finishTime.get(Calendar.MINUTE));
+		mFinishTimePicker.setOnTimeChangedListener(new OnTimeChangedListener() {
+			public void onTimeChanged(TimePicker view, int hourOfDay, int minute) {
+
+				finishTime.set(Calendar.HOUR_OF_DAY, hourOfDay);
+				finishTime.set(Calendar.MINUTE, minute);
+				scheduleFinishTime = finishTime.getTime().getTime();
+				// Toast.makeText(getApplicationContext(), "onFinishTimeChanged"
+				// + scheduleStartTime + " and " + scheduleFinishTime,
+				// Toast.LENGTH_SHORT).show();
+				setButtonEnable();
+				Log.d(TAG, "time:" + formatDateTime.format(startTime.getTime())
+						+ " and " + formatDateTime.format(finishTime.getTime()));
+			}
+		});
+
+		doneBtn = (Button) findViewById(R.id.doneBtn);
+		if (scheduleStartTime >= scheduleFinishTime) {
+			doneBtn.setEnabled(false);
+		}
+		doneBtn.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View view) {
+				clickDoneButton();
+			}
+		});
+
+		showScheduleViewBtn = (Button) findViewById(R.id.showScheduleViewBtn);
+		showScheduleViewBtn.setOnClickListener(new View.OnClickListener() {
+
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				// startActivity(new Intent(ScheduleInputActivity.this,
+				// ScheduleActivity.class));
+
+				Intent intent = new Intent(ScheduleInputActivity.this,
+						ScheduleActivity.class);
+				Calendar nowCal = Calendar.getInstance();
+				// nowCal.add(Calendar.DAY_OF_YEAR, 7);
+				StoreData data = new StoreData(nowCal);
+				intent.putExtra("StoreData", data);
+				intent.setAction(Intent.ACTION_VIEW);
+				startActivity(intent);
+
+			}
+		});
+
+		repeatdaysView = findViewById(R.id.repeatdaysView);
+
+		repeatChk = (CheckBox) findViewById(R.id.repeartCheckbox);
+		repeatChk.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				if (((CheckBox) v).isChecked()) {
 					repeatdaysView.setVisibility(View.VISIBLE);
-//	    			Toast.makeText(getApplicationContext(),"Repeat Checked:)", Toast.LENGTH_LONG).show();
-	    		} else {
-	    			repeatdaysView.setVisibility(View.GONE);
-	    		}
+					// Toast.makeText(getApplicationContext(),"Repeat Checked:)",
+					// Toast.LENGTH_LONG).show();
+				} else {
+					repeatdaysView.setVisibility(View.GONE);
+				}
 			}
 		});
-        
-        sunChk = (CheckBox)findViewById(R.id.sundayCheckbox);
-        monChk = (CheckBox)findViewById(R.id.mondayCheckbox);
-        tueChk = (CheckBox)findViewById(R.id.tuesdayCheckbox);
-        wedChk = (CheckBox)findViewById(R.id.wednesdayCheckbox);
-        thuChk = (CheckBox)findViewById(R.id.thursdayCheckbox);
-        friChk = (CheckBox)findViewById(R.id.fridayCheckbox);
-        satChk = (CheckBox)findViewById(R.id.saturdayCheckbox);
-        
-        everydayChk = (CheckBox)findViewById(R.id.everydayCheckbox);
-        everydayChk.setOnClickListener(new View.OnClickListener() {
-			
+
+		sunChk = (CheckBox) findViewById(R.id.sundayCheckbox);
+		monChk = (CheckBox) findViewById(R.id.mondayCheckbox);
+		tueChk = (CheckBox) findViewById(R.id.tuesdayCheckbox);
+		wedChk = (CheckBox) findViewById(R.id.wednesdayCheckbox);
+		thuChk = (CheckBox) findViewById(R.id.thursdayCheckbox);
+		friChk = (CheckBox) findViewById(R.id.fridayCheckbox);
+		satChk = (CheckBox) findViewById(R.id.saturdayCheckbox);
+
+		everydayChk = (CheckBox) findViewById(R.id.everydayCheckbox);
+		everydayChk.setOnClickListener(new View.OnClickListener() {
+
 			@Override
 			public void onClick(View v) {
 				if (((CheckBox) v).isChecked()) {
@@ -216,37 +238,41 @@ public class ScheduleInputActivity extends Activity{
 				}
 			}
 		});
-    	
-    }
-    
 
-    
-    public void clickDoneButton(){
-    	
-    	repeats = new ArrayList<Integer>();
-		if(sunChk.isChecked()) repeats.add(0);
-		if(monChk.isChecked()) repeats.add(1);
-		if(tueChk.isChecked()) repeats.add(2);
-		if(wedChk.isChecked()) repeats.add(3);
-		if(thuChk.isChecked()) repeats.add(4);
-		if(friChk.isChecked()) repeats.add(5);
-		if(satChk.isChecked()) repeats.add(6);
-		
-    	showProgress(true);
-    	mAuthTask = new ScheduleInputTask();
+	}
+
+	public void clickDoneButton() {
+
+		repeats = new ArrayList<Integer>();
+		if (sunChk.isChecked())
+			repeats.add(0);
+		if (monChk.isChecked())
+			repeats.add(1);
+		if (tueChk.isChecked())
+			repeats.add(2);
+		if (wedChk.isChecked())
+			repeats.add(3);
+		if (thuChk.isChecked())
+			repeats.add(4);
+		if (friChk.isChecked())
+			repeats.add(5);
+		if (satChk.isChecked())
+			repeats.add(6);
+
+		showProgress(true);
+		mAuthTask = new ScheduleInputTask();
 		mAuthTask.execute((Void) null);
-    }
-    
+	}
 
-	
 	private void setButtonEnable() {
-		if (scheduleStartTime == 0 || scheduleFinishTime == 0 || scheduleStartTime >= scheduleFinishTime){
+		if (scheduleStartTime == 0 || scheduleFinishTime == 0
+				|| scheduleStartTime >= scheduleFinishTime) {
 			doneBtn.setEnabled(false);
 		} else {
 			doneBtn.setEnabled(true);
 		}
 	}
-	
+
 	/**
 	 * Shows the progress UI and hides the login form.
 	 */
@@ -260,8 +286,7 @@ public class ScheduleInputActivity extends Activity{
 					android.R.integer.config_shortAnimTime);
 
 			mSpinView.setVisibility(View.VISIBLE);
-			mSpinView.animate().setDuration(shortAnimTime)
-					.alpha(show ? 1 : 0)
+			mSpinView.animate().setDuration(shortAnimTime).alpha(show ? 1 : 0)
 					.setListener(new AnimatorListenerAdapter() {
 						@Override
 						public void onAnimationEnd(Animator animation) {
@@ -287,29 +312,32 @@ public class ScheduleInputActivity extends Activity{
 			mInputScheduleView.setVisibility(show ? View.GONE : View.VISIBLE);
 		}
 	}
-	
+
 	public class ScheduleInputTask extends AsyncTask<Void, Void, Boolean> {
 		@Override
 		protected Boolean doInBackground(Void... args) {
 
 			try {
-				SharedPreferences pref = getSharedPreferences("user", Activity.MODE_PRIVATE);
-				mEmail = pref.getString("email","");	
-				Log.d(TAG,"time:"+ scheduleStartTime + " and " + scheduleFinishTime + "email:" +mEmail);
-				
+				SharedPreferences pref = getSharedPreferences("user",
+						Activity.MODE_PRIVATE);
+				mEmail = pref.getString("email", "");
+				Log.d(TAG, "time:" + scheduleStartTime + " and "
+						+ scheduleFinishTime + "email:" + mEmail);
+
 				if (!repeatChk.isChecked()) {
-					// schedule 
+					// schedule
 					ScheduleEndpoint endpoint = RemoteApi.getScheduleEndpoint();
-					CreateSchedule schedule = endpoint.scheduleV1EndPoint().createSchedule(
-							scheduleStartTime, scheduleFinishTime, mEmail);
+					CreateSchedule schedule = endpoint.scheduleV1EndPoint()
+							.createSchedule(scheduleStartTime,
+									scheduleFinishTime, mEmail);
 					ScheduleResultV1Dto result = schedule.execute();
-					
+
 					if (SUCCESS.equals(result.getResult())) {
-//						Toast.makeText(getApplicationContext(),"Successed",Toast.LENGTH_SHORT).show();
+						// Toast.makeText(getApplicationContext(),"Successed",Toast.LENGTH_SHORT).show();
 						Log.d(TAG, "Successed");
 						return true;
 					} else {
-//						Toast.makeText(getApplicationContext(),"Failed",Toast.LENGTH_SHORT).show();
+						// Toast.makeText(getApplicationContext(),"Failed",Toast.LENGTH_SHORT).show();
 						Log.d(TAG, "Failed");
 						return false;
 					}
@@ -317,7 +345,7 @@ public class ScheduleInputActivity extends Activity{
 					// repeat schedule
 					RepeatScheduleContainer contain = new RepeatScheduleContainer();
 					contain.setIntegers(repeats);
-					
+
 					// startTimeとfinishTimeを今日の00:00からのミリ秒を表すlongにする
 					// そのため今日の00:00をCalendar型で作成
 					Calendar startOfToday = Calendar.getInstance();
@@ -325,27 +353,31 @@ public class ScheduleInputActivity extends Activity{
 					startOfToday.set(Calendar.MINUTE, 0);
 					startOfToday.set(Calendar.SECOND, 0);
 					startOfToday.set(Calendar.MILLISECOND, 0);
-					
-					
-					RepeatScheduleEndpoint endpoint = RemoteApi.getRepeatScheduleEndpoint();
-					CreateRepeatSchedule repeatschedule = 
-							endpoint.repeatScheduleV1EndPoint().createRepeatSchedule(
-							scheduleStartTime - startOfToday.getTimeInMillis(), 
-							scheduleFinishTime - startOfToday.getTimeInMillis(), mEmail, contain);
+
+					RepeatScheduleEndpoint endpoint = RemoteApi
+							.getRepeatScheduleEndpoint();
+					CreateRepeatSchedule repeatschedule = endpoint
+							.repeatScheduleV1EndPoint().createRepeatSchedule(
+									scheduleStartTime
+											- startOfToday.getTimeInMillis(),
+									scheduleFinishTime
+											- startOfToday.getTimeInMillis(),
+									mEmail, contain);
 					RepeatScheduleResultV1Dto result = repeatschedule.execute();
-					
+
 					if (SUCCESS.equals(result.getResult())) {
-//						Toast.makeText(getApplicationContext(),"Successed",Toast.LENGTH_SHORT).show();
+						// Toast.makeText(getApplicationContext(),"Successed",Toast.LENGTH_SHORT).show();
 						Log.d(TAG, "RS Successed");
 						return true;
 					} else {
-//						Toast.makeText(getApplicationContext(),"Failed",Toast.LENGTH_SHORT).show();
+						// Toast.makeText(getApplicationContext(),"Failed",Toast.LENGTH_SHORT).show();
 						Log.d(TAG, "RS Failed");
 						return false;
 					}
 				}
 			} catch (Exception e) {
-//				Toast.makeText(getApplicationContext(),"Failed with exception:" + e,Toast.LENGTH_SHORT).show();
+				// Toast.makeText(getApplicationContext(),"Failed with exception:"
+				// + e,Toast.LENGTH_SHORT).show();
 				Log.d(TAG, "failed with exception:" + e);
 				return false;
 			}
@@ -356,12 +388,18 @@ public class ScheduleInputActivity extends Activity{
 			mAuthTask = null;
 			showProgress(false);
 			if (success) {
-				Log.d(TAG, "post successed " + scheduleStartTime + " and " + scheduleFinishTime);
-//				Toast.makeText(getApplicationContext(),"Successed " + scheduleStartTime + " and " + scheduleFinishTime, Toast.LENGTH_SHORT).show();
-				Toast.makeText(getApplicationContext(),"スケジュール登録成功", Toast.LENGTH_SHORT).show();
+				Log.d(TAG, "post successed " + scheduleStartTime + " and "
+						+ scheduleFinishTime);
+				// Toast.makeText(getApplicationContext(),"Successed " +
+				// scheduleStartTime + " and " + scheduleFinishTime,
+				// Toast.LENGTH_SHORT).show();
+				Toast.makeText(getApplicationContext(), "スケジュール登録成功",
+						Toast.LENGTH_SHORT).show();
 			} else {
-				Log.d(TAG, "post failed " + scheduleStartTime + " and " + scheduleFinishTime);
-				Toast.makeText(getApplicationContext(),"スケジュール登録失敗", Toast.LENGTH_SHORT).show();
+				Log.d(TAG, "post failed " + scheduleStartTime + " and "
+						+ scheduleFinishTime);
+				Toast.makeText(getApplicationContext(), "スケジュール登録失敗",
+						Toast.LENGTH_SHORT).show();
 			}
 		}
 
@@ -372,126 +410,134 @@ public class ScheduleInputActivity extends Activity{
 		}
 	}
 
-//	@Override
-//	public void onClick(View v) {
-//		// TODO Auto-generated method stub
-//		switch (v.getId()) {
-//		case R.id.everydayCheckbox:
-//			
-//			break;
-//		default:
-//			break;
-//		}
-//	}
+	// @Override
+	// public void onClick(View v) {
+	// // TODO Auto-generated method stub
+	// switch (v.getId()) {
+	// case R.id.everydayCheckbox:
+	//
+	// break;
+	// default:
+	// break;
+	// }
+	// }
 }
 
+// Debug
+// Log.d("vietDebug", "click done button");
 
-//Debug
-//Log.d("vietDebug", "click done button");
-
-///**
+// /**
 // * Shows the progress UI and hides the login form.
 // */
-//@TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
-//private void showProgress(final boolean show) {
-//	// On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
-//	// for very easy animations. If available, use these APIs to fade-in
-//	// the progress spinner.
-//	if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-//		int shortAnimTime = getResources().getInteger(
-//				android.R.integer.config_shortAnimTime);
+// @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
+// private void showProgress(final boolean show) {
+// // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
+// // for very easy animations. If available, use these APIs to fade-in
+// // the progress spinner.
+// if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
+// int shortAnimTime = getResources().getInteger(
+// android.R.integer.config_shortAnimTime);
 //
-//		mLoginStatusView.setVisibility(View.VISIBLE);
-//		mLoginStatusView.animate().setDuration(shortAnimTime)
-//				.alpha(show ? 1 : 0)
-//				.setListener(new AnimatorListenerAdapter() {
-//					@Override
-//					public void onAnimationEnd(Animator animation) {
-//						mLoginStatusView.setVisibility(show ? View.VISIBLE
-//								: View.GONE);
-//					}
-//				});
+// mLoginStatusView.setVisibility(View.VISIBLE);
+// mLoginStatusView.animate().setDuration(shortAnimTime)
+// .alpha(show ? 1 : 0)
+// .setListener(new AnimatorListenerAdapter() {
+// @Override
+// public void onAnimationEnd(Animator animation) {
+// mLoginStatusView.setVisibility(show ? View.VISIBLE
+// : View.GONE);
+// }
+// });
 //
-//		mLoginFormView.setVisibility(View.VISIBLE);
-//		mLoginFormView.animate().setDuration(shortAnimTime)
-//				.alpha(show ? 0 : 1)
-//				.setListener(new AnimatorListenerAdapter() {
-//					@Override
-//					public void onAnimationEnd(Animator animation) {
-//						mLoginFormView.setVisibility(show ? View.GONE
-//								: View.VISIBLE);
-//					}
-//				});
-//	} else {
-//		// The ViewPropertyAnimator APIs are not available, so simply show
-//		// and hide the relevant UI components.
-//		mLoginStatusView.setVisibility(show ? View.VISIBLE : View.GONE);
-//		mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-//	}
-//}
+// mLoginFormView.setVisibility(View.VISIBLE);
+// mLoginFormView.animate().setDuration(shortAnimTime)
+// .alpha(show ? 0 : 1)
+// .setListener(new AnimatorListenerAdapter() {
+// @Override
+// public void onAnimationEnd(Animator animation) {
+// mLoginFormView.setVisibility(show ? View.GONE
+// : View.VISIBLE);
+// }
+// });
+// } else {
+// // The ViewPropertyAnimator APIs are not available, so simply show
+// // and hide the relevant UI components.
+// mLoginStatusView.setVisibility(show ? View.VISIBLE : View.GONE);
+// mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+// }
+// }
 
+// findViewById(R.id.startTimeBtn).setOnClickListener(
+// new View.OnClickListener() {
+// public void onClick(View view) {
+// chooseStartTime();
+// }
+// });
+//
+// findViewById(R.id.finishTimeBtn).setOnClickListener(
+// new View.OnClickListener() {
+// public void onClick(View view) {
+// chooseFinishTime();
+// }
+// });
+//
+// findViewById(R.id.dateBtn).setOnClickListener(
+// new View.OnClickListener() {
+// public void onClick(View view) {
+// chooseDate();
+// }
+// });
 
-//findViewById(R.id.startTimeBtn).setOnClickListener(
-//		new View.OnClickListener() {
-//			public void onClick(View view) {
-//				chooseStartTime();
-//			}
-//		});
+// public void chooseDate(){
+// new DatePickerDialog(ScheduleInputActivity.this, d,
+// dateTime.get(Calendar.YEAR),dateTime.get(Calendar.MONTH),
+// dateTime.get(Calendar.DAY_OF_MONTH)).show();
+// }
 //
-//findViewById(R.id.finishTimeBtn).setOnClickListener(
-//		new View.OnClickListener() {
-//			public void onClick(View view) {
-//				chooseFinishTime();
-//			}
-//		});
+// public void chooseStartTime(){
+// new TimePickerDialog(ScheduleInputActivity.this, st,
+// dateTime.get(Calendar.HOUR_OF_DAY), dateTime.get(Calendar.MINUTE),
+// true).show();
+// }
 //
-//findViewById(R.id.dateBtn).setOnClickListener(
-//		new View.OnClickListener() {
-//			public void onClick(View view) {
-//				chooseDate();
-//			}
-//		});
+// public void chooseFinishTime(){
+// new TimePickerDialog(ScheduleInputActivity.this, ft,
+// dateTime.get(Calendar.HOUR_OF_DAY), dateTime.get(Calendar.MINUTE),
+// true).show();
+// }
 
-//public void chooseDate(){
-//new DatePickerDialog(ScheduleInputActivity.this, d, dateTime.get(Calendar.YEAR),dateTime.get(Calendar.MONTH), dateTime.get(Calendar.DAY_OF_MONTH)).show();
-//}
+// DatePickerDialog.OnDateSetListener d=new DatePickerDialog.OnDateSetListener()
+// {
+// public void onDateSet(DatePicker view, int year, int monthOfYear,int
+// dayOfMonth) {
+// dateTime.set(Calendar.YEAR,year);
+// dateTime.set(Calendar.MONTH, monthOfYear);
+// dateTime.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+// setButtonEnable();
+// }
+// };
+// TimePickerDialog.OnTimeSetListener st=new
+// TimePickerDialog.OnTimeSetListener() {
 //
-//public void chooseStartTime(){
-//new TimePickerDialog(ScheduleInputActivity.this, st, dateTime.get(Calendar.HOUR_OF_DAY), dateTime.get(Calendar.MINUTE), true).show();
-//}
+// public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+// // TODO Auto-generated method stub
+// dateTime.set(Calendar.HOUR_OF_DAY, hourOfDay);
+// dateTime.set(Calendar.MINUTE,minute);
+// startTimeLabel.setText(formatDateTime.format(dateTime.getTime()));
+// scheduleStartTime = dateTime.getTime().getTime();
+// setButtonEnable();
+// }
+// };
 //
-//public void chooseFinishTime(){
-//new TimePickerDialog(ScheduleInputActivity.this, ft, dateTime.get(Calendar.HOUR_OF_DAY), dateTime.get(Calendar.MINUTE), true).show();
-//}
-
-//DatePickerDialog.OnDateSetListener d=new DatePickerDialog.OnDateSetListener() {
-//	public void onDateSet(DatePicker view, int year, int monthOfYear,int dayOfMonth) {
-//		dateTime.set(Calendar.YEAR,year);
-//		dateTime.set(Calendar.MONTH, monthOfYear);
-//		dateTime.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-//		setButtonEnable();
-//	}
-//};
-//TimePickerDialog.OnTimeSetListener st=new TimePickerDialog.OnTimeSetListener() {
-//	
-//	public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-//		// TODO Auto-generated method stub
-//		dateTime.set(Calendar.HOUR_OF_DAY, hourOfDay);
-//		dateTime.set(Calendar.MINUTE,minute);
-//		startTimeLabel.setText(formatDateTime.format(dateTime.getTime()));
-//		scheduleStartTime = dateTime.getTime().getTime();
-//		setButtonEnable();
-//	}
-//};
+// TimePickerDialog.OnTimeSetListener ft=new
+// TimePickerDialog.OnTimeSetListener() {
 //
-//TimePickerDialog.OnTimeSetListener ft=new TimePickerDialog.OnTimeSetListener() {
-//	
-//	public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-//		// TODO Auto-generated method stub
-//		dateTime.set(Calendar.HOUR_OF_DAY, hourOfDay);
-//		dateTime.set(Calendar.MINUTE,minute);
-//		finishTimeLabel.setText(formatDateTime.format(dateTime.getTime()));
-//		scheduleFinishTime = dateTime.getTime().getTime();
-//		setButtonEnable();
-//	}
-//};
+// public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+// // TODO Auto-generated method stub
+// dateTime.set(Calendar.HOUR_OF_DAY, hourOfDay);
+// dateTime.set(Calendar.MINUTE,minute);
+// finishTimeLabel.setText(formatDateTime.format(dateTime.getTime()));
+// scheduleFinishTime = dateTime.getTime().getTime();
+// setButtonEnable();
+// }
+// };
