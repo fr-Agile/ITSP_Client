@@ -38,6 +38,7 @@ public class RegisteredActivity extends Activity {
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		if(keyCode==KeyEvent.KEYCODE_BACK){
 	    	startActivity(new Intent(RegisteredActivity.this, RegisterActivity.class));
+	    	this.onDestroy();
 	    	return true;
 		}
 	    return false;

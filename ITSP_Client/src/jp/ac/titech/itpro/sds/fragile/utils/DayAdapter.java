@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import jp.ac.titech.itpro.sds.fragile.R;
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,7 +12,7 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 public class DayAdapter extends ArrayAdapter<String> {
-	private ArrayList<String> calendars = new ArrayList<String>();
+	public ArrayList<String> calendars = new ArrayList<String>();
 	private LayoutInflater inflater;
 	private int layout;
 
@@ -33,6 +34,7 @@ public class DayAdapter extends ArrayAdapter<String> {
 		((TextView)view.findViewById(R.id.time_text)).setText(calendar);
 		view.setBackgroundResource(R.drawable.time_back);
 
+		Log.d("day adapter getView:", "" + calendar);
 		return view;
 	}
 
@@ -40,5 +42,6 @@ public class DayAdapter extends ArrayAdapter<String> {
 	public void add(String calendar) {
 		super.add(calendar);
 		this.calendars.add(calendar);
+		Log.d("day adapter add day:", "" + calendar);
 	}
 }

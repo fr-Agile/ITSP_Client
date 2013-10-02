@@ -11,7 +11,7 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 public class CalendarAdapter extends ArrayAdapter<String> {
-	private ArrayList<String> calendars = new ArrayList<String>();
+	public ArrayList<String> calendars = new ArrayList<String>();
 	private LayoutInflater inflater;
 	private int layout;
 
