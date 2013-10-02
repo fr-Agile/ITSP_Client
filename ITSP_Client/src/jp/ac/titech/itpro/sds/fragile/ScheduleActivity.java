@@ -25,7 +25,9 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnTouchListener;
 import android.widget.AdapterView;
 import android.widget.FrameLayout;
 import android.widget.GridView;
@@ -74,6 +76,8 @@ public class ScheduleActivity extends Activity implements
 	private Calendar mBeginOfWeek;
 	private Calendar mEndOfWeek;
 	private StoreData data;
+	
+	private int[] mHistoricalPosition;
 
 	private Handler mHandler;
 
@@ -192,6 +196,47 @@ public class ScheduleActivity extends Activity implements
                 startActivity(intent);
             }
         });
+		
+		mainGrid.setOnTouchListener(new OnTouchListener(){
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				//if(event.getPointerCount() != 2) return false;
+
+				int[] position = estimateItem(event.getX(), event.getY());
+
+				switch(event.getAction()){
+				case MotionEvent.ACTION_DOWN:
+					Log.d("myDEBUG", "down");
+			        mHistoricalPosition = position;
+	                Log.d("myDEBUG", "x, y = (" + event.getX() + "," + event.getY() + ")");
+	                Log.d("myDEBUG", "logged position(" + mHistoricalPosition[0] + "," + mHistoricalPosition[1] + ")");
+			        break;
+			    case MotionEvent.ACTION_UP:
+					Log.d("myDEBUG", "up");
+	                Log.d("myDEBUG", "x, y = (" + event.getX() + "," + event.getY() + ")");
+	                Log.d("myDEBUG", "position is(" + position[0] + "," + position[1] + ")");
+
+	                Intent intent = new Intent(ScheduleActivity.this, ScheduleInputActivity.class);
+	                Calendar startTime = Calendar.getInstance();
+	                startTime.set(Calendar.YEAR, yearData[mHistoricalPosition[0]]);
+	                startTime.set(Calendar.MONTH, monthData[mHistoricalPosition[0]]);
+	                startTime.set(Calendar.DAY_OF_MONTH, dayData[mHistoricalPosition[0]]);
+	                startTime.set(Calendar.HOUR_OF_DAY, Math.min(mHistoricalPosition[1], position[1]));
+	                startTime.set(Calendar.MINUTE, 0);
+	                startTime.set(Calendar.SECOND, 0);
+	                intent.putExtra("startTime", startTime);
+	                Log.d("myDEBUG", "from:" + mHistoricalPosition[1] + " to:" + position[1]);
+	                intent.putExtra("length", Math.abs(mHistoricalPosition[1] - position[1]));
+	                startActivity(intent);
+
+	                break;
+			    case MotionEvent.ACTION_MOVE:
+					break;
+				}
+				return true;
+			}
+			
+		});
 
 		displayCalendar(); // スケジュールを四角で表示
 	}
@@ -645,11 +690,17 @@ public class ScheduleActivity extends Activity implements
 		viewOfSchedule.add(sampleSched);
 	}
 	
-	/**
-	 * Attempts to sign in or register the account specified by the login form.
-	 * If there are form errors (invalid email, missing fields, etc.), the
-	 * errors are presented and no actual login attempt is made.
-	 */
+	public int[] estimateItem(float x, float y){
+		int[] result = {0, 0};
+		int width = findViewById(R.id.gridView3).getWidth() - 5;
+		float leftBaseMargin = 40 * metrics.scaledDensity;
+
+		result[0] = (int)Math.ceil((x - leftBaseMargin) / (width / 7.0));
+		result[1] = (int)Math.ceil( y / (1514 / 24));
+
+		return result; 
+	}
+
 	public void displayCalendar() {
 		if (mCalTask != null) {
 			return;
