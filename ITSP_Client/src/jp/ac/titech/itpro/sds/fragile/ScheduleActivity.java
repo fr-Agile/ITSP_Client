@@ -143,9 +143,13 @@ public class ScheduleActivity extends Activity implements
 		//timeGrid
 		timeAdapter = new TimeAdapter(this, R.layout.time_row);
 		for (int i = 0; i < 24; i++) {
-			timeData[i] = i < 10 ? "0" : "";
-			timeData[i] += Integer.toString(i) + ":00";
-
+			if(i <= 11){
+				timeData[i] = i < 10 ? "0" : "";
+				timeData[i] += Integer.toString(i) + ":00 AM";
+			}else{
+				timeData[i] = i < 22 ? "0" : "";
+				timeData[i] += Integer.toString(i-12) + ":00 PM";
+			}
 			for (int j = 0; j < 7; j++) {
 				mainData[i * 7 + j] = "";
 			}

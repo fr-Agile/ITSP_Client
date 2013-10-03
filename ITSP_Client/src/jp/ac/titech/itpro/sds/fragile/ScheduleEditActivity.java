@@ -104,7 +104,7 @@ public class ScheduleEditActivity extends Activity{
         	}});
         
         doneBtn = (Button)findViewById(R.id.doneBtn);
-        doneBtn.setEnabled(false);
+        doneBtn.setEnabled(true);
         doneBtn.setOnClickListener(
         		new View.OnClickListener() {
         			public void onClick(View view) {
