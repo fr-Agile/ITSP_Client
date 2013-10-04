@@ -2,7 +2,6 @@ package jp.ac.titech.itpro.sds.fragile;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.List;
 
 import jp.ac.titech.itpro.sds.fragile.CreateScheduleListTask.CreateScheduleListFinishListener;
@@ -60,6 +59,7 @@ public class ScheduleActivity extends Activity implements
 		GetFriendFinishListener, GetShareTimeFinishListener, GetGroupFinishListener,
 		LoaderCallbacks<Cursor>, DeleteAllScheduleFinishListener, CreateScheduleListFinishListener {
 	
+	private static final String TAG = "ScheduleActivity";
 	private static final long START_OF_DAY = 0;
 	private static final long END_OF_DAY = 24 * 60 * 60 * 1000;
 	private static final long ONE_DAY = 24 * 60 * 60 * 1000;
@@ -117,50 +117,12 @@ public class ScheduleActivity extends Activity implements
 			Calendar nowCal = Calendar.getInstance();
 			data = new StoreData(nowCal);
 		}
-		// Calendar now = (Calendar)data.getCal().clone();
 		current = (Calendar) data.getCal().clone();
 
 		// ハンドラを取得
 		mHandler = new Handler();
 
-		// 現在の時刻情報を色々取得
-
-		mBeginOfWeek = (Calendar) current.clone();
-		mEndOfWeek = (Calendar) current.clone();
-
-		dayOfWeek = current.get(Calendar.DAY_OF_WEEK) - Calendar.SUNDAY;
-
-		// 00:00スタート、23:59終了にする
-		mBeginOfWeek.set(Calendar.DAY_OF_MONTH,
-				current.get(Calendar.DAY_OF_MONTH));
-		mBeginOfWeek.add(Calendar.DAY_OF_MONTH, -dayOfWeek);
-		mBeginOfWeek.set(Calendar.HOUR_OF_DAY, 0);
-		mBeginOfWeek.set(Calendar.MINUTE, 0);
-		mBeginOfWeek.set(Calendar.SECOND, 0);
-		mBeginOfWeek.set(Calendar.MILLISECOND, 0);
-		mEndOfWeek.set(Calendar.DAY_OF_MONTH,
-				mBeginOfWeek.get(Calendar.DAY_OF_MONTH));
-		mEndOfWeek.add(Calendar.DAY_OF_MONTH, 6);
-		mEndOfWeek.set(Calendar.HOUR_OF_DAY, 23);
-		mEndOfWeek.set(Calendar.MINUTE, 59);
-		mEndOfWeek.set(Calendar.SECOND, 59);
-		mEndOfWeek.set(Calendar.MILLISECOND, 999);
-
-		Log.d("Calendar",
-				"Year: " + current.get(Calendar.YEAR) + "Month: "
-						+ (current.get(Calendar.MONTH) + 1) + "Days: "
-						+ current.get(Calendar.DAY_OF_MONTH) + "Day of week: "
-						+ current.get(Calendar.DAY_OF_WEEK));
-		Log.d("Calendar begin of week",
-				"Year: " + mBeginOfWeek.get(Calendar.YEAR) + "Month: "
-						+ (mBeginOfWeek.get(Calendar.MONTH) + 1) + "Days: "
-						+ mBeginOfWeek.get(Calendar.DAY_OF_MONTH)
-						+ "Day of week: "
-						+ mBeginOfWeek.get(Calendar.DAY_OF_WEEK));
-		Log.d("Calendar end of week", "Year: " + mEndOfWeek.get(Calendar.YEAR)
-				+ "Month: " + (mEndOfWeek.get(Calendar.MONTH) + 1) + "Days: "
-				+ mEndOfWeek.get(Calendar.DAY_OF_MONTH) + "Day of week: "
-				+ mEndOfWeek.get(Calendar.DAY_OF_WEEK));
+		setUpWeek();
 
 		mainFrame = (FrameLayout) findViewById(R.id.calendarMainFrame);
 		dayGrid = (GridView) findViewById(R.id.gridView1);
@@ -170,6 +132,8 @@ public class ScheduleActivity extends Activity implements
 		metrics = new DisplayMetrics();
 		this.getWindowManager().getDefaultDisplay().getMetrics(metrics);
 
+		//timeGrid
+		timeAdapter = new TimeAdapter(this, R.layout.time_row);
 		for (int i = 0; i < 24; i++) {
 			timeData[i] = i < 10 ? "0" : "";
 			timeData[i] += Integer.toString(i) + ":00";
@@ -178,7 +142,14 @@ public class ScheduleActivity extends Activity implements
 				mainData[i * 7 + j] = "";
 			}
 		}
-
+		
+		for (String d : timeData) {
+			timeAdapter.add(d);
+		}
+		timeGrid.setAdapter(timeAdapter);
+		
+		//dayGrid
+		dayAdapter = new DayAdapter(this, R.layout.day_row);
 		for (int i = 0; i < 7; i++) {
 			Calendar cal = (Calendar) mBeginOfWeek.clone();
 			cal.add(Calendar.DAY_OF_MONTH, i);
@@ -187,20 +158,13 @@ public class ScheduleActivity extends Activity implements
 			yearData[i] = cal.get(Calendar.YEAR);
 			dayLabel[i] = days[i] + "  " + Integer.toString(dayData[i]);
 		}
-
-		dayAdapter = new DayAdapter(this, R.layout.day_row);
+		
 		for (String d : dayLabel) {
 			dayAdapter.add(d);
 		}
 		dayGrid.setAdapter(dayAdapter);
-
-		timeAdapter = new TimeAdapter(this, R.layout.time_row);
-		for (String d : timeData) {
-			timeAdapter.add(d);
-		}
-		timeGrid.setAdapter(timeAdapter);
-
-		mainGrid = (GridView) findViewById(R.id.gridView3);
+		
+		//mainGrid
 		mainGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent intent = new Intent(ScheduleActivity.this, ScheduleInputActivity.class);
@@ -216,7 +180,6 @@ public class ScheduleActivity extends Activity implements
                 startActivity(intent);
             }
         });
-		
 		mainGrid.setOnTouchListener(new OnTouchListener(){
 			@Override
 			public boolean onTouch(View v, MotionEvent event) {
@@ -261,6 +224,46 @@ public class ScheduleActivity extends Activity implements
 		displayCalendar(); // スケジュールを四角で表示
 	}
 
+	private void setUpWeek(){
+		// 現在の時刻情報を色々取得
+		dayOfWeek = current.get(Calendar.DAY_OF_WEEK) - Calendar.SUNDAY;
+
+		// 00:00スタート、23:59終了にする
+		mBeginOfWeek = (Calendar) current.clone();
+		mBeginOfWeek.add(Calendar.DAY_OF_MONTH, -dayOfWeek);
+		mBeginOfWeek.set(Calendar.HOUR_OF_DAY, 0);
+		mBeginOfWeek.set(Calendar.MINUTE, 0);
+		mBeginOfWeek.set(Calendar.SECOND, 0);
+		mBeginOfWeek.set(Calendar.MILLISECOND, 0);
+
+		mEndOfWeek = (Calendar) mBeginOfWeek.clone();
+		mEndOfWeek.add(Calendar.DAY_OF_MONTH, 6);
+		mEndOfWeek.set(Calendar.HOUR_OF_DAY, 23);
+		mEndOfWeek.set(Calendar.MINUTE, 59);
+		mEndOfWeek.set(Calendar.SECOND, 59);
+		mEndOfWeek.set(Calendar.MILLISECOND, 999);
+
+		Log.d(TAG,
+				"Current: Year:" + current.get(Calendar.YEAR) + " Month:"
+						+ (current.get(Calendar.MONTH) + 1) + " DayOfMonth:"
+						+ current.get(Calendar.DAY_OF_MONTH) + " DayOfWeek:"
+						+ current.get(Calendar.DAY_OF_WEEK));
+		Log.d(TAG,
+				"Calendar begin of week: Year:"
+						+ mBeginOfWeek.get(Calendar.YEAR) + " Month:"
+						+ (mBeginOfWeek.get(Calendar.MONTH) + 1)
+						+ " DayOfMonth:"
+						+ mBeginOfWeek.get(Calendar.DAY_OF_MONTH)
+						+ " DayOfWeek:"
+						+ mBeginOfWeek.get(Calendar.DAY_OF_WEEK));
+		Log.d(TAG,
+				"Calendar end of week: Year:" + mEndOfWeek.get(Calendar.YEAR)
+						+ " Month:" + (mEndOfWeek.get(Calendar.MONTH) + 1)
+						+ " DayOfMonth:"
+						+ mEndOfWeek.get(Calendar.DAY_OF_MONTH) + " DayOfWeek:"
+						+ mEndOfWeek.get(Calendar.DAY_OF_WEEK));
+	}
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu items for use in the action bar
@@ -358,88 +361,32 @@ public class ScheduleActivity extends Activity implements
 	}
 
 	private void changeDateAfterClickNextPreviousButton() {
-		dayOfWeek = current.get(Calendar.DAY_OF_WEEK) - Calendar.SUNDAY;
-
-		// 00:00スタート、23:59終了にする
-		mBeginOfWeek = (Calendar) current.clone();
-		mBeginOfWeek.add(Calendar.DAY_OF_MONTH, -dayOfWeek);
-		mBeginOfWeek.set(Calendar.HOUR_OF_DAY, 0);
-		mBeginOfWeek.set(Calendar.MINUTE, 0);
-		mBeginOfWeek.set(Calendar.SECOND, 0);
-		mBeginOfWeek.set(Calendar.MILLISECOND, 0);
-		mEndOfWeek = (Calendar) mBeginOfWeek.clone();
-		mEndOfWeek.add(Calendar.DAY_OF_MONTH, 6);
-		mEndOfWeek.set(Calendar.HOUR_OF_DAY, 23);
-		mEndOfWeek.set(Calendar.MINUTE, 59);
-		mEndOfWeek.set(Calendar.SECOND, 59);
-		mEndOfWeek.set(Calendar.MILLISECOND, 999);
-
-		Log.d("Calendar",
-				"Year:" + current.get(Calendar.YEAR) + " Month:"
-						+ (current.get(Calendar.MONTH) + 1) + "Days:"
-						+ current.get(Calendar.DAY_OF_MONTH) + " Day of week:"
-						+ current.get(Calendar.DAY_OF_WEEK));
-		Log.d("Calendar begin of week",
-				"Year:" + mBeginOfWeek.get(Calendar.YEAR) + " Month:"
-						+ (mBeginOfWeek.get(Calendar.MONTH) + 1) + " Days:"
-						+ mBeginOfWeek.get(Calendar.DAY_OF_MONTH)
-						+ " Day of week:"
-						+ mBeginOfWeek.get(Calendar.DAY_OF_WEEK));
-		Log.d("Calendar end of week", "Year:" + mEndOfWeek.get(Calendar.YEAR)
-				+ " Month:" + (mEndOfWeek.get(Calendar.MONTH) + 1) + " Days:"
-				+ mEndOfWeek.get(Calendar.DAY_OF_MONTH) + " Day of week:"
-				+ mEndOfWeek.get(Calendar.DAY_OF_WEEK));
-
-		// for (int i = 0; i < 24; i++) {
-		// timeData[i] = i < 10 ? "0" : "";
-		// timeData[i] += Integer.toString(i) + ":00";
-		//
-		// for (int j = 0; j < 7; j++) {
-		// mainData[i * 7 + j] = "";
-		// }
-		// }
-
+		// remove old views
+		for (View view : viewOfSchedule) {
+			mainFrame.removeView(view);
+		}
+		viewOfSchedule.clear();
+		
+		//set up a new week;
+		setUpWeek();
+		
+		//renew dayGrid
 		for (int i = 0; i < 7; i++) {
 			Calendar cal = (Calendar) mBeginOfWeek.clone();
 			cal.add(Calendar.DAY_OF_MONTH, i);
-			dayLabel[i] = days[i] + "  "
-					+ Integer.toString(cal.get(Calendar.DAY_OF_MONTH));
-			Log.d("day of month:", " " + dayData[i]);
+			dayData[i] = cal.get(Calendar.DAY_OF_MONTH);
+			monthData[i] = cal.get(Calendar.MONTH);
+			yearData[i] = cal.get(Calendar.YEAR);
+			dayLabel[i] = days[i] + "  " + Integer.toString(dayData[i]);
 		}
-
-		dayAdapter.calendars.clear();
+		dayAdapter.clear();
 		for (String d : dayLabel) {
 			dayAdapter.add(d);
 		}
 		dayAdapter.notifyDataSetChanged();
-		// dayGrid.invalidateViews();
-
-		// timeAdapter.clear();
-		// for (String d : timeData) {
-		// timeAdapter.add(d);
-		// }
-		// timeAdapter.notifyDataSetChanged();
-		// timeGrid.invalidateViews();
-
-		// calendarAdapter.calendars.clear();
-		// for (String d : mainData) {
-		// calendarAdapter.add(d);
-		// }
-		// calendarAdapter.notifyDataSetChanged();
-		// mainGrid.invalidateViews();
-
-		// remove old schedule
-		int count = mainFrame.getChildCount();
-		for (int i = 0; i < count; i++) {
-			View v = mainFrame.getChildAt(i);
-			if (v instanceof TextView) {
-				mainFrame.removeView(v);
-			}
-		}
-		viewOfSchedule.clear();
+//		dayGrid.setAdapter(dayAdapter);
 		
-		// 予定を表示
-		displayCalendar();
+		displayCalendar(); 
 		
 	}
 
