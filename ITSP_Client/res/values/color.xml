@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="white">#FFFFFF</color>
-    <color name="frame_frame">#008080</color>
-    <color name="frame_back">#00FFFF</color>
+    <color name="frame_frame">#232221</color>
+    <color name="frame_back">#FFAB00</color>
+    <color name="frame_unwise_back">#BF3330</color>
     
     <color name="base">#489C96</color>
     <color name="base_extra_light">#61CDC9</color>

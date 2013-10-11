@@ -16,6 +16,7 @@ public class GetShareTimeTask extends AsyncTask<Void, Void, GetShareTimeV1Result
 	private GetShareTimeFinishListener listener = null;
 	
 	private String emailCSV;
+	private String importantCSV;
 	private long startTime;
 	private long finishTime;
 	
@@ -58,6 +59,10 @@ public class GetShareTimeTask extends AsyncTask<Void, Void, GetShareTimeV1Result
 
 	public void setEmailCSV(String emailCSV) {
 		this.emailCSV = emailCSV;
+	}
+
+	public void setImportantCSV(String importantCSV) {
+		this.importantCSV = importantCSV;
 	}
 	public void setStartTime(long startTime) {
 		this.startTime = startTime;

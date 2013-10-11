@@ -32,16 +32,16 @@ public class GroupFriendAlertDialogBuilder extends AlertDialog.Builder {
 		private LayoutInflater inflater;
 		private int layoutId;
 		private List<GroupV1Dto> groupList;	// 表示するグループのリスト
-		private boolean[] groupFlags;		// チェックボックスの状態を保存するフラグ
+		private int[] groupFlags;		// チェックボックスの状態を保存するフラグ
 		private List<UserV1Dto> friendList;	// 表示するフレンドのリスト
-		private boolean[] friendFlags;		// チェックボックスの状態を保存するフラグ
+		private int[] friendFlags;		// チェックボックスの状態を保存するフラグ
 		
 		private final static int GROUP_LINE = 1; // "Group"と表示するための行数
 		private final static int FRIEND_LINE = 1; // "Friend"と表示するための行数
 		
 		public MyAdapter(Context context, int layoutId, 
-				List<GroupV1Dto> groupList, boolean[] groupFlags,
-				List<UserV1Dto> friendList, boolean[] friendFlags) {
+				List<GroupV1Dto> groupList, int[] groupFlags,
+				List<UserV1Dto> friendList, int[] friendFlags) {
 			super(context, 0);
 			
 			this.add("Group");
@@ -72,6 +72,7 @@ public class GroupFriendAlertDialogBuilder extends AlertDialog.Builder {
 			TextView textView = (TextView) view.findViewById(R.id.checkbox_text);
 			textView.setText(this.getItem(position));
 			final CheckBox checkBox = (CheckBox) view.findViewById(R.id.checkbox_check); 
+			final CheckBox checkBoxImportant = (CheckBox) view.findViewById(R.id.checkbox_important); 
 			final int p = position;
 			final int lines_of_groups = GROUP_LINE + groupList.size();
 			
@@ -79,15 +80,22 @@ public class GroupFriendAlertDialogBuilder extends AlertDialog.Builder {
 			if (p < GROUP_LINE) {
 				// "Group"と表示する行
 				view.setBackgroundColor(Color.CYAN);
+				view.findViewById(R.id.check_text).setVisibility(View.INVISIBLE);
+				view.findViewById(R.id.important_text).setVisibility(View.INVISIBLE);
 				checkBox.setVisibility(View.INVISIBLE);
+				checkBoxImportant.setVisibility(View.INVISIBLE);
 			} else if (p >= lines_of_groups && p < lines_of_groups + FRIEND_LINE) {
 				// "Friend"と表示する行
 				view.setBackgroundColor(Color.CYAN);
+				view.findViewById(R.id.check_text).setVisibility(View.INVISIBLE);
+				view.findViewById(R.id.important_text).setVisibility(View.INVISIBLE);
 				checkBox.setVisibility(View.INVISIBLE);
+				checkBoxImportant.setVisibility(View.INVISIBLE);
 				
 			} else {
 				view.setBackgroundColor(Color.WHITE);
 				checkBox.setVisibility(View.VISIBLE);
+				checkBoxImportant.setVisibility(View.VISIBLE);
 
 				// 必ずsetChecked前にリスナに登録(convertView != nullの場合は既に別行用のリスナが登録されている)
 				checkBox.setOnClickListener(new OnClickListener() {
@@ -97,7 +105,7 @@ public class GroupFriendAlertDialogBuilder extends AlertDialog.Builder {
 						
 						if (p < lines_of_groups) {
 							// groupのチェックが変更されたとき
-							groupFlags[p - GROUP_LINE] = isChecked;
+							groupFlags[p - GROUP_LINE] = isChecked ? 1 : 0;
 							// groupに属するfriendのチェックも変更する
 							GroupV1Dto group = groupList.get(p - GROUP_LINE);
 							for (com.appspot.fragile_t.groupEndpoint.model.UserV1Dto member 
@@ -106,11 +114,11 @@ public class GroupFriendAlertDialogBuilder extends AlertDialog.Builder {
 									if (member.getEmail().equals(friend.getEmail())) {
 										int friendIndex = friendList.indexOf(friend);
 										if (isChecked) {
-											friendFlags[friendIndex] = true;
+											friendFlags[friendIndex] = 1;
 										} else if (!checkedByGroup(friend)) {
 											// 他のグループにチェックされてなければ
 											// チェックを外す
-											friendFlags[friendIndex] = false;
+											friendFlags[friendIndex] = 0;
 										}
 									}
 								}
@@ -118,7 +126,7 @@ public class GroupFriendAlertDialogBuilder extends AlertDialog.Builder {
 						} else {
 							// friendのチェックが変更されたとき
 							int index = p - (lines_of_groups + FRIEND_LINE);
-							friendFlags[index] = isChecked;
+							friendFlags[index] = isChecked ? 1 : 0;
 							// falseの場合、friendの属するgroupのチェックを外す
 							if (isChecked == false) {
 								UserV1Dto friend = friendList.get(index);
@@ -127,7 +135,7 @@ public class GroupFriendAlertDialogBuilder extends AlertDialog.Builder {
 											: group.getUserlList()) {
 										if (member.getEmail().equals(friend.getEmail())) {
 											int groupIndex = groupList.indexOf(group);
-											groupFlags[groupIndex] = false;
+											groupFlags[groupIndex] = 0;
 											break;
 										}
 									}
@@ -138,10 +146,60 @@ public class GroupFriendAlertDialogBuilder extends AlertDialog.Builder {
 					}
 				});
 				
+				checkBoxImportant.setOnClickListener(new OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						boolean isChecked = checkBoxImportant.isChecked();
+						
+						if (p < lines_of_groups) {
+							// groupのチェックが変更されたとき
+							groupFlags[p - GROUP_LINE] = isChecked ? 2 : 0;
+							// groupに属するfriendのチェックも変更する
+							GroupV1Dto group = groupList.get(p - GROUP_LINE);
+							for (com.appspot.fragile_t.groupEndpoint.model.UserV1Dto member 
+									: group.getUserlList()) {
+								for (UserV1Dto friend : friendList) {
+									if (member.getEmail().equals(friend.getEmail())) {
+										int friendIndex = friendList.indexOf(friend);
+										if (isChecked) {
+											friendFlags[friendIndex] = 2;
+										} else if (!checkedByGroup(friend)) {
+											// 他のグループにチェックされてなければ
+											// チェックを外す
+											friendFlags[friendIndex] = 0;
+										}
+									}
+								}
+							}
+						} else {
+							// friendのチェックが変更されたとき
+							int index = p - (lines_of_groups + FRIEND_LINE);
+							friendFlags[index] = isChecked ? 2 : 0;
+							// falseの場合、friendの属するgroupのチェックを外す
+							if (isChecked == false) {
+								UserV1Dto friend = friendList.get(index);
+								for (GroupV1Dto group : groupList) {
+									for (com.appspot.fragile_t.groupEndpoint.model.UserV1Dto member 
+											: group.getUserlList()) {
+										if (member.getEmail().equals(friend.getEmail())) {
+											int groupIndex = groupList.indexOf(group);
+											groupFlags[groupIndex] = 0;
+											break;
+										}
+									}
+								}
+							}
+						}
+						MyAdapter.this.notifyDataSetChanged();
+					}
+				});
+
 				if (p < lines_of_groups) {
-					checkBox.setChecked(groupFlags[p - GROUP_LINE]);
+					checkBox.setChecked(groupFlags[p - GROUP_LINE] > 0);
+					checkBoxImportant.setChecked(groupFlags[p - GROUP_LINE] > 1);
 				} else {
-					checkBox.setChecked(friendFlags[p - (lines_of_groups + FRIEND_LINE)]);
+					checkBox.setChecked(friendFlags[p - (lines_of_groups + FRIEND_LINE)] > 0);
+					checkBoxImportant.setChecked(friendFlags[p - (lines_of_groups + FRIEND_LINE)] > 1);
 				}
 			}
 			return view;
@@ -149,7 +207,7 @@ public class GroupFriendAlertDialogBuilder extends AlertDialog.Builder {
 		
 		private boolean checkedByGroup(UserV1Dto friend) {
 			for (int i = 0; i < groupFlags.length; i++) {
-				if (groupFlags[i]) {
+				if (groupFlags[i] > 0) {
 					for (com.appspot.fragile_t.groupEndpoint.model.UserV1Dto member : 
 						groupList.get(i).getUserlList()) {
 						if (friend.getEmail().equals(member.getEmail())) {
@@ -162,11 +220,9 @@ public class GroupFriendAlertDialogBuilder extends AlertDialog.Builder {
 		}
 	}
 	
-		
-	
 	public Builder setGroupAndFriend(
-			final List<GroupV1Dto> groupList, final boolean[] groupFlags,
-			final List<UserV1Dto> friendList, final boolean[] friendFlags) {
+			final List<GroupV1Dto> groupList, final int[] groupFlags,
+			final List<UserV1Dto> friendList, final int[] friendFlags) {
 		
 		assert (groupList.size() == groupFlags.length) ;
 		assert (friendList.size() == friendFlags.length) ;

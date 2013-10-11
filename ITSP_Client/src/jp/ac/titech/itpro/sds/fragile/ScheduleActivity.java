@@ -99,8 +99,9 @@ public class ScheduleActivity extends Activity implements
 	private GetScheduleTask mCalTask = null;
 	private DeleteScheduleTask mDelTask = null;
 
-	private boolean[] mFriendCheckFlags;
-	private boolean[] mGroupCheckFlags;
+	private int[] mFriendCheckFlags;
+	private int[] mGroupCheckFlags;
+	private List<String> mImportantList = null;
 
 	private List<UserV1Dto> mFriendList = null;
 	private List<GroupV1Dto> mGroupList = null;
@@ -520,16 +521,16 @@ public class ScheduleActivity extends Activity implements
 		// もしチェック済みリストの長さと取得したリストの長さが違ったら初期化
 		if (mGroupCheckFlags == null
 				|| (mGroupCheckFlags.length != mGroupList.size())) {
-			mGroupCheckFlags = new boolean[mGroupList.size()];
+			mGroupCheckFlags = new int[mGroupList.size()];
 		}
 		if (mFriendCheckFlags == null
 				|| (mFriendCheckFlags.length != mFriendList.size())) {
-			mFriendCheckFlags = new boolean[mFriendList.size()];
+			mFriendCheckFlags = new int[mFriendList.size()];
 		}
 		try {
 			// 今のチェック状態を保存
-			final boolean[] groupTempFlags = mGroupCheckFlags.clone();
-			final boolean[] friendTempFlags = mFriendCheckFlags.clone();
+			final int[] groupTempFlags = mGroupCheckFlags.clone();
+			final int[] friendTempFlags = mFriendCheckFlags.clone();
 			new GroupFriendAlertDialogBuilder(ScheduleActivity.this)
 					.setGroupAndFriend(mGroupList, mGroupCheckFlags,
 							mFriendList, mFriendCheckFlags)
@@ -544,10 +545,13 @@ public class ScheduleActivity extends Activity implements
 							viewOfSchedule.clear();
 							
 							// 選ばれたemailのリストを作成
-							List<String> selectedList = new ArrayList<String>();
+							List<List<String>> selectedList = new ArrayList<List<String>>();
 							for (int i=0; i<mFriendList.size(); i++) {
-								if (mFriendCheckFlags[i]) {
-									selectedList.add(mFriendList.get(i).getEmail());
+								if (mFriendCheckFlags[i] > 0) {
+									List<String> tmp = new ArrayList<String>();
+									tmp.add(mFriendList.get(i).getEmail());
+									tmp.add(Integer.toString(mFriendCheckFlags[i]));
+									selectedList.add(tmp);
 								}
 							}
 							if (selectedList.size() > 0) {
@@ -576,15 +580,20 @@ public class ScheduleActivity extends Activity implements
 	/**
 	 * 複数との共通空き時間を表示
 	 */
-	public void displayShareTimeWith(List<String> emailList) {
+	public void displayShareTimeWith(List<List<String>> friendList) {
 		try {
 			SharedPreferences pref = getSharedPreferences("user",
 					Activity.MODE_PRIVATE);
 			String userEmail = pref.getString("email", "");
-
 			String emailCSV = userEmail;
-			for (String email : emailList) {
-				emailCSV += "," + email;
+			mImportantList = new ArrayList<String>();
+
+			for (List<String> friend : friendList) {
+				emailCSV += "," + friend.get(0);
+				Log.d("IMPORTANT?", friend.get(1));
+				if(Integer.parseInt(friend.get(1)) > 1){
+					mImportantList.add(friend.get(0));
+				}
 			}
 
 			// 共通空き時間を取得する
@@ -608,11 +617,16 @@ public class ScheduleActivity extends Activity implements
 		for (final GroupScheduleV1Dto gs : result.getGroupScheduleList()) {
 			if (gs.getUserList() != null) {
 				String temp = "";
+				boolean unwise = false;
 				List<com.appspot.fragile_t.getShareTimeEndpoint.model.UserV1Dto> userList = gs
 						.getUserList();
 				for (int i = 0; i < userList.size(); i++) {
 					com.appspot.fragile_t.getShareTimeEndpoint.model.UserV1Dto user = userList
 							.get(i);
+
+					unwise = unwise || mImportantList.contains(user.getEmail());
+					Log.d("myDEBUG", user.getEmail());
+
 					temp += user.getLastName() + " " + user.getFirstName();
 
 					if (i != userList.size() - 1) {
@@ -620,10 +634,11 @@ public class ScheduleActivity extends Activity implements
 					}
 				}
 				final String userListStr = temp;
+				final boolean unwiseFinal = unwise;
 				mHandler.post(new Runnable() {
 					public void run() {
 						displaySchedule(gs.getStartTime(), gs.getFinishTime(),
-								"", userListStr);
+								"", userListStr, unwiseFinal);
 					}
 				});
 			}
@@ -632,6 +647,11 @@ public class ScheduleActivity extends Activity implements
 
 	private void displaySchedule(Long startTime, Long finishTime,
 			final String keyS, String scheduleStr) {
+		displaySchedule(startTime, finishTime, keyS, scheduleStr, false);
+	}
+
+	private void displaySchedule(Long startTime, Long finishTime,
+			final String keyS, String scheduleStr, Boolean unwise) {
 		TextView sampleSched = new TextView(this);
 		double[] scheduleLayout = new double[3]; // scheduleの {x, y, height}
 
@@ -655,7 +675,13 @@ public class ScheduleActivity extends Activity implements
 
 		sampleSched.setText(scheduleStr);
 		// sampleSched.setBackgroundColor(Color.CYAN);
-		sampleSched.setBackground(getResources().getDrawable(R.drawable.frame));
+		if(unwise){
+			sampleSched.setBackground(getResources().getDrawable(R.drawable.frame_unwise));
+			sampleSched.setTextColor(getResources().getColor(R.color.light_gray));
+		}else{
+			sampleSched.setBackground(getResources().getDrawable(R.drawable.frame));
+			sampleSched.setTextColor(getResources().getColor(R.color.dark_gray));
+		}
 		FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
 				(int) Math.ceil(width / 7.0), (int) Math.ceil(scheduleLayout[2]
 						* 1514 / 24.0 * metrics.scaledDensity));
@@ -666,61 +692,63 @@ public class ScheduleActivity extends Activity implements
 		lp.topMargin = (int) Math.ceil(1514 * scheduleLayout[1] / 24.0
 				* metrics.scaledDensity);
 		sampleSched.setLayoutParams(lp);
-		sampleSched.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-				new AlertDialog.Builder(ScheduleActivity.this)
-						.setTitle("このスケジュールをどうしますか？")
-						.setNegativeButton("編集する",
-								new DialogInterface.OnClickListener() {
-									@Override
-									public void onClick(DialogInterface dialog,
-											int which) {
-										Intent intentEdit = new Intent(
-												ScheduleActivity.this,
-												ScheduleEditActivity.class);
-										intentEdit.putExtra("key", keySS);
-										intentEdit.putExtra("start", startE);
-										intentEdit.putExtra("finish", finishE);
-										startActivity(intentEdit);
-									}
-								})
-						.setPositiveButton("削除する",
-								new DialogInterface.OnClickListener() {
-									@Override
-									public void onClick(DialogInterface dialog,
-											int which) {
-										new AlertDialog.Builder(
-												ScheduleActivity.this)
-												.setTitle("本当に削除しますか？")
-												.setNegativeButton(
-														"はい",
-														new DialogInterface.OnClickListener() {
-															@Override
-															public void onClick(
-																	DialogInterface dialog,
-																	int which) {
-																DeleteScheduleTask task = new DeleteScheduleTask();
-																task.execute(keySS);
-																Toast.makeText(
-																		ScheduleActivity.this,
-																		"削除しました",
-																		Toast.LENGTH_SHORT)
-																		.show();
-															}
-														})
-												.setPositiveButton(
-														"いいえ",
-														new DialogInterface.OnClickListener() {
-															@Override
-															public void onClick(
-																	DialogInterface dialog,
-																	int which) {
-															}
-														}).show();
-									}
-								}).show();
-			}
-		});
+		if(!unwise){
+			sampleSched.setOnClickListener(new View.OnClickListener() {
+				public void onClick(View v) {
+					new AlertDialog.Builder(ScheduleActivity.this)
+							.setTitle("このスケジュールをどうしますか？")
+							.setNegativeButton("編集する",
+									new DialogInterface.OnClickListener() {
+										@Override
+										public void onClick(DialogInterface dialog,
+												int which) {
+											Intent intentEdit = new Intent(
+													ScheduleActivity.this,
+													ScheduleEditActivity.class);
+											intentEdit.putExtra("key", keySS);
+											intentEdit.putExtra("start", startE);
+											intentEdit.putExtra("finish", finishE);
+											startActivity(intentEdit);
+										}
+									})
+							.setPositiveButton("削除する",
+									new DialogInterface.OnClickListener() {
+										@Override
+										public void onClick(DialogInterface dialog,
+												int which) {
+											new AlertDialog.Builder(
+													ScheduleActivity.this)
+													.setTitle("本当に削除しますか？")
+													.setNegativeButton(
+															"はい",
+															new DialogInterface.OnClickListener() {
+																@Override
+																public void onClick(
+																		DialogInterface dialog,
+																		int which) {
+																	DeleteScheduleTask task = new DeleteScheduleTask();
+																	task.execute(keySS);
+																	Toast.makeText(
+																			ScheduleActivity.this,
+																			"削除しました",
+																			Toast.LENGTH_SHORT)
+																			.show();
+																}
+															})
+													.setPositiveButton(
+															"いいえ",
+															new DialogInterface.OnClickListener() {
+																@Override
+																public void onClick(
+																		DialogInterface dialog,
+																		int which) {
+																}
+															}).show();
+										}
+									}).show();
+				}
+			});
+		}
 		mainFrame.addView(sampleSched);
 
 		viewOfSchedule.add(sampleSched);

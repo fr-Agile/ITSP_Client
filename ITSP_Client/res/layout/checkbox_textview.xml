@@ -3,17 +3,41 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="horizontal" >
-    <TextView
-    	android:id="@+id/checkbox_text"
-    	android:layout_width="wrap_content"
-    	android:layout_height="wrap_content"
-    	android:layout_weight="1">
-    </TextView>
-    <CheckBox
-    	android:id="@+id/checkbox_check"
-    	android:layout_width="wrap_content"
-    	android:layout_height="wrap_content"
-    	android:gravity="right">
-    </CheckBox>   
 
+    <TextView
+        android:id="@+id/checkbox_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1" >
+    </TextView>
+
+    <TextView
+        android:id="@+id/check_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="参加メンバー"
+        android:layout_weight="1" >
+    </TextView>
+
+    <CheckBox
+        android:id="@+id/checkbox_check"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="right" >
+    </CheckBox>
+
+    <TextView
+        android:id="@+id/important_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="必須メンバー"
+        android:layout_weight="1" >
+    </TextView>
+
+    <CheckBox
+        android:id="@+id/checkbox_important"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="right" >
+    </CheckBox>
 </LinearLayout>
