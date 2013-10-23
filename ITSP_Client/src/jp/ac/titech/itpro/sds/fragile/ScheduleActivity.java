@@ -223,6 +223,8 @@ public class ScheduleActivity extends Activity implements
 		});
 
 		displayCalendar(); // スケジュールを四角で表示
+		
+		
 	}
 
 	private void setUpWeek(){

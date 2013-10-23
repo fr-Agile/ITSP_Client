@@ -10,6 +10,7 @@ import com.appspot.fragile_t.getShareTimeEndpoint.GetShareTimeEndpoint;
 import com.appspot.fragile_t.groupEndpoint.GroupEndpoint;
 import com.appspot.fragile_t.loginEndpoint.LoginEndpoint;
 import com.appspot.fragile_t.registerEndpoint.RegisterEndpoint;
+import com.appspot.fragile_t.registrationIdEndpoint.RegistrationIdEndpoint;
 import com.appspot.fragile_t.repeatScheduleEndpoint.RepeatScheduleEndpoint;
 import com.appspot.fragile_t.scheduleEndpoint.ScheduleEndpoint;
 import com.google.api.client.extensions.android.http.AndroidHttp;
@@ -52,6 +53,18 @@ public class RemoteApi {
 	
 	public static RegisterEndpoint getRegisterEndpoint() {
 		RegisterEndpoint.Builder endpointBuilder = new RegisterEndpoint.Builder(
+				AndroidHttp.newCompatibleTransport(), 
+				new JacksonFactory(), 
+				new HttpRequestInitializer() {
+					public void initialize(HttpRequest httpRequest) {
+					}
+				}); 
+		
+		return updateBuilder(endpointBuilder).build();
+	}
+	
+	public static RegistrationIdEndpoint getRegistrationIdEndpoint() {
+		RegistrationIdEndpoint.Builder endpointBuilder = new RegistrationIdEndpoint.Builder(
 				AndroidHttp.newCompatibleTransport(), 
 				new JacksonFactory(), 
 				new HttpRequestInitializer() {
