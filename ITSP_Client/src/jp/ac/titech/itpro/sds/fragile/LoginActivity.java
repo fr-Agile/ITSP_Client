@@ -4,6 +4,7 @@ import java.util.Calendar;
 
 import jp.ac.titech.itpro.sds.fragile.api.RemoteApi;
 import jp.ac.titech.itpro.sds.fragile.api.constant.CommonConstant;
+import jp.ac.titech.itpro.sds.fragile.utils.CommonUtils;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
@@ -25,6 +26,10 @@ import android.widget.TextView;
 import com.appspot.fragile_t.loginEndpoint.LoginEndpoint;
 import com.appspot.fragile_t.loginEndpoint.LoginEndpoint.LoginV1Endpoint.Login;
 import com.appspot.fragile_t.loginEndpoint.model.LoginResultV1Dto;
+import com.appspot.fragile_t.registrationIdEndpoint.RegistrationIdEndpoint;
+import com.appspot.fragile_t.registrationIdEndpoint.RegistrationIdEndpoint.RegistrationIdV1Endpoint.RegisterId;
+import com.appspot.fragile_t.registrationIdEndpoint.model.RegisterIdResultV1Dto;
+import com.google.android.gcm.GCMRegistrar;
 
 /**
  * Activity which displays a login screen to the user, offering registration as
@@ -51,10 +56,22 @@ public class LoginActivity extends Activity {
 	private static String FAIL = CommonConstant.FAIL;
 	
 	private static SharedPreferences pref;
+	
+	private String regId;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		// ID取得
+	    regId = GCMRegistrar.getRegistrationId(this);
+	    if (regId==null) {
+	       
+	        // 未登録の場合、登録
+	        GCMRegistrar.register(this, CommonUtils.GCM_SENDER_ID);
+	       
+	    }
+
 
 		setContentView(R.layout.activity_login);
 		
@@ -209,6 +226,10 @@ public class LoginActivity extends Activity {
 				Login login = endpoint.loginV1Endpoint().login(mEmail,
 						mPassword);
 				
+				RegistrationIdEndpoint endpoint2 = RemoteApi.getRegistrationIdEndpoint();
+				RegisterId registerId = endpoint2.registrationIdV1Endpoint().registerId(regId, mEmail);
+				RegisterIdResultV1Dto rs = registerId.execute();
+				
 				//ログイン中のユーザー情報をpreferenceに格納して用いることができるようにする
 				SharedPreferences.Editor editor = pref.edit();
 				editor.putString("email",mEmail);  
@@ -233,16 +254,19 @@ public class LoginActivity extends Activity {
 			showProgress(false);
 
 			if (success) {
-				Log.d("DEBUG", "ログイン成功");
-	    		Intent intent = new Intent(LoginActivity.this, ScheduleActivity.class);
-	    		Calendar nowCal = Calendar.getInstance();
-//	    		nowCal.add(Calendar.DAY_OF_YEAR, 7);
-	    		StoreData data = new StoreData(nowCal);
-	    		intent.putExtra("StoreData", data);
-	    		intent.setAction(Intent.ACTION_VIEW);
-		        startActivity(intent);
-		        
-				finish();
+
+					Log.d("DEBUG", "ログイン成功");
+		    		Intent intent = new Intent(LoginActivity.this, ScheduleActivity.class);
+		    		Calendar nowCal = Calendar.getInstance();
+//		    		nowCal.add(Calendar.DAY_OF_YEAR, 7);
+		    		StoreData data = new StoreData(nowCal);
+		    		intent.putExtra("StoreData", data);
+		    		intent.setAction(Intent.ACTION_VIEW);
+			        startActivity(intent);
+			        
+					finish();
+					
+					
 			} else {
 				mPasswordView
 						.setError(getString(R.string.error_incorrect_password));

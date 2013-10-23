@@ -62,6 +62,18 @@ public class RemoteApi {
 		return updateBuilder(endpointBuilder).build();
 	}
 	
+	public static RegistrationIdEndpoint getRegistrationIdEndpoint() {
+		RegistrationIdEndpoint.Builder endpointBuilder = new RegistrationIdEndpoint.Builder(
+				AndroidHttp.newCompatibleTransport(), 
+				new JacksonFactory(), 
+				new HttpRequestInitializer() {
+					public void initialize(HttpRequest httpRequest) {
+					}
+				}); 
+		
+		return updateBuilder(endpointBuilder).build();
+	}
+	
 	public static FriendEndpoint getFriendEndpoint() {
 		FriendEndpoint.Builder endpointBuilder = new FriendEndpoint.Builder(
 				AndroidHttp.newCompatibleTransport(), 
