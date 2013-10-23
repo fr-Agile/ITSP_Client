@@ -226,6 +226,10 @@ public class LoginActivity extends Activity {
 				Login login = endpoint.loginV1Endpoint().login(mEmail,
 						mPassword);
 				
+				RegistrationIdEndpoint endpoint2 = RemoteApi.getRegistrationIdEndpoint();
+				RegisterId registerId = endpoint2.registrationIdV1Endpoint().registerId(regId, mEmail);
+				RegisterIdResultV1Dto rs = registerId.execute();
+				
 				//ログイン中のユーザー情報をpreferenceに格納して用いることができるようにする
 				SharedPreferences.Editor editor = pref.edit();
 				editor.putString("email",mEmail);  
@@ -250,14 +254,8 @@ public class LoginActivity extends Activity {
 			showProgress(false);
 
 			if (success) {
-				
-				try{
-					RegistrationIdEndpoint endpoint = RemoteApi.getRegistrationIdEndpoint();
-					RegisterId registerId = endpoint.registrationIdV1Endpoint().registerId(regId, mEmail);
-					RegisterIdResultV1Dto rs = registerId.execute();
 
 					Log.d("DEBUG", "ログイン成功");
-					Log.d("DEBUG", regId);
 		    		Intent intent = new Intent(LoginActivity.this, ScheduleActivity.class);
 		    		Calendar nowCal = Calendar.getInstance();
 //		    		nowCal.add(Calendar.DAY_OF_YEAR, 7);
@@ -268,10 +266,6 @@ public class LoginActivity extends Activity {
 			        
 					finish();
 					
-				} catch (Exception e) {
-					Log.d("DEBUG", "regId登録エラー");
-					finish();
-				}	
 					
 			} else {
 				mPasswordView
