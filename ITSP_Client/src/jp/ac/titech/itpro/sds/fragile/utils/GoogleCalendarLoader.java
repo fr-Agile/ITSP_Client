@@ -18,8 +18,15 @@ public class GoogleCalendarLoader extends CursorLoader {
         time.setToNow();
         time.allDay = true;
         // 去年の1月1日から
+        /*
         time.year = time.year - 1;
         time.month = 0;
+        time.monthDay = 1;
+        time.hour = 0;
+        time.minute = 0;
+        time.second = 0;
+        */
+        time.month = 9;
         time.monthDay = 1;
         time.hour = 0;
         time.minute = 0;
@@ -48,6 +55,12 @@ public class GoogleCalendarLoader extends CursorLoader {
                 Instances.ALL_DAY,
                 Instances.START_DAY,
                 Instances.END_DAY,
+                Instances.RRULE,
+                Instances.RDATE,
+                Instances.DTSTART,
+                Instances.DTEND,
+                Instances.DURATION,
+                Instances.EVENT_ID
             };
             /*
             // アドレス?カレンダー?を限定する場合は以下を記述する。
@@ -61,6 +74,7 @@ public class GoogleCalendarLoader extends CursorLoader {
 
             
             sort_order =
+            	Instances.EVENT_ID + " ASC, " +
                 Instances.BEGIN + " ASC, " + Instances.END + " DESC, "
                     + Instances.TITLE + " ASC";
         } else {
@@ -75,9 +89,15 @@ public class GoogleCalendarLoader extends CursorLoader {
                 "title",
                 "allDay",
                 "startDay",
-                "endDay"
+                "endDay",
+                "rrule",
+                "rdate",
+                "dtstart",
+                "dtend",
+                "duration",
+                "event_id"
             };
-            sort_order = "begin ASC, end DESC, title ASC";
+            sort_order = "event_id ASC, begin ASC, end DESC, title ASC";
         }
         Uri baseUri = buildQueryUri(begin, end, content_by_day_uri);
         
@@ -97,5 +117,4 @@ public class GoogleCalendarLoader extends CursorLoader {
             Uri.withAppendedPath(content_by_day_uri, path.toString());
         return uri;
     }
-	
 }

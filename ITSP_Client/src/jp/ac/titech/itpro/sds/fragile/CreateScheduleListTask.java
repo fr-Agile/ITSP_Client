@@ -53,9 +53,9 @@ public class CreateScheduleListTask extends AsyncTask<Void, Void, ScheduleResult
 	@Override
 	protected void onPostExecute(final ScheduleResultV1Dto result) {
 		if (SUCCESS.equals(result.getResult())) {
-			Log.d("DEBUG", "DeleteAllScheduleTask success");
+			Log.d("DEBUG", "CreateScheduleListTask success");
 		} else {
-			Log.d("DEBUG", "DeleteAllShceduleTask fail");
+			Log.d("DEBUG", "CreateScheduleListTask fail");
 		}
 		if (listener != null) {
 			listener.onCreateScheduleListTaskFinish(result);

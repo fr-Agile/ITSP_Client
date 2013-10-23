@@ -3,12 +3,14 @@ package jp.ac.titech.itpro.sds.fragile;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Date;
 
 import jp.ac.titech.itpro.sds.fragile.CreateScheduleListTask.CreateScheduleListFinishListener;
 import jp.ac.titech.itpro.sds.fragile.DeleteAllScheduleTask.DeleteAllScheduleFinishListener;
 import jp.ac.titech.itpro.sds.fragile.GetFriendTask.GetFriendFinishListener;
 import jp.ac.titech.itpro.sds.fragile.GetGroupTask.GetGroupFinishListener;
 import jp.ac.titech.itpro.sds.fragile.GetShareTimeTask.GetShareTimeFinishListener;
+import jp.ac.titech.itpro.sds.fragile.CalendarSaver.GoogleCalendarSaveFinishListener;
 import jp.ac.titech.itpro.sds.fragile.api.RemoteApi;
 import jp.ac.titech.itpro.sds.fragile.api.constant.CommonConstant;
 import jp.ac.titech.itpro.sds.fragile.utils.CalendarAdapter;
@@ -60,10 +62,11 @@ import com.appspot.fragile_t.scheduleEndpoint.ScheduleEndpoint.ScheduleV1EndPoin
 import com.appspot.fragile_t.scheduleEndpoint.ScheduleEndpoint.ScheduleV1EndPoint.GetSchedule;
 import com.appspot.fragile_t.scheduleEndpoint.model.ScheduleResultV1Dto;
 import com.appspot.fragile_t.scheduleEndpoint.model.ScheduleV1Dto;
+import com.google.api.client.util.DateTime;
 
 public class ScheduleActivity extends Activity implements
 		GetFriendFinishListener, GetShareTimeFinishListener, GetGroupFinishListener,
-		LoaderCallbacks<Cursor>, DeleteAllScheduleFinishListener, CreateScheduleListFinishListener {
+		LoaderCallbacks<Cursor>, DeleteAllScheduleFinishListener, CreateScheduleListFinishListener, GoogleCalendarSaveFinishListener {
 	
 	private static final String TAG = "ScheduleActivity";
 	private static final long START_OF_DAY = 0;
@@ -112,6 +115,7 @@ public class ScheduleActivity extends Activity implements
 	private List<UserV1Dto> mFriendList = null;
 	private List<GroupV1Dto> mGroupList = null;
 	private List<ScheduleV1Dto> mCreateScheduleList = null;
+	private List<RepeatScheduleV1Dto> mCreateRepeatScheduleList = null;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -828,30 +832,43 @@ public class ScheduleActivity extends Activity implements
 				if (repeatList.size() > 0) {
 					for (RepeatScheduleV1Dto repeat : repeatList) {
 						for (int day : repeat.getRepeatDays()) {
-							// TODO exceptの処理を行う
 							final Calendar start = (Calendar) mBeginOfWeek
 									.clone();
 							final Calendar finish = (Calendar) mBeginOfWeek
 									.clone();
-
 							// dayは曜日を表す。今週の日曜日からのずれを足し込む
 							start.add(Calendar.DAY_OF_MONTH, day);
 							finish.add(Calendar.DAY_OF_MONTH, day);
 
+							DateTime ds = new DateTime(repeat.getRepeatBegin());
+							DateTime de = new DateTime(repeat.getRepeatEnd());
+							//　もし開始が繰り返し期間より早い or 遅い場合、表示しない
+							if ((start.getTimeInMillis() < repeat.getRepeatBegin()) ||
+									(start.getTimeInMillis() > repeat.getRepeatEnd())) {
+								break;
+							}
+							
 							// startTimeとfinishTimeを設定する
 							start.add(Calendar.MILLISECOND, repeat
 									.getStartTime().intValue());
 							finish.add(Calendar.MILLISECOND, repeat
 									.getFinishTime().intValue());
 
-							mHandler.post(new Runnable() {
-								public void run() {
-									displaySchedule(start.getTime().getTime(),
-											finish.getTime().getTime(), "",
-											"予定");
-								}
-
-							});
+							// もし、exceptされる日にちじゃなければ表示する
+							DateTime date = new DateTime(
+									CalendarUtils.getBeginOfDate(start.getTimeInMillis()).getTime());
+							if ((repeat.getExcepts() == null) ||
+									(!repeat.getExcepts().contains(date))) {
+								// exceptsには含まれていない
+								mHandler.post(new Runnable() {
+									public void run() {
+										displaySchedule(start.getTime().getTime(),
+												finish.getTime().getTime(), "",
+												"予定");
+									}
+	
+								});
+							}
 						}
 					}
 				}
@@ -926,55 +943,8 @@ public class ScheduleActivity extends Activity implements
 	 */
 	@Override
 	public void onLoadFinished(Loader<Cursor> arg0, Cursor arg1) {
-		if (arg1.moveToFirst()) {
-			mCreateScheduleList = new ArrayList<ScheduleV1Dto>();
-			
-			do {
-				ScheduleV1Dto sche = new ScheduleV1Dto();
-				sche.setKey(arg1.getString(4)); // 意味ない。デバッグ用。後々、タイトルとして使う
-				
-				String test = arg1.getString(5);
-				if ("1".equals(arg1.getString(5))) {
-					// 終日の予定の場合
-					// 今のところ予定は一日で終わるのでスタートの日で登録する
-					long startJulianDay = Long.parseLong(arg1.getString(6));
-					Calendar time = Calendar.getInstance();
-					time.setTimeInMillis(julianDayToTime(startJulianDay));
-					sche.setStartTime(time.getTimeInMillis());
-					
-					time.add(Calendar.DAY_OF_MONTH, 1);
-					time.add(Calendar.MILLISECOND, -1);
-					sche.setFinishTime(time.getTimeInMillis());
-				} else {
-					sche.setStartTime(Long.parseLong(arg1.getString(2)));
-					sche.setFinishTime(Long.parseLong(arg1.getString(3)));
-				}
-				mCreateScheduleList.add(sche);
-				
-				/* debug */
-				Calendar cal = Calendar.getInstance();
-				cal.setTimeInMillis(sche.getStartTime());
-				long g = cal.getTimeInMillis();
-				/* degugここまで */
-				
-			} while (arg1.moveToNext());
-			// まず、登録されている予定を削除
-			SharedPreferences pref = getSharedPreferences("user",
-					Activity.MODE_PRIVATE);
-			String email = pref.getString("email", "");
-			DeleteAllScheduleTask delAllTask = new DeleteAllScheduleTask(this);
-			delAllTask.execute(email);
-		} else {
-			Log.d("DEBUG", "import GoogleCalendar failed?");
-		}
-	}
-
-	/**
-	 * ユリウス日を1970年1月1日0時UCTからのミリ秒に変換. 日本標準時より9時間ずれている。-9時間すればok
-	 * さらにユリウス日は正午に変わる。-12時間する。よって-21時間する。
-	 */
-	private long julianDayToTime(long startJulianDay) {
-		return (long) ((startJulianDay - 2440587.5) * (24.0*60*60*1000) - (21.0*60*60*1000));
+		CalendarSaver cs = new CalendarSaver(this, this);
+		cs.save(arg1);
 	}
 
 	@Override
@@ -1010,6 +980,21 @@ public class ScheduleActivity extends Activity implements
 		} else {
 			Log.d("DEBUG", "create schedule list failed");
 		}
+	}
+
+	@Override
+	public void onGoogleCalendarSaveFinish(boolean result) {
+		if (result) {
+			// 予定を書き換え終わったので再描画
+			// 表示しているスケジュールをクリア
+			for (View view : viewOfSchedule) {
+				mainFrame.removeView(view);
+			}
+			viewOfSchedule.clear();
+			displayCalendar();
+		} else {
+			Log.d("DEBUG", "create schedule list failed");
+		}	
 	}
 	
 	/**
