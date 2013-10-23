@@ -90,7 +90,13 @@ public class ScheduleInputActivity extends Activity {
 				Calendar cal = (Calendar) extras.get("startTime");
 				Log.d("myDEBUG", extras.get("startTime").toString());
 				startTime = (Calendar) cal.clone();
-				cal.add(Calendar.HOUR_OF_DAY, 1);
+
+				if(extras.containsKey("length")){
+					cal.add(Calendar.HOUR_OF_DAY, (int) extras.getInt("length"));
+				} else {
+					cal.add(Calendar.HOUR_OF_DAY, 1);
+				}
+
 				finishTime = (Calendar) cal.clone();
 			}
 		}

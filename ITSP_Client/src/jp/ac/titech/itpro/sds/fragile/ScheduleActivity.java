@@ -19,22 +19,28 @@ import jp.ac.titech.itpro.sds.fragile.utils.TimeAdapter;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.LoaderManager.LoaderCallbacks;
+import android.content.ClipData;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.DragEvent;
+import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.DragShadowBuilder;
 import android.view.View.OnTouchListener;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.FrameLayout;
 import android.widget.GridView;
@@ -181,45 +187,100 @@ public class ScheduleActivity extends Activity implements
                 startActivity(intent);
             }
         });
+
+		final GestureDetector gesDetector = new GestureDetector(this, new GestureDetector.OnGestureListener(){
+			@Override
+			public void onLongPress(MotionEvent e) {
+                final int[] position = estimatePosition(e.getX(), e.getY());
+				final int width = mainGrid.getWidth();
+				final int height = mainGrid.getHeight();
+
+				final TextView schedDrag = new TextView(mainGrid.getContext());
+				schedDrag.setBackgroundColor(getResources().getColor(R.color.light_gray));
+				
+				schedDrag.setOnDragListener(new View.OnDragListener() {
+					private int n = 1;
+
+					public boolean onDrag(View v, DragEvent e) {
+						final int action = e.getAction();
+						boolean result = false;
+						switch (action) {
+						case DragEvent.ACTION_DRAG_STARTED: 
+							result = true;
+							break;
+						case DragEvent.ACTION_DRAG_ENDED: 
+							Intent intent = new Intent(ScheduleActivity.this, ScheduleInputActivity.class);
+							Calendar startTime = Calendar.getInstance();
+							startTime.set(Calendar.YEAR, yearData[position[0]]);
+							startTime.set(Calendar.MONTH, monthData[position[0]]);
+							startTime.set(Calendar.DAY_OF_MONTH, dayData[position[0]]);
+							startTime.set(Calendar.HOUR_OF_DAY, position[1]);
+							startTime.set(Calendar.MINUTE, 0);
+							startTime.set(Calendar.SECOND, 0);
+							intent.putExtra("startTime", startTime);
+							Log.d("myDEBUG", "length = " + n);
+			                intent.putExtra("length", n);
+
+			                mainFrame.removeView(schedDrag);
+							startActivity(intent);
+
+							result = true;
+							break;
+						case DragEvent.ACTION_DRAG_LOCATION: 
+							n = Math.round(Math.max(e.getY(), 0) / (mainGrid.getHeight() / 24)); 
+							ViewGroup.LayoutParams lp = schedDrag.getLayoutParams();
+							lp.height = height * (n + 1) / 24;
+							schedDrag.setLayoutParams(lp);
+							result = true;
+							break;
+						case DragEvent.ACTION_DROP:
+							Log.d("myDEBUG", "drag drop.");
+							result = true;
+							break;
+						}
+						return result;
+					}
+				});
+
+				FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(width / 7, height / 24);
+				lp.leftMargin = (int) Math.ceil(width / 7.0 * (position[0] - 1) + 40
+						* metrics.scaledDensity);
+				lp.topMargin = (int) Math.ceil(1514 * (position[1] - 1) / 24.0
+						* metrics.scaledDensity);
+				schedDrag.setLayoutParams(lp);
+				mainFrame.addView(schedDrag);
+
+				ClipData data = ClipData.newPlainText("text", "text : " + schedDrag.getText());
+				schedDrag.startDrag(data, new DragShadowBuilder(schedDrag), (Object)schedDrag, 0);
+
+				return ;
+			}
+
+			@Override
+			public boolean onDown(MotionEvent e) { return true; }
+			@Override
+			public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) { return true; }
+			@Override
+			public boolean onScroll(MotionEvent e1, MotionEvent e2,  float distanceX, float distanceY) { return true; }
+			@Override
+			public void onShowPress(MotionEvent e) {}
+			@Override
+			public boolean onSingleTapUp(MotionEvent e) { return true; }
+			
+			private int[] estimatePosition(float x, float y) {
+				int[] array = new int[2];
+				array[0] = (int) Math.ceil((x * 7) / mainGrid.getWidth());
+				array[1] = (int) Math.ceil((y * 24) / mainGrid.getHeight());
+
+				return array;
+			}
+		}); 
+		
 		mainGrid.setOnTouchListener(new OnTouchListener(){
 			@Override
 			public boolean onTouch(View v, MotionEvent event) {
-				//if(event.getPointerCount() != 2) return false;
-
-				int[] position = estimateItem(event.getX(), event.getY());
-
-				switch(event.getAction()){
-				case MotionEvent.ACTION_DOWN:
-					Log.d("myDEBUG", "down");
-			        mHistoricalPosition = position;
-	                Log.d("myDEBUG", "x, y = (" + event.getX() + "," + event.getY() + ")");
-	                Log.d("myDEBUG", "logged position(" + mHistoricalPosition[0] + "," + mHistoricalPosition[1] + ")");
-			        break;
-			    case MotionEvent.ACTION_UP:
-					Log.d("myDEBUG", "up");
-	                Log.d("myDEBUG", "x, y = (" + event.getX() + "," + event.getY() + ")");
-	                Log.d("myDEBUG", "position is(" + position[0] + "," + position[1] + ")");
-
-	                Intent intent = new Intent(ScheduleActivity.this, ScheduleInputActivity.class);
-	                Calendar startTime = Calendar.getInstance();
-	                startTime.set(Calendar.YEAR, yearData[mHistoricalPosition[0]]);
-	                startTime.set(Calendar.MONTH, monthData[mHistoricalPosition[0]]);
-	                startTime.set(Calendar.DAY_OF_MONTH, dayData[mHistoricalPosition[0]]);
-	                startTime.set(Calendar.HOUR_OF_DAY, Math.min(mHistoricalPosition[1], position[1]));
-	                startTime.set(Calendar.MINUTE, 0);
-	                startTime.set(Calendar.SECOND, 0);
-	                intent.putExtra("startTime", startTime);
-	                Log.d("myDEBUG", "from:" + mHistoricalPosition[1] + " to:" + position[1]);
-	                intent.putExtra("length", Math.abs(mHistoricalPosition[1] - position[1]));
-	                startActivity(intent);
-
-	                break;
-			    case MotionEvent.ACTION_MOVE:
-					break;
-				}
-				return true;
+				return gesDetector.onTouchEvent(event);
 			}
-			
 		});
 
 		displayCalendar(); // スケジュールを四角で表示
@@ -639,6 +700,7 @@ public class ScheduleActivity extends Activity implements
 		lp.topMargin = (int) Math.ceil(1514 * scheduleLayout[1] / 24.0
 				* metrics.scaledDensity);
 		sampleSched.setLayoutParams(lp);
+
 		if(!unwise){
 			sampleSched.setOnClickListener(new View.OnClickListener() {
 				public void onClick(View v) {
