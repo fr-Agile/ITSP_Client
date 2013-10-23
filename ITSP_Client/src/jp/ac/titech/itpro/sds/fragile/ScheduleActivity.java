@@ -66,7 +66,7 @@ import com.google.api.client.util.DateTime;
 
 public class ScheduleActivity extends Activity implements
 		GetFriendFinishListener, GetShareTimeFinishListener, GetGroupFinishListener,
-		LoaderCallbacks<Cursor>, DeleteAllScheduleFinishListener, CreateScheduleListFinishListener, GoogleCalendarSaveFinishListener {
+		LoaderCallbacks<Cursor>, GoogleCalendarSaveFinishListener {
 	
 	private static final String TAG = "ScheduleActivity";
 	private static final long START_OF_DAY = 0;
@@ -414,11 +414,11 @@ public class ScheduleActivity extends Activity implements
 						return true;
 					}
 				});
+		// google calendarインポートボタン
 	    menu.getItem(7).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener(){
 			@Override
 			public boolean onMenuItemClick(MenuItem item) {
 				getLoaderManager().initLoader(0, null, ScheduleActivity.this);
-				
 				return true;
 			}
 	    });
@@ -950,36 +950,6 @@ public class ScheduleActivity extends Activity implements
 	@Override
 	public void onLoaderReset(Loader<Cursor> arg0) {
 		Log.d("DEBUG", "import GoogleCalendar canceled");
-	}
-
-	@Override
-	public void onDeleteAllScheduleTaskFinish(ScheduleResultV1Dto result) {
-		if (SUCCESS.equals(result.getResult())) {
-			// 予定を削除したらリストを追加
-			SharedPreferences pref = getSharedPreferences("user",
-					Activity.MODE_PRIVATE);
-			String email = pref.getString("email", "");
-			CreateScheduleListTask createScheListTask = 
-					new CreateScheduleListTask(this, email, mCreateScheduleList);
-			createScheListTask.execute();
-		} else {
-			Log.d("DEBUG", "delete all schedule failed");
-		}
-	}
-
-	@Override
-	public void onCreateScheduleListTaskFinish(ScheduleResultV1Dto result) {
-		if (SUCCESS.equals(result.getResult())) {
-			// 予定を書き換え終わったので再描画
-			// 表示しているスケジュールをクリア
-			for (View view : viewOfSchedule) {
-				mainFrame.removeView(view);
-			}
-			viewOfSchedule.clear();
-			displayCalendar();
-		} else {
-			Log.d("DEBUG", "create schedule list failed");
-		}
 	}
 
 	@Override

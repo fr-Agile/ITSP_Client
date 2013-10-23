@@ -18,22 +18,27 @@ import com.appspot.fragile_t.scheduleEndpoint.model.ScheduleV1Dto;
 import com.google.api.client.util.DateTime;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.util.Log;
 
 
+/**
+ * インポートしたGoogleCalendarをあじゃ助のサーバに保存する
+ * TODO 非同期化した方が良いかも
+ */
 public class CalendarSaver implements DeleteAllScheduleFinishListener, CreateScheduleListFinishListener, DeleteAllRepeatScheduleFinishListener, CreateRepeatScheduleListFinishListener {
 	private static final String SUCCESS = CommonConstant.SUCCESS;
 	
-	private Activity activity;
+	private Context context;
 	private GoogleCalendarSaveFinishListener listener;
 	private List<ScheduleV1Dto> mCreateScheduleList = null;
 	private List<RepeatScheduleV1Dto> mCreateRepeatScheduleList = null;
 	private boolean finishFlag = false;
 	
-	public CalendarSaver(Activity activity, GoogleCalendarSaveFinishListener listener) {
-		this.activity = activity;
+	public CalendarSaver(Context context, GoogleCalendarSaveFinishListener listener) {
+		this.context = context;
 		this.listener = listener;
 	}
 	
@@ -41,7 +46,7 @@ public class CalendarSaver implements DeleteAllScheduleFinishListener, CreateSch
 		boolean result = translateToDto(arg1);
 		if (result) {
 			// まず、登録されている予定を削除
-			SharedPreferences pref = activity.getSharedPreferences("user",
+			SharedPreferences pref = context.getSharedPreferences("user",
 					Activity.MODE_PRIVATE);
 			String email = pref.getString("email", "");
 			DeleteAllScheduleTask delAllTask = new DeleteAllScheduleTask(this);
@@ -157,7 +162,7 @@ public class CalendarSaver implements DeleteAllScheduleFinishListener, CreateSch
 	public void onDeleteAllScheduleTaskFinish(ScheduleResultV1Dto result) {
 		if (SUCCESS.equals(result.getResult())) {
 			// 予定を削除したらリストを追加
-			SharedPreferences pref = activity.getSharedPreferences("user",
+			SharedPreferences pref = context.getSharedPreferences("user",
 					Activity.MODE_PRIVATE);
 			String email = pref.getString("email", "");
 			CreateScheduleListTask createScheListTask = 
@@ -189,7 +194,7 @@ public class CalendarSaver implements DeleteAllScheduleFinishListener, CreateSch
 			RepeatScheduleResultV1Dto result) {
 		if (SUCCESS.equals(result.getResult())) {
 			// 予定を削除したらリストを追加
-			SharedPreferences pref = activity.getSharedPreferences("user",
+			SharedPreferences pref = context.getSharedPreferences("user",
 					Activity.MODE_PRIVATE);
 			String email = pref.getString("email", "");
 			CreateRepeatScheduleListTask createRepeatScheListTask = 

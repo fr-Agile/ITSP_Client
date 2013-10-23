@@ -4,7 +4,6 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.CalendarContract;
-import android.provider.CalendarContract.Calendars;
 import android.provider.CalendarContract.Instances;
 import android.content.CursorLoader;
 import android.text.format.Time;
@@ -32,7 +31,7 @@ public class GoogleCalendarLoader extends CursorLoader {
         time.minute = 0;
         time.second = 0;
         int begin = Time.getJulianDay(time.toMillis(true), 0);
-        // 3年後の11月31日までの予定を取得
+        // 3年後の12月31日までの予定を取得
         time.year += 4;
         time.month = 11;
         time.monthDay = 31;
