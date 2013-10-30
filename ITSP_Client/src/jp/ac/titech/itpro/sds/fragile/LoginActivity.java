@@ -57,13 +57,14 @@ public class LoginActivity extends Activity {
 	
 	private static SharedPreferences pref;
 	
-	private String regId;
+	// private String regId;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
 		// ID取得
+		/*
 	    regId = GCMRegistrar.getRegistrationId(this);
 	    if (regId==null) {
 	       
@@ -71,6 +72,7 @@ public class LoginActivity extends Activity {
 	        GCMRegistrar.register(this, CommonUtils.GCM_SENDER_ID);
 	       
 	    }
+	    */
 
 
 		setContentView(R.layout.activity_login);
@@ -226,9 +228,11 @@ public class LoginActivity extends Activity {
 				Login login = endpoint.loginV1Endpoint().login(mEmail,
 						mPassword);
 				
+				/*
 				RegistrationIdEndpoint endpoint2 = RemoteApi.getRegistrationIdEndpoint();
 				RegisterId registerId = endpoint2.registrationIdV1Endpoint().registerId(regId, mEmail);
 				RegisterIdResultV1Dto rs = registerId.execute();
+				*/
 				
 				//ログイン中のユーザー情報をpreferenceに格納して用いることができるようにする
 				SharedPreferences.Editor editor = pref.edit();
