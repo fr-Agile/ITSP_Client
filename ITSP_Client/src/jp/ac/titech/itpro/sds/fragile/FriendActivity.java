@@ -36,6 +36,8 @@ import android.widget.TextView;
 import com.appspot.fragile_t.friendEndpoint.FriendEndpoint;
 import com.appspot.fragile_t.friendEndpoint.FriendEndpoint.FriendV1Endpoint.Friendship;
 import com.appspot.fragile_t.friendEndpoint.model.FriendResultV1Dto;
+import com.appspot.fragile_t.pushMessageEndpoint.PushMessageEndpoint;
+import com.appspot.fragile_t.pushMessageEndpoint.PushMessageEndpoint.PushMessageV1Endpoint.SendMessageFromRegisterId;
 
 /**
  * Activity which displays a login screen to the user, offering registration as
@@ -236,6 +238,11 @@ public class FriendActivity extends Activity implements
 						fEmail, pref.getString("email", ""));
 
 				FriendResultV1Dto result = friend.execute();
+				
+				// プッシュ通知を行う
+				PushMessageEndpoint endpoint2 = RemoteApi.getPushMessageEndpoint();
+				SendMessageFromRegisterId pushmsg = endpoint2.pushMessageV1Endpoint().sendMessageFromRegisterId("友人登録しました", pref.getString("email", ""));
+				pushmsg.execute();
 
 				if (SUCCESS.equals(result.getResult())) {
 					return true;

@@ -62,15 +62,6 @@ public class LoginActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
-		// ID取得
-	    regId = GCMRegistrar.getRegistrationId(this);
-	    if (regId==null) {
-	       
-	        // 未登録の場合、登録
-	        GCMRegistrar.register(this, CommonUtils.GCM_SENDER_ID);
-	       
-	    }
 
 
 		setContentView(R.layout.activity_login);
@@ -226,10 +217,6 @@ public class LoginActivity extends Activity {
 				Login login = endpoint.loginV1Endpoint().login(mEmail,
 						mPassword);
 				
-				RegistrationIdEndpoint endpoint2 = RemoteApi.getRegistrationIdEndpoint();
-				RegisterId registerId = endpoint2.registrationIdV1Endpoint().registerId(regId, mEmail);
-				RegisterIdResultV1Dto rs = registerId.execute();
-				
 				//ログイン中のユーザー情報をpreferenceに格納して用いることができるようにする
 				SharedPreferences.Editor editor = pref.edit();
 				editor.putString("email",mEmail);  
@@ -254,6 +241,23 @@ public class LoginActivity extends Activity {
 			showProgress(false);
 
 			if (success) {
+					
+					Log.d("DEBUG", "AAAAAAAAA");
+				
+					// ID取得
+			    	//regId = GCMRegistrar.getRegistrationId(LoginActivity.this);
+			    	
+			    	Log.d("DEBUG", "BBBBBBBBBB");
+			    	
+			    	if (true/*regId==null*/) {
+			    		Log.d("DEBUG", "CCCCCCCCCCCCCCC");
+			    		// 未登録の場合、登録
+			    		GCMRegistrar.unregister(LoginActivity.this);
+			    		GCMRegistrar.register(LoginActivity.this, CommonUtils.GCM_SENDER_ID);
+			    		Log.d("DEBUG", "DDDDDDDDDDDDDD");
+			    	}
+			    	
+			    	Log.d("DEBUG", "ID:"+regId);
 
 					Log.d("DEBUG", "ログイン成功");
 		    		Intent intent = new Intent(LoginActivity.this, ScheduleActivity.class);
