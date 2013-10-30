@@ -840,32 +840,31 @@ public class ScheduleActivity extends Activity implements
 
 							DateTime ds = new DateTime(repeat.getRepeatBegin());
 							DateTime de = new DateTime(repeat.getRepeatEnd());
-							//　もし開始が繰り返し期間より早い or 遅い場合、表示しない
-							if ((start.getTimeInMillis() < repeat.getRepeatBegin()) ||
-									(start.getTimeInMillis() > repeat.getRepeatEnd())) {
-								break;
-							}
+							//　もし開始が繰り返し期間中の時のみ表示
+							if ((start.getTimeInMillis() >= repeat.getRepeatBegin()) &&
+									(start.getTimeInMillis() <= repeat.getRepeatEnd())) {
 							
-							// startTimeとfinishTimeを設定する
-							start.add(Calendar.MILLISECOND, repeat
-									.getStartTime().intValue());
-							finish.add(Calendar.MILLISECOND, repeat
-									.getFinishTime().intValue());
-
-							// もし、exceptされる日にちじゃなければ表示する
-							DateTime date = new DateTime(
-									CalendarUtils.getBeginOfDate(start.getTimeInMillis()).getTime());
-							if ((repeat.getExcepts() == null) ||
-									(!repeat.getExcepts().contains(date))) {
-								// exceptsには含まれていない
-								mHandler.post(new Runnable() {
-									public void run() {
-										displaySchedule(start.getTime().getTime(),
-												finish.getTime().getTime(), "",
-												"予定");
-									}
+								// startTimeとfinishTimeを設定する
+								start.add(Calendar.MILLISECOND, repeat
+										.getStartTime().intValue());
+								finish.add(Calendar.MILLISECOND, repeat
+										.getFinishTime().intValue());
 	
-								});
+								// もし、exceptされる日にちじゃなければ表示する
+								DateTime date = new DateTime(
+										CalendarUtils.getBeginOfDate(start.getTimeInMillis()).getTime());
+								if ((repeat.getExcepts() == null) ||
+										(!repeat.getExcepts().contains(date))) {
+									// exceptsには含まれていない
+									mHandler.post(new Runnable() {
+										public void run() {
+											displaySchedule(start.getTime().getTime(),
+													finish.getTime().getTime(), "",
+													"予定");
+										}
+		
+									});
+								}
 							}
 						}
 					}
