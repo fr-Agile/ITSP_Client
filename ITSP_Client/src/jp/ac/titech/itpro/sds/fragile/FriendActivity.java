@@ -36,6 +36,9 @@ import android.widget.TextView;
 import com.appspot.fragile_t.friendEndpoint.FriendEndpoint;
 import com.appspot.fragile_t.friendEndpoint.FriendEndpoint.FriendV1Endpoint.Friendship;
 import com.appspot.fragile_t.friendEndpoint.model.FriendResultV1Dto;
+import com.appspot.fragile_t.getUserEndpoint.GetUserEndpoint;
+import com.appspot.fragile_t.getUserEndpoint.GetUserEndpoint.GetUserV1Endpoint.GetUser;
+import com.appspot.fragile_t.getUserEndpoint.model.GetUserResultV1Dto;
 import com.appspot.fragile_t.pushMessageEndpoint.PushMessageEndpoint;
 import com.appspot.fragile_t.pushMessageEndpoint.PushMessageEndpoint.PushMessageV1Endpoint.SendMessageFromRegisterId;
 import com.appspot.fragile_t.pushMessageEndpoint.model.PushMessageResultV1Dto;
@@ -240,9 +243,22 @@ public class FriendActivity extends Activity implements
 
 				FriendResultV1Dto result = friend.execute();
 				
+				try {
+				GetUserEndpoint endpoint3 = RemoteApi.getGetUserEndpoint();
+				GetUser getuser = endpoint3.getUserV1Endpoint().getUser(
+							pref.getString("email", ""));
+				GetUserResultV1Dto result3 = getuser.execute();
+				
+				String yourname = result3.getUser().getFirstName() + result3.getUser().getLastName();
+				Log.d("DEBUG", "名前取得結果："+result3.getResult());
+				Log.d("DEBUG", "yourname"+yourname);
+				}catch(Exception e){
+					Log.d("DEBUG", e.toString());
+				}
+				
 				// プッシュ通知を行う
 				PushMessageEndpoint endpoint2 = RemoteApi.getPushMessageEndpoint();
-				SendMessageFromRegisterId pushmsg = endpoint2.pushMessageV1Endpoint().sendMessageFromRegisterId("友人登録しました", pref.getString("email", ""));
+				SendMessageFromRegisterId pushmsg = endpoint2.pushMessageV1Endpoint().sendMessageFromRegisterId(pref.getString("email", "")+"があなたを友人登録しました", pref.getString("email", ""));
 				PushMessageResultV1Dto result2 = pushmsg.execute();
 				Log.d("DEBUG", "プッシュリザルト："+result2.getResult());
 

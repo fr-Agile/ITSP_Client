@@ -14,12 +14,13 @@ public class TransparentActivity extends Activity {
 	    
 	    AlertDialog.Builder builder = new AlertDialog.Builder(this);
 	    builder.setTitle(msg)
-	    		.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+	    		.setPositiveButton("登録する", new DialogInterface.OnClickListener() {
 	    			public void onClick(DialogInterface dialog, int whichButton) {
-	    			
+	    			  dialog.cancel();
+	    			  TransparentActivity.this.finish();
 	    			}
 	    		})
-	           .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+	           .setNegativeButton("登録しない", new DialogInterface.OnClickListener() {
 	              public void onClick(DialogInterface dialog, int id) {
 	                dialog.cancel();                
 	                TransparentActivity.this.finish();
