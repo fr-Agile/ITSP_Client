@@ -6,8 +6,10 @@ import jp.ac.titech.itpro.sds.fragile.api.RemoteApi;
 import jp.ac.titech.itpro.sds.fragile.utils.CommonUtils;
 import android.R;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Handler;
@@ -77,8 +79,11 @@ public class GCMIntentService extends GCMBaseIntentService {
         // Message.data が Intent.extra になるらしい。
         CharSequence msg = intent.getCharSequenceExtra("msg");
         Log.d("DEBUG", "onMessage: msg = " + msg);
-        //toast("Push message: " + msg);
-        Toast.makeText(context, msg, Toast.LENGTH_LONG).show();
+        
+        Intent in = new Intent(getApplicationContext(),TransparentActivity.class);
+        in.putExtra("msg", msg);
+        in.setFlags( Intent.FLAG_ACTIVITY_NEW_TASK );
+        startActivity(in); 
         
     	Log.d("DEBUG", "メッセージを受信しました");
     }

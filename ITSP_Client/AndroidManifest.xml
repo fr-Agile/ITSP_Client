@@ -100,6 +100,13 @@
             android:name=".TestActivity"
             android:label="@string/title_activity_makegroup">
         </activity>
+        <activity
+ 			android:name="TransparentActivity"
+  			android:theme="@android:style/Theme.Translucent.NoTitleBar">
+  			<intent-filter>
+      			<action android:name="android.intent.action.MAIN" />
+  			</intent-filter>
+		</activity>
         
         
 
