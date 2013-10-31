@@ -10,8 +10,10 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Handler;
 import android.util.Log;
 import android.widget.RemoteViews;
+import android.widget.Toast;
 
 import com.appspot.fragile_t.registrationIdEndpoint.RegistrationIdEndpoint;
 import com.appspot.fragile_t.registrationIdEndpoint.RegistrationIdEndpoint.RegistrationIdV1Endpoint.RegisterId;
@@ -27,7 +29,8 @@ import com.google.api.client.googleapis.subscriptions.Notification;
 public class GCMIntentService extends GCMBaseIntentService {
 	
 	private SharedPreferences pref;
- 
+	private Handler toaster;
+	
     /** コンストラクタ */
     public GCMIntentService() {
         super(CommonUtils.GCM_SENDER_ID);
@@ -69,13 +72,14 @@ public class GCMIntentService extends GCMBaseIntentService {
     /** メッセージを受信した場合に呼び出されるメソッド */
     @Override
     protected void onMessage(Context context, Intent intent) {
-    	/*
+    	
     	// アプリサーバから送信されたPushメッセージの受信。
         // Message.data が Intent.extra になるらしい。
         CharSequence msg = intent.getCharSequenceExtra("msg");
         Log.d("DEBUG", "onMessage: msg = " + msg);
-        toast("Push message: " + msg);
-        */
+        //toast("Push message: " + msg);
+        Toast.makeText(context, msg, Toast.LENGTH_LONG).show();
+        
     	Log.d("DEBUG", "メッセージを受信しました");
     }
 }

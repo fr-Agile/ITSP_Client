@@ -245,11 +245,11 @@ public class LoginActivity extends Activity {
 					Log.d("DEBUG", "AAAAAAAAA");
 				
 					// ID取得
-			    	//regId = GCMRegistrar.getRegistrationId(LoginActivity.this);
+			    	regId = GCMRegistrar.getRegistrationId(LoginActivity.this);
 			    	
 			    	Log.d("DEBUG", "BBBBBBBBBB");
 			    	
-			    	if (true/*regId==null*/) {
+			    	if (regId==null) {
 			    		Log.d("DEBUG", "CCCCCCCCCCCCCCC");
 			    		// 未登録の場合、登録
 			    		GCMRegistrar.unregister(LoginActivity.this);

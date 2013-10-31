@@ -38,6 +38,7 @@ import com.appspot.fragile_t.friendEndpoint.FriendEndpoint.FriendV1Endpoint.Frie
 import com.appspot.fragile_t.friendEndpoint.model.FriendResultV1Dto;
 import com.appspot.fragile_t.pushMessageEndpoint.PushMessageEndpoint;
 import com.appspot.fragile_t.pushMessageEndpoint.PushMessageEndpoint.PushMessageV1Endpoint.SendMessageFromRegisterId;
+import com.appspot.fragile_t.pushMessageEndpoint.model.PushMessageResultV1Dto;
 
 /**
  * Activity which displays a login screen to the user, offering registration as
@@ -242,7 +243,8 @@ public class FriendActivity extends Activity implements
 				// プッシュ通知を行う
 				PushMessageEndpoint endpoint2 = RemoteApi.getPushMessageEndpoint();
 				SendMessageFromRegisterId pushmsg = endpoint2.pushMessageV1Endpoint().sendMessageFromRegisterId("友人登録しました", pref.getString("email", ""));
-				pushmsg.execute();
+				PushMessageResultV1Dto result2 = pushmsg.execute();
+				Log.d("DEBUG", "プッシュリザルト："+result2.getResult());
 
 				if (SUCCESS.equals(result.getResult())) {
 					return true;
@@ -263,6 +265,7 @@ public class FriendActivity extends Activity implements
 				}
 
 			} catch (Exception e) {
+				Log.d("DEBUG", e.toString());
 				return false;
 			}
 		}
