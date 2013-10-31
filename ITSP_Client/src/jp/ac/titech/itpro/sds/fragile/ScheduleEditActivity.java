@@ -41,10 +41,12 @@ public class ScheduleEditActivity extends Activity{
 	private static String SUCCESS = "success";
 	private EditScheduleTask mAuthTask = null;
 	
-	DateFormat formatDateTime = DateFormat.getDateTimeInstance();
-	Calendar startTime=Calendar.getInstance();
-	Calendar finishTime=Calendar.getInstance();
-	String keyS="";
+	private DateFormat formatDateTime = DateFormat.getDateTimeInstance();
+	private Calendar startTime=Calendar.getInstance();
+	private Calendar finishTime=Calendar.getInstance();
+	private String keyS="";
+	private boolean repeat;
+	
 	
 	/** Called when the activity is first created. */
     @Override
@@ -68,8 +70,9 @@ public class ScheduleEditActivity extends Activity{
 		
 		startE.setTimeInMillis(intentE.getLongExtra("start", 0));
 		finishE.setTimeInMillis(intentE.getLongExtra("finish", 0));
-		keyS=intentE.getStringExtra("key");
-        
+		keyS = intentE.getStringExtra("key");
+		repeat = intentE.getBooleanExtra("repeat", false);
+		
         mDatepicker.init(startE.get(Calendar.YEAR),startE.get(Calendar.MONTH),startE.get(Calendar.DAY_OF_MONTH), 		 
         		new OnDateChangedListener(){
         	public void onDateChanged(DatePicker view, int year, int monthOfYear,int dayOfMonth) {
