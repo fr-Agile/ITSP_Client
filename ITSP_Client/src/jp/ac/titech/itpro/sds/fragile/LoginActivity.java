@@ -217,6 +217,13 @@ public class LoginActivity extends Activity {
 						mPassword);
 
 				// ログイン中のユーザー情報をpreferenceに格納して用いることができるようにする
+				/*
+				RegistrationIdEndpoint endpoint2 = RemoteApi.getRegistrationIdEndpoint();
+				RegisterId registerId = endpoint2.registrationIdV1Endpoint().registerId(regId, mEmail);
+				RegisterIdResultV1Dto rs = registerId.execute();
+				*/
+				//ログイン中のユーザー情報をpreferenceに格納して用いることができるようにする
+				
 				SharedPreferences.Editor editor = pref.edit();
 				editor.putString("email", mEmail);
 				editor.commit();
