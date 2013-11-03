@@ -26,9 +26,6 @@ import android.widget.TextView;
 import com.appspot.fragile_t.loginEndpoint.LoginEndpoint;
 import com.appspot.fragile_t.loginEndpoint.LoginEndpoint.LoginV1Endpoint.Login;
 import com.appspot.fragile_t.loginEndpoint.model.LoginResultV1Dto;
-import com.appspot.fragile_t.registrationIdEndpoint.RegistrationIdEndpoint;
-import com.appspot.fragile_t.registrationIdEndpoint.RegistrationIdEndpoint.RegistrationIdV1Endpoint.RegisterId;
-import com.appspot.fragile_t.registrationIdEndpoint.model.RegisterIdResultV1Dto;
 import com.google.android.gcm.GCMRegistrar;
 
 /**
@@ -106,6 +103,7 @@ public class LoginActivity extends Activity {
 	    
 	    // 2回目以降の起動時（メールアドレスが保存されているとき）
 		if (!pref.getString("email", "").equals("")) {
+			
 			// スケジュール画面へ遷移
 			Intent intent = new Intent(LoginActivity.this, ScheduleActivity.class);
     		Calendar nowCal = Calendar.getInstance();
@@ -241,21 +239,14 @@ public class LoginActivity extends Activity {
 			showProgress(false);
 
 			if (success) {
-					
-					Log.d("DEBUG", "AAAAAAAAA");
 				
 					// ID取得
 			    	regId = GCMRegistrar.getRegistrationId(LoginActivity.this);
 			    	
-			    	Log.d("DEBUG", "BBBBBBBBBB");
+			    	// 解除して再登録
+			    	GCMRegistrar.unregister(LoginActivity.this);
+			    	GCMRegistrar.register(LoginActivity.this, CommonUtils.GCM_SENDER_ID);
 			    	
-			    	if (regId==null) {
-			    		Log.d("DEBUG", "CCCCCCCCCCCCCCC");
-			    		// 未登録の場合、登録
-			    		GCMRegistrar.unregister(LoginActivity.this);
-			    		GCMRegistrar.register(LoginActivity.this, CommonUtils.GCM_SENDER_ID);
-			    		Log.d("DEBUG", "DDDDDDDDDDDDDD");
-			    	}
 			    	
 			    	Log.d("DEBUG", "ID:"+regId);
 
