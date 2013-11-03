@@ -242,27 +242,19 @@ public class FriendActivity extends Activity implements
 						fEmail, pref.getString("email", ""));
 
 				FriendResultV1Dto result = friend.execute();
-				
-				try {
-				GetUserEndpoint endpoint3 = RemoteApi.getGetUserEndpoint();
-				GetUser getuser = endpoint3.getUserV1Endpoint().getUser(
-							pref.getString("email", ""));
-				GetUserResultV1Dto result3 = getuser.execute();
-				
-				String yourname = result3.getUser().getFirstName() + result3.getUser().getLastName();
-				Log.d("DEBUG", "名前取得結果："+result3.getResult());
-				Log.d("DEBUG", "yourname"+yourname);
-				}catch(Exception e){
-					Log.d("DEBUG", e.toString());
-				}
-				
-				// プッシュ通知を行う
-				PushMessageEndpoint endpoint2 = RemoteApi.getPushMessageEndpoint();
-				SendMessageFromRegisterId pushmsg = endpoint2.pushMessageV1Endpoint().sendMessageFromRegisterId(pref.getString("email", "")+"があなたを友人登録しました", pref.getString("email", ""));
-				PushMessageResultV1Dto result2 = pushmsg.execute();
-				Log.d("DEBUG", "プッシュリザルト："+result2.getResult());
 
 				if (SUCCESS.equals(result.getResult())) {
+					
+					try{
+						// プッシュ通知を行う
+						PushMessageEndpoint endpoint2 = RemoteApi.getPushMessageEndpoint();
+						SendMessageFromRegisterId pushmsg = endpoint2.pushMessageV1Endpoint().sendMessageFromRegisterId(pref.getString("email", ""), pref.getString("email", ""));
+						PushMessageResultV1Dto result2 = pushmsg.execute();
+						Log.d("DEBUG", "プッシュリザルト："+result2.getResult());	
+					} catch (Exception e) {
+						Log.d("DEBUG", e.toString());
+						Log.d("DEBUG", "プッシュ送信に失敗しました");
+					}
 					return true;
 				} else if (NULLMY.equals(result.getResult())) {
 					fEmailView.setError(getString(R.string.error_f_nullmy));

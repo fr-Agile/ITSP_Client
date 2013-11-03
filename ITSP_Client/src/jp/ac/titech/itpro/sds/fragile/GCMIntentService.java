@@ -4,24 +4,16 @@ import java.io.IOException;
 
 import jp.ac.titech.itpro.sds.fragile.api.RemoteApi;
 import jp.ac.titech.itpro.sds.fragile.utils.CommonUtils;
-import android.R;
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.NotificationManager;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.Handler;
 import android.util.Log;
-import android.widget.RemoteViews;
-import android.widget.Toast;
 
 import com.appspot.fragile_t.registrationIdEndpoint.RegistrationIdEndpoint;
 import com.appspot.fragile_t.registrationIdEndpoint.RegistrationIdEndpoint.RegistrationIdV1Endpoint.RegisterId;
 import com.appspot.fragile_t.registrationIdEndpoint.model.RegisterIdResultV1Dto;
 import com.google.android.gcm.GCMBaseIntentService;
-import com.google.api.client.googleapis.subscriptions.Notification;
 
 
 
@@ -31,7 +23,7 @@ import com.google.api.client.googleapis.subscriptions.Notification;
 public class GCMIntentService extends GCMBaseIntentService {
 	
 	private SharedPreferences pref;
-	private Handler toaster;
+
 	
     /** コンストラクタ */
     public GCMIntentService() {
