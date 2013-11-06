@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import jp.ac.titech.itpro.sds.fragile.GetGroupTask.GetGroupFinishListener;
 import jp.ac.titech.itpro.sds.fragile.api.RemoteApi;
 import jp.ac.titech.itpro.sds.fragile.api.constant.CommonConstant;
 import android.animation.Animator;
@@ -22,18 +23,23 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.DatePicker.OnDateChangedListener;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TimePicker;
 import android.widget.TimePicker.OnTimeChangedListener;
 import android.widget.Toast;
+
+import com.appspot.fragile_t.groupEndpoint.model.GroupV1Dto;
 import com.appspot.fragile_t.repeatScheduleEndpoint.RepeatScheduleEndpoint;
 import com.appspot.fragile_t.repeatScheduleEndpoint.RepeatScheduleEndpoint.RepeatScheduleV1EndPoint.CreateRepeatSchedule;
 import com.appspot.fragile_t.repeatScheduleEndpoint.model.RepeatScheduleContainer;
 import com.appspot.fragile_t.repeatScheduleEndpoint.model.RepeatScheduleResultV1Dto;
 import com.appspot.fragile_t.scheduleEndpoint.ScheduleEndpoint;
+import com.appspot.fragile_t.scheduleEndpoint.ScheduleEndpoint.ScheduleV1EndPoint.CreateGroupSchedule;
 import com.appspot.fragile_t.scheduleEndpoint.ScheduleEndpoint.ScheduleV1EndPoint.CreateSchedule;
 import com.appspot.fragile_t.scheduleEndpoint.model.ScheduleResultV1Dto;
 
-public class ScheduleInputActivity extends Activity {
+public class ScheduleInputActivity extends Activity implements GetGroupFinishListener {
 
 	private static final String TAG = "ScheduleInputActivity";
 	private Button doneBtn, showScheduleViewBtn;
@@ -54,9 +60,12 @@ public class ScheduleInputActivity extends Activity {
 	private CheckBox friChk;
 	private CheckBox satChk;
 	private CheckBox sunChk;
+	private CheckBox groupChk;
 	private View repeatdaysView;
+	private RadioGroup layout;
 
 	private List<Integer> repeats;
+	private List<GroupV1Dto> groupList;
 
 	private View mInputScheduleView;
 	private View mSpinView;
@@ -245,6 +254,24 @@ public class ScheduleInputActivity extends Activity {
 			}
 		});
 
+		groupChk = (CheckBox) findViewById(R.id.groupScheduleCheckbox);
+		groupChk.setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				if (((CheckBox) v).isChecked()) {
+					showGroups();
+				} else {
+					hideGroups();
+				}
+			}
+		});
+
+		groupList = new ArrayList<GroupV1Dto>();
+		layout = (RadioGroup) findViewById(R.id.radioButtonGroup);
+		getGroupList();
+		
+
 	}
 
 	public void clickDoneButton() {
@@ -277,6 +304,16 @@ public class ScheduleInputActivity extends Activity {
 		} else {
 			doneBtn.setEnabled(true);
 		}
+	}
+
+	private void showGroups() {
+		Log.d("Viet DEBUG", "show groups");
+		layout.setVisibility(View.VISIBLE);
+	}
+
+	private void hideGroups() {
+		Log.d("Viet DEBUG", "hide groups");
+		layout.setVisibility(View.GONE);
 	}
 
 	/**
@@ -331,22 +368,44 @@ public class ScheduleInputActivity extends Activity {
 						+ scheduleFinishTime + "email:" + mEmail);
 
 				if (!repeatChk.isChecked()) {
-					// schedule
-					ScheduleEndpoint endpoint = RemoteApi.getScheduleEndpoint();
-					CreateSchedule schedule = endpoint.scheduleV1EndPoint()
-							.createSchedule(scheduleStartTime,
-									scheduleFinishTime, mEmail);
-					ScheduleResultV1Dto result = schedule.execute();
+					if (!groupChk.isChecked()) {
+						// schedule
+						ScheduleEndpoint endpoint = RemoteApi.getScheduleEndpoint();
+						CreateSchedule schedule = endpoint.scheduleV1EndPoint()
+								.createSchedule(scheduleStartTime,
+										scheduleFinishTime, mEmail);
+						ScheduleResultV1Dto result = schedule.execute();
 
-					if (SUCCESS.equals(result.getResult())) {
-						// Toast.makeText(getApplicationContext(),"Successed",Toast.LENGTH_SHORT).show();
-						Log.d(TAG, "Successed");
-						return true;
+						if (SUCCESS.equals(result.getResult())) {
+							// Toast.makeText(getApplicationContext(),"Successed",Toast.LENGTH_SHORT).show();
+							Log.d(TAG, "Successed");
+							return true;
+						} else {
+							// Toast.makeText(getApplicationContext(),"Failed",Toast.LENGTH_SHORT).show();
+							Log.d(TAG, "Failed");
+							return false;
+						}
 					} else {
-						// Toast.makeText(getApplicationContext(),"Failed",Toast.LENGTH_SHORT).show();
-						Log.d(TAG, "Failed");
-						return false;
+						// group schedule
+						int radioButtonID = layout.getCheckedRadioButtonId();
+						View radioButton = layout.findViewById(radioButtonID);
+						int idx = layout.indexOfChild(radioButton);
+						GroupV1Dto group = groupList.get(idx);
+						ScheduleEndpoint endpoint = RemoteApi.getScheduleEndpoint();
+						CreateGroupSchedule groupSchedule = endpoint.scheduleV1EndPoint().createGroupSchedule(scheduleStartTime, scheduleFinishTime, group.getKey());
+						ScheduleResultV1Dto result = groupSchedule.execute();
+						
+						if (SUCCESS.equals(result.getResult())) {
+							// Toast.makeText(getApplicationContext(),"Successed",Toast.LENGTH_SHORT).show();
+							Log.d(TAG, "group schedule Successed");
+							return true;
+						} else {
+							// Toast.makeText(getApplicationContext(),"Failed",Toast.LENGTH_SHORT).show();
+							Log.d(TAG, "group schedule Failed");
+							return false;
+						}
 					}
+					
 				} else {
 					// repeat schedule
 					RepeatScheduleContainer contain = new RepeatScheduleContainer();
@@ -416,17 +475,47 @@ public class ScheduleInputActivity extends Activity {
 		}
 	}
 
-	// @Override
-	// public void onClick(View v) {
-	// // TODO Auto-generated method stub
-	// switch (v.getId()) {
-	// case R.id.everydayCheckbox:
-	//
-	// break;
-	// default:
-	// break;
-	// }
-	// }
+	private void getGroupList() {
+		try {
+			Log.d("Viet DEBUG", "get friend start");
+			SharedPreferences pref = getSharedPreferences("user",
+					Activity.MODE_PRIVATE);
+			String userEmail = pref.getString("email", "");
+
+			// groupのemailリストを取得する
+			GetGroupTask task = new GetGroupTask(this);
+			task.execute(userEmail);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			Log.d("DEBUG", "get friend fail");
+		}
+	}
+
+	@Override
+	public void onFinish(List<GroupV1Dto> result) {
+		try {
+			if (result != null) {
+				groupList = result;
+				final List<String> groupNameList = new ArrayList<String>();
+				for (GroupV1Dto group : result) {
+					groupNameList.add(group.getName());
+				}
+				String[] nameStrList = groupNameList
+						.toArray(new String[groupNameList.size()]);
+
+				for (String name : nameStrList) {
+					RadioButton radioBtn = new RadioButton(this);
+					radioBtn.setText(name);
+					layout.addView(radioBtn);
+					Log.d("DEBUG", "added group name :" + name);
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 }
 
 // Debug

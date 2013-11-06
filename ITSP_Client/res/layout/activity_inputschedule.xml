@@ -28,7 +28,6 @@
             android:fontFamily="sans-serif-light"
             android:text="@string/input_schedule_progress"
             android:textAppearance="?android:attr/textAppearanceMedium" />
-
     </LinearLayout>
 
     <!-- Input Schedule form -->
@@ -116,86 +115,100 @@
                 </LinearLayout>
             </LinearLayout>
 
-            <LinearLayout 
+            <LinearLayout
                 android:layout_width="match_parent"
-            	android:layout_height="wrap_content"
-            	android:orientation="vertical">
-                
+                android:layout_height="wrap_content"
+                android:orientation="vertical" >
+
                 <CheckBox
                     android:id="@+id/repeartCheckbox"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:checked="false"
-                    android:text="Repeart" />
-                
-                <LinearLayout 
+                    android:text="@string/repeat" />
+
+                <LinearLayout
                     android:id="@+id/repeatdaysView"
-                    android:visibility="gone"
                     android:layout_width="match_parent"
-            		android:layout_height="wrap_content"
-            		android:orientation="horizontal">
-                    
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingLeft="20dp"
+                    android:visibility="gone" >
+
                     <CheckBox
                         android:id="@+id/everydayCheckbox"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:checked="false"
-                        android:text="Everyday" />
-                    
+                        android:text="@string/everyday" />
+
                     <CheckBox
                         android:id="@+id/sundayCheckbox"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:checked="false"
-                        android:text="Sun" />
-                    
+                        android:text="@string/sunday" />
+
                     <CheckBox
                         android:id="@+id/mondayCheckbox"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:checked="false"
-                        android:text="Mon" />
-                    
+                        android:text="@string/monday" />
+
                     <CheckBox
                         android:id="@+id/tuesdayCheckbox"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:checked="false"
-                        android:text="Tue" />
-                    
+                        android:text="@string/tuesday" />
+
                     <CheckBox
                         android:id="@+id/wednesdayCheckbox"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:checked="false"
-                        android:text="Wed" />
-                    
+                        android:text="@string/wednesday" />
+
                     <CheckBox
                         android:id="@+id/thursdayCheckbox"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:checked="false"
-                        android:text="Thu" />
-                    
+                        android:text="@string/thursday" />
+
                     <CheckBox
                         android:id="@+id/fridayCheckbox"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:checked="false"
-                        android:text="Fri" />
-                    
+                        android:text="@string/friday" />
+
                     <CheckBox
                         android:id="@+id/saturdayCheckbox"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:checked="false"
-                        android:text="Sat" />
-                    
+                        android:text="@string/saturday" />
                 </LinearLayout>
-                
+
+                <CheckBox
+                    android:id="@+id/groupScheduleCheckbox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="false"
+                    android:text="@string/group" />
+
+                <RadioGroup
+                    android:id="@+id/radioButtonGroup"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingLeft="20dp"
+                    android:visibility="gone" >
+                </RadioGroup>
             </LinearLayout>
-            
-            
+
             <Button
                 android:id="@+id/doneBtn"
                 android:layout_width="wrap_content"
@@ -209,7 +222,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:text="@string/showScheduleViewLabel" />
-            
+
             <Space
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
@@ -217,5 +230,3 @@
     </ScrollView>
 
 </merge>
-
-
