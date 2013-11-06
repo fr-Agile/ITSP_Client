@@ -18,6 +18,7 @@ public class GoogleCalendarInstance {
 	
 	public GoogleCalendarInstance(Cursor arg1) {
 		try {
+			this.event_id = Long.parseLong(arg1.getString(1));
 			this.beginTime = Long.parseLong(arg1.getString(2)); 
 			this.endTime = Long.parseLong(arg1.getString(3)); 
 			this.title = arg1.getString(4); // title. デバッグ用。後々、タイトルとして使う
@@ -28,7 +29,6 @@ public class GoogleCalendarInstance {
 			this.dtstart = Long.parseLong(arg1.getString(10));
 			this.dtend = arg1.getColumnName(11);
 			this.duration = arg1.getString(12);
-			this.event_id = Long.parseLong(arg1.getString(13));
 		} catch (Exception e) {
 			Log.d("DEBUG", "GoogleCalendarInstance constructer fail");
 			e.printStackTrace();

@@ -3,10 +3,7 @@ package jp.ac.titech.itpro.sds.fragile;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Date;
 
-import jp.ac.titech.itpro.sds.fragile.CreateScheduleListTask.CreateScheduleListFinishListener;
-import jp.ac.titech.itpro.sds.fragile.DeleteAllScheduleTask.DeleteAllScheduleFinishListener;
 import jp.ac.titech.itpro.sds.fragile.GetFriendTask.GetFriendFinishListener;
 import jp.ac.titech.itpro.sds.fragile.GetGroupTask.GetGroupFinishListener;
 import jp.ac.titech.itpro.sds.fragile.GetShareTimeTask.GetShareTimeFinishListener;
@@ -16,18 +13,18 @@ import jp.ac.titech.itpro.sds.fragile.api.constant.CommonConstant;
 import jp.ac.titech.itpro.sds.fragile.utils.CalendarAdapter;
 import jp.ac.titech.itpro.sds.fragile.utils.CalendarUtils;
 import jp.ac.titech.itpro.sds.fragile.utils.DayAdapter;
-import jp.ac.titech.itpro.sds.fragile.utils.GoogleCalendarLoader;
+import jp.ac.titech.itpro.sds.fragile.utils.GoogleAccountChecker;
+import jp.ac.titech.itpro.sds.fragile.utils.GoogleAccountChecker.GoogleAccountCheckFinishListener;
+import jp.ac.titech.itpro.sds.fragile.utils.GoogleCalendarChecker;
+import jp.ac.titech.itpro.sds.fragile.utils.GoogleCalendarChecker.GoogleCalendarCheckFinishListener;
 import jp.ac.titech.itpro.sds.fragile.utils.TimeAdapter;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.LoaderManager.LoaderCallbacks;
 import android.content.ClipData;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.Loader;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -60,13 +57,13 @@ import com.appspot.fragile_t.repeatScheduleEndpoint.model.RepeatScheduleV1Dto;
 import com.appspot.fragile_t.scheduleEndpoint.ScheduleEndpoint;
 import com.appspot.fragile_t.scheduleEndpoint.ScheduleEndpoint.ScheduleV1EndPoint.DeleteSchedule;
 import com.appspot.fragile_t.scheduleEndpoint.ScheduleEndpoint.ScheduleV1EndPoint.GetSchedule;
-import com.appspot.fragile_t.scheduleEndpoint.model.ScheduleResultV1Dto;
 import com.appspot.fragile_t.scheduleEndpoint.model.ScheduleV1Dto;
 import com.google.api.client.util.DateTime;
 
 public class ScheduleActivity extends Activity implements
 		GetFriendFinishListener, GetShareTimeFinishListener, GetGroupFinishListener,
-		LoaderCallbacks<Cursor>, GoogleCalendarSaveFinishListener {
+		GoogleAccountCheckFinishListener, GoogleCalendarCheckFinishListener, 
+		GoogleCalendarSaveFinishListener {
 	
 	private static final String TAG = "ScheduleActivity";
 	private static final long START_OF_DAY = 0;
@@ -114,8 +111,6 @@ public class ScheduleActivity extends Activity implements
 
 	private List<UserV1Dto> mFriendList = null;
 	private List<GroupV1Dto> mGroupList = null;
-	private List<ScheduleV1Dto> mCreateScheduleList = null;
-	private List<RepeatScheduleV1Dto> mCreateRepeatScheduleList = null;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -418,7 +413,10 @@ public class ScheduleActivity extends Activity implements
 	    menu.getItem(7).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener(){
 			@Override
 			public boolean onMenuItemClick(MenuItem item) {
-				getLoaderManager().initLoader(0, null, ScheduleActivity.this);
+				// GoogleAccountCheckerを起動
+				GoogleAccountChecker gac = 
+						new GoogleAccountChecker(ScheduleActivity.this, ScheduleActivity.this);
+				gac.run();
 				return true;
 			}
 	    });
@@ -842,32 +840,31 @@ public class ScheduleActivity extends Activity implements
 
 							DateTime ds = new DateTime(repeat.getRepeatBegin());
 							DateTime de = new DateTime(repeat.getRepeatEnd());
-							//　もし開始が繰り返し期間より早い or 遅い場合、表示しない
-							if ((start.getTimeInMillis() < repeat.getRepeatBegin()) ||
-									(start.getTimeInMillis() > repeat.getRepeatEnd())) {
-								break;
-							}
+							//　もし開始が繰り返し期間中の時のみ表示
+							if ((start.getTimeInMillis() >= repeat.getRepeatBegin()) &&
+									(start.getTimeInMillis() <= repeat.getRepeatEnd())) {
 							
-							// startTimeとfinishTimeを設定する
-							start.add(Calendar.MILLISECOND, repeat
-									.getStartTime().intValue());
-							finish.add(Calendar.MILLISECOND, repeat
-									.getFinishTime().intValue());
-
-							// もし、exceptされる日にちじゃなければ表示する
-							DateTime date = new DateTime(
-									CalendarUtils.getBeginOfDate(start.getTimeInMillis()).getTime());
-							if ((repeat.getExcepts() == null) ||
-									(!repeat.getExcepts().contains(date))) {
-								// exceptsには含まれていない
-								mHandler.post(new Runnable() {
-									public void run() {
-										displaySchedule(start.getTime().getTime(),
-												finish.getTime().getTime(), "",
-												"予定");
-									}
+								// startTimeとfinishTimeを設定する
+								start.add(Calendar.MILLISECOND, repeat
+										.getStartTime().intValue());
+								finish.add(Calendar.MILLISECOND, repeat
+										.getFinishTime().intValue());
 	
-								});
+								// もし、exceptされる日にちじゃなければ表示する
+								DateTime date = new DateTime(
+										CalendarUtils.getBeginOfDate(start.getTimeInMillis()).getTime());
+								if ((repeat.getExcepts() == null) ||
+										(!repeat.getExcepts().contains(date))) {
+									// exceptsには含まれていない
+									mHandler.post(new Runnable() {
+										public void run() {
+											displaySchedule(start.getTime().getTime(),
+													finish.getTime().getTime(), "",
+													"予定");
+										}
+		
+									});
+								}
 							}
 						}
 					}
@@ -894,6 +891,7 @@ public class ScheduleActivity extends Activity implements
 		protected void onCancelled() {
 			mCalTask = null;
 		}
+
 	}
 
 	public class DeleteScheduleTask extends AsyncTask<String, Void, Boolean> {
@@ -933,23 +931,51 @@ public class ScheduleActivity extends Activity implements
 	/**
 	 * GoogleCalendarのインポート処理
 	 */
+	
 	@Override
-	public Loader<Cursor> onCreateLoader(int arg0, Bundle arg1) {
-		return new GoogleCalendarLoader(this);
+	public void onGoogleAccountCheckFinish(boolean result,
+			List<String> accountList) {
+		if (result) {
+			if (accountList != null && accountList.size() > 0) {
+				// アカウントが登録されているのでカレンダーを読み込む
+				GoogleCalendarChecker gcc = new GoogleCalendarChecker(this, this);
+				gcc.run();
+				
+			} else {
+				// アカウントが登録されていない場合、ダイアログを表示して登録を促す
+				new AlertDialog.Builder(ScheduleActivity.this)
+					.setTitle("Googleアカウントが登録されていません。Googleアカウントを登録してください。")
+					.setNegativeButton("いいえ",
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {}
+						})
+									
+					.setPositiveButton("はい",
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								ScheduleActivity.this.startActivity(
+										new Intent(android.provider.Settings.ACTION_SETTINGS));
+							}
+						})
+					.show();
+			}
+			Log.d("DEBUG", "checking google account success");
+		} else {
+			Log.d("DEBUG", "checking google account fail");
+		}
+		
 	}
 
-	/**
-	 * ロードした予定をリストに保存
-	 */
-	@Override
-	public void onLoadFinished(Loader<Cursor> arg0, Cursor arg1) {
-		CalendarSaver cs = new CalendarSaver(this, this);
-		cs.save(arg1);
-	}
 
 	@Override
-	public void onLoaderReset(Loader<Cursor> arg0) {
-		Log.d("DEBUG", "import GoogleCalendar canceled");
+	public void onGoogleCalendarCheckFinish(boolean result, Cursor arg1) {
+		if (result) {
+			// カレンダーがインポートできたのデータベースを書き換える
+			CalendarSaver cs = new CalendarSaver(this, this);
+			cs.save(arg1);
+		}
 	}
 
 	@Override
@@ -966,8 +992,8 @@ public class ScheduleActivity extends Activity implements
 			Log.d("DEBUG", "create schedule list failed");
 		}	
 	}
-	
 	/**
 	 * GoogleCalendarのインポート処理ここまで
 	 */
 }
+
