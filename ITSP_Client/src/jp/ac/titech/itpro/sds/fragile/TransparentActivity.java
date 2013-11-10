@@ -110,7 +110,7 @@ public class TransparentActivity extends Activity {
 				Log.d("DEBUG", "登録失敗");
 				msg = "すでに登録済みです";
 			} else {
-				Log.d("DEBUG", "登録失敗");
+				Log.d("DEBUG", "登録失敗："+rs.toString());
 				msg = "通信エラー";
 			}
 			

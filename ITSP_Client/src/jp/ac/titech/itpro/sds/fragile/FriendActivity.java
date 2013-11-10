@@ -248,7 +248,7 @@ public class FriendActivity extends Activity implements
 					try{
 						// プッシュ通知を行う
 						PushMessageEndpoint endpoint2 = RemoteApi.getPushMessageEndpoint();
-						SendMessageFromRegisterId pushmsg = endpoint2.pushMessageV1Endpoint().sendMessageFromRegisterId(pref.getString("email", ""), pref.getString("email", ""));
+						SendMessageFromRegisterId pushmsg = endpoint2.pushMessageV1Endpoint().sendMessageFromRegisterId(pref.getString("email", ""), fEmail);
 						PushMessageResultV1Dto result2 = pushmsg.execute();
 						Log.d("DEBUG", "プッシュリザルト："+result2.getResult());	
 					} catch (Exception e) {
