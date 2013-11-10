@@ -51,17 +51,17 @@ public class LoginActivity extends Activity {
 
 	private static String SUCCESS = CommonConstant.SUCCESS;
 	private static String FAIL = CommonConstant.FAIL;
-	
+
 	private static SharedPreferences pref;
-	
-	// private String regId;
+
+	private String regId;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.activity_login);
-		
+
 		pref = getSharedPreferences("user", Activity.MODE_PRIVATE);
 
 		// Set up the login form.
@@ -91,26 +91,28 @@ public class LoginActivity extends Activity {
 						attemptLogin();
 					}
 				});
-		
-		//ボタン作成
-	    Button register_btn = (Button)findViewById(R.id.go_to_register_from_login);
-	    register_btn.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {  //新規登録画面へ遷移
-	    		startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
-	    	}
-	    });
-	    
-	    // 2回目以降の起動時（メールアドレスが保存されているとき）
+
+		// ボタン作成
+		Button register_btn = (Button) findViewById(R.id.go_to_register_from_login);
+		register_btn.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) { // 新規登録画面へ遷移
+				startActivity(new Intent(LoginActivity.this,
+						RegisterActivity.class));
+			}
+		});
+
+		// 2回目以降の起動時（メールアドレスが保存されているとき）
 		if (!pref.getString("email", "").equals("")) {
-			
+
 			// スケジュール画面へ遷移
-			Intent intent = new Intent(LoginActivity.this, ScheduleActivity.class);
-    		Calendar nowCal = Calendar.getInstance();
-//    		nowCal.add(Calendar.DAY_OF_YEAR, 7);
-    		StoreData data = new StoreData(nowCal);
-    		intent.putExtra("StoreData", data);
-    		intent.setAction(Intent.ACTION_VIEW);
-	        startActivity(intent);
+			Intent intent = new Intent(LoginActivity.this,
+					ScheduleActivity.class);
+			Calendar nowCal = Calendar.getInstance();
+			// nowCal.add(Calendar.DAY_OF_YEAR, 7);
+			StoreData data = new StoreData(nowCal);
+			intent.putExtra("StoreData", data);
+			intent.setAction(Intent.ACTION_VIEW);
+			startActivity(intent);
 		}
 	}
 
@@ -213,12 +215,12 @@ public class LoginActivity extends Activity {
 				LoginEndpoint endpoint = RemoteApi.getLoginEndpoint();
 				Login login = endpoint.loginV1Endpoint().login(mEmail,
 						mPassword);
-				
-				//ログイン中のユーザー情報をpreferenceに格納して用いることができるようにする
+
+				// ログイン中のユーザー情報をpreferenceに格納して用いることができるようにする
 				SharedPreferences.Editor editor = pref.edit();
-				editor.putString("email",mEmail);  
-			    editor.commit();
-				
+				editor.putString("email", mEmail);
+				editor.commit();
+
 				LoginResultV1Dto result = login.execute();
 
 				if (SUCCESS.equals(result.getResult())) {
@@ -238,29 +240,29 @@ public class LoginActivity extends Activity {
 			showProgress(false);
 
 			if (success) {
-				
-					// ID取得
-			    	regId = GCMRegistrar.getRegistrationId(LoginActivity.this);
-			    	
-			    	// 解除して再登録
-			    	GCMRegistrar.unregister(LoginActivity.this);
-			    	GCMRegistrar.register(LoginActivity.this, CommonUtils.GCM_SENDER_ID);
-			    	
-			    	
-			    	Log.d("DEBUG", "ID:"+regId);
 
-					Log.d("DEBUG", "ログイン成功");
-		    		Intent intent = new Intent(LoginActivity.this, ScheduleActivity.class);
-		    		Calendar nowCal = Calendar.getInstance();
-//		    		nowCal.add(Calendar.DAY_OF_YEAR, 7);
-		    		StoreData data = new StoreData(nowCal);
-		    		intent.putExtra("StoreData", data);
-		    		intent.setAction(Intent.ACTION_VIEW);
-			        startActivity(intent);
-			        
-					finish();
-					
-					
+				// ID取得
+				regId = GCMRegistrar.getRegistrationId(LoginActivity.this);
+
+				// 解除して再登録
+				GCMRegistrar.unregister(LoginActivity.this);
+				GCMRegistrar.register(LoginActivity.this,
+						CommonUtils.GCM_SENDER_ID);
+
+				Log.d("DEBUG", "ID:" + regId);
+
+				Log.d("DEBUG", "ログイン成功");
+				Intent intent = new Intent(LoginActivity.this,
+						ScheduleActivity.class);
+				Calendar nowCal = Calendar.getInstance();
+				// nowCal.add(Calendar.DAY_OF_YEAR, 7);
+				StoreData data = new StoreData(nowCal);
+				intent.putExtra("StoreData", data);
+				intent.setAction(Intent.ACTION_VIEW);
+				startActivity(intent);
+
+				finish();
+
 			} else {
 				mPasswordView
 						.setError(getString(R.string.error_incorrect_password));
