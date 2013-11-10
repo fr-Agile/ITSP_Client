@@ -266,6 +266,9 @@ public class ScheduleInputActivity extends Activity implements GetGroupFinishLis
 				}
 			}
 		});
+		
+		// 最初グループチェックボックスは見えないようにする
+		groupChk.setVisibility(View.INVISIBLE);
 
 		groupList = new ArrayList<GroupV1Dto>();
 		layout = (RadioGroup) findViewById(R.id.radioButtonGroup);
@@ -497,6 +500,12 @@ public class ScheduleInputActivity extends Activity implements GetGroupFinishLis
 		try {
 			if (result != null) {
 				groupList = result;
+				
+				// グループが一つ以上取得できたら表示する
+				if(!groupList.isEmpty()){
+					groupChk.setVisibility(View.VISIBLE);
+				}
+				
 				final List<String> groupNameList = new ArrayList<String>();
 				for (GroupV1Dto group : result) {
 					groupNameList.add(group.getName());
