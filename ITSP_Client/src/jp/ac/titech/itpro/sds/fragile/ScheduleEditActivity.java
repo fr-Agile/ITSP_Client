@@ -6,7 +6,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import jp.ac.titech.itpro.sds.fragile.ScheduleInputActivity.ScheduleInputTask;
 import jp.ac.titech.itpro.sds.fragile.api.RemoteApi;
 import jp.ac.titech.itpro.sds.fragile.api.constant.CommonConstant;
 import android.animation.Animator;
@@ -64,9 +63,10 @@ public class ScheduleEditActivity extends Activity{
 	private View mInputScheduleView;
 	private View mSpinView;
 	private static String SUCCESS = CommonConstant.SUCCESS;
-	private EditScheduleTask mAuthTask = null;
-	private EditRepeatScheduleTask mRepeatAuthTask = null;
 	
+	private EditRepeatScheduleTask mRepeatAuthTask = null;
+	private EditScheduleTask mAuthTask = null;
+
 	private DateFormat formatDateTime = DateFormat.getDateTimeInstance();
 	private Calendar startTime=Calendar.getInstance();
 	private Calendar finishTime=Calendar.getInstance();
@@ -229,8 +229,13 @@ public class ScheduleEditActivity extends Activity{
 			repeats.add(6);
 
 		showProgress(true);
-		mRepeatAuthTask = new EditRepeatScheduleTask();
-		mRepeatAuthTask.execute((Void) null);
+		if(repeat){
+			mRepeatAuthTask = new EditRepeatScheduleTask();
+			mRepeatAuthTask.execute((Void) null);
+		}else{
+			mAuthTask = new EditScheduleTask();
+			mAuthTask.execute((Void) null);
+		}
 	}
 	private void setButtonEnable() {
 		if (scheduleStartTime == 0 || scheduleFinishTime == 0 || scheduleStartTime >= scheduleFinishTime){
@@ -326,7 +331,6 @@ public class ScheduleEditActivity extends Activity{
 			showProgress(false);
 			if (success) {
 				Log.d(TAG, "post successed " + scheduleStartTime + " and " + scheduleFinishTime);
-//				Toast.makeText(getApplicationContext(),"Successed " + scheduleStartTime + " and " + scheduleFinishTime, Toast.LENGTH_SHORT).show();
 				Toast.makeText(getApplicationContext(),"スケジュール登録成功", Toast.LENGTH_SHORT).show();
 			} else {
 				Log.d(TAG, "post failed " + scheduleStartTime + " and " + scheduleFinishTime);
@@ -363,11 +367,9 @@ public class ScheduleEditActivity extends Activity{
 
 		@Override
 		protected void onPostExecute(final Boolean success) {
-			mAuthTask = null;
 			showProgress(false);
 			if (success) {
 				Log.d(TAG, "post successed " + scheduleStartTime + " and " + scheduleFinishTime);
-//				Toast.makeText(getApplicationContext(),"Successed " + scheduleStartTime + " and " + scheduleFinishTime, Toast.LENGTH_SHORT).show();
 				Toast.makeText(getApplicationContext(),"スケジュール登録成功", Toast.LENGTH_SHORT).show();
 			} else {
 				Log.d(TAG, "post failed " + scheduleStartTime + " and " + scheduleFinishTime);
@@ -377,7 +379,6 @@ public class ScheduleEditActivity extends Activity{
 
 		@Override
 		protected void onCancelled() {
-			mAuthTask = null;
 			showProgress(false);
 		}
 	}
