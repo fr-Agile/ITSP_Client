@@ -7,8 +7,10 @@ import jp.ac.titech.itpro.sds.fragile.utils.CommonUtils;
 import com.appspot.fragile_t.friendEndpoint.FriendEndpoint;
 import com.appspot.fragile_t.getFriendEndpoint.GetFriendEndpoint;
 import com.appspot.fragile_t.getShareTimeEndpoint.GetShareTimeEndpoint;
+import com.appspot.fragile_t.getUserEndpoint.GetUserEndpoint;
 import com.appspot.fragile_t.groupEndpoint.GroupEndpoint;
 import com.appspot.fragile_t.loginEndpoint.LoginEndpoint;
+import com.appspot.fragile_t.pushMessageEndpoint.PushMessageEndpoint;
 import com.appspot.fragile_t.registerEndpoint.RegisterEndpoint;
 import com.appspot.fragile_t.repeatScheduleEndpoint.RepeatScheduleEndpoint;
 import com.appspot.fragile_t.scheduleEndpoint.ScheduleEndpoint;
@@ -74,8 +76,32 @@ public class RemoteApi {
 		return updateBuilder(endpointBuilder).build();
 	}
 	
+	public static PushMessageEndpoint getPushMessageEndpoint() {
+		PushMessageEndpoint.Builder endpointBuilder = new PushMessageEndpoint.Builder(
+				AndroidHttp.newCompatibleTransport(), 
+				new JacksonFactory(), 
+				new HttpRequestInitializer() {
+					public void initialize(HttpRequest httpRequest) {
+					}
+				}); 
+		
+		return updateBuilder(endpointBuilder).build();
+	}
+	
 	public static FriendEndpoint getFriendEndpoint() {
 		FriendEndpoint.Builder endpointBuilder = new FriendEndpoint.Builder(
+				AndroidHttp.newCompatibleTransport(), 
+				new JacksonFactory(), 
+				new HttpRequestInitializer() {
+					public void initialize(HttpRequest httpRequest) {
+					}
+				}); 
+		
+		return updateBuilder(endpointBuilder).build();
+	}
+	
+	public static GetUserEndpoint getGetUserEndpoint() {
+		GetUserEndpoint.Builder endpointBuilder = new GetUserEndpoint.Builder(
 				AndroidHttp.newCompatibleTransport(), 
 				new JacksonFactory(), 
 				new HttpRequestInitializer() {

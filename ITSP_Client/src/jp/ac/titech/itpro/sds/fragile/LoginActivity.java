@@ -26,9 +26,6 @@ import android.widget.TextView;
 import com.appspot.fragile_t.loginEndpoint.LoginEndpoint;
 import com.appspot.fragile_t.loginEndpoint.LoginEndpoint.LoginV1Endpoint.Login;
 import com.appspot.fragile_t.loginEndpoint.model.LoginResultV1Dto;
-import com.appspot.fragile_t.registrationIdEndpoint.RegistrationIdEndpoint;
-import com.appspot.fragile_t.registrationIdEndpoint.RegistrationIdEndpoint.RegistrationIdV1Endpoint.RegisterId;
-import com.appspot.fragile_t.registrationIdEndpoint.model.RegisterIdResultV1Dto;
 import com.google.android.gcm.GCMRegistrar;
 
 /**
@@ -62,18 +59,6 @@ public class LoginActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
-		// ID取得
-		/*
-	    regId = GCMRegistrar.getRegistrationId(this);
-	    if (regId==null) {
-	       
-	        // 未登録の場合、登録
-	        GCMRegistrar.register(this, CommonUtils.GCM_SENDER_ID);
-	       
-	    }
-	    */
-
 
 		setContentView(R.layout.activity_login);
 		
@@ -117,6 +102,7 @@ public class LoginActivity extends Activity {
 	    
 	    // 2回目以降の起動時（メールアドレスが保存されているとき）
 		if (!pref.getString("email", "").equals("")) {
+			
 			// スケジュール画面へ遷移
 			Intent intent = new Intent(LoginActivity.this, ScheduleActivity.class);
     		Calendar nowCal = Calendar.getInstance();
@@ -228,12 +214,6 @@ public class LoginActivity extends Activity {
 				Login login = endpoint.loginV1Endpoint().login(mEmail,
 						mPassword);
 				
-				/*
-				RegistrationIdEndpoint endpoint2 = RemoteApi.getRegistrationIdEndpoint();
-				RegisterId registerId = endpoint2.registrationIdV1Endpoint().registerId(regId, mEmail);
-				RegisterIdResultV1Dto rs = registerId.execute();
-				*/
-				
 				//ログイン中のユーザー情報をpreferenceに格納して用いることができるようにする
 				SharedPreferences.Editor editor = pref.edit();
 				editor.putString("email",mEmail);  
@@ -258,6 +238,16 @@ public class LoginActivity extends Activity {
 			showProgress(false);
 
 			if (success) {
+				
+					// ID取得
+			    	regId = GCMRegistrar.getRegistrationId(LoginActivity.this);
+			    	
+			    	// 解除して再登録
+			    	GCMRegistrar.unregister(LoginActivity.this);
+			    	GCMRegistrar.register(LoginActivity.this, CommonUtils.GCM_SENDER_ID);
+			    	
+			    	
+			    	Log.d("DEBUG", "ID:"+regId);
 
 					Log.d("DEBUG", "ログイン成功");
 		    		Intent intent = new Intent(LoginActivity.this, ScheduleActivity.class);

@@ -36,6 +36,12 @@ import android.widget.TextView;
 import com.appspot.fragile_t.friendEndpoint.FriendEndpoint;
 import com.appspot.fragile_t.friendEndpoint.FriendEndpoint.FriendV1Endpoint.Friendship;
 import com.appspot.fragile_t.friendEndpoint.model.FriendResultV1Dto;
+import com.appspot.fragile_t.getUserEndpoint.GetUserEndpoint;
+import com.appspot.fragile_t.getUserEndpoint.GetUserEndpoint.GetUserV1Endpoint.GetUser;
+import com.appspot.fragile_t.getUserEndpoint.model.GetUserResultV1Dto;
+import com.appspot.fragile_t.pushMessageEndpoint.PushMessageEndpoint;
+import com.appspot.fragile_t.pushMessageEndpoint.PushMessageEndpoint.PushMessageV1Endpoint.SendMessageFromRegisterId;
+import com.appspot.fragile_t.pushMessageEndpoint.model.PushMessageResultV1Dto;
 
 /**
  * Activity which displays a login screen to the user, offering registration as
@@ -238,6 +244,17 @@ public class FriendActivity extends Activity implements
 				FriendResultV1Dto result = friend.execute();
 
 				if (SUCCESS.equals(result.getResult())) {
+					
+					try{
+						// プッシュ通知を行う
+						PushMessageEndpoint endpoint2 = RemoteApi.getPushMessageEndpoint();
+						SendMessageFromRegisterId pushmsg = endpoint2.pushMessageV1Endpoint().sendMessageFromRegisterId(pref.getString("email", ""), pref.getString("email", ""));
+						PushMessageResultV1Dto result2 = pushmsg.execute();
+						Log.d("DEBUG", "プッシュリザルト："+result2.getResult());	
+					} catch (Exception e) {
+						Log.d("DEBUG", e.toString());
+						Log.d("DEBUG", "プッシュ送信に失敗しました");
+					}
 					return true;
 				} else if (NULLMY.equals(result.getResult())) {
 					fEmailView.setError(getString(R.string.error_f_nullmy));
@@ -256,6 +273,7 @@ public class FriendActivity extends Activity implements
 				}
 
 			} catch (Exception e) {
+				Log.d("DEBUG", e.toString());
 				return false;
 			}
 		}
