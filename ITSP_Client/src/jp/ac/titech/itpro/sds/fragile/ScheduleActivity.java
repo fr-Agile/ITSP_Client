@@ -1,13 +1,14 @@
 package jp.ac.titech.itpro.sds.fragile;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 
+import jp.ac.titech.itpro.sds.fragile.CalendarSaver.GoogleCalendarSaveFinishListener;
 import jp.ac.titech.itpro.sds.fragile.GetFriendTask.GetFriendFinishListener;
 import jp.ac.titech.itpro.sds.fragile.GetGroupTask.GetGroupFinishListener;
 import jp.ac.titech.itpro.sds.fragile.GetShareTimeTask.GetShareTimeFinishListener;
-import jp.ac.titech.itpro.sds.fragile.CalendarSaver.GoogleCalendarSaveFinishListener;
 import jp.ac.titech.itpro.sds.fragile.api.RemoteApi;
 import jp.ac.titech.itpro.sds.fragile.api.constant.CommonConstant;
 import jp.ac.titech.itpro.sds.fragile.utils.CalendarAdapter;
@@ -41,6 +42,7 @@ import android.view.View.DragShadowBuilder;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
 import android.widget.GridView;
 import android.widget.TextView;
@@ -87,7 +89,7 @@ public class ScheduleActivity extends Activity implements
 	private GridView mainGrid;
 	private DayAdapter dayAdapter;
 	private TimeAdapter timeAdapter;
-	private CalendarAdapter calendarAdapter;
+	private ArrayAdapter<String> calendarAdapter;
 
 	private List<View> viewOfSchedule = new ArrayList<View>();
 
@@ -186,12 +188,13 @@ public class ScheduleActivity extends Activity implements
                 startActivity(intent);
             }
         });
+		mainGrid.setAdapter(new ArrayAdapter<String>(this, R.layout.list_item, new ArrayList<String>(Arrays.asList(mainData))));
 
 		final GestureDetector gesDetector = new GestureDetector(this, new GestureDetector.OnGestureListener(){
 			@Override
 			public void onLongPress(MotionEvent e) {
                 final int[] position = estimatePosition(e.getX(), e.getY());
-				final int width = mainGrid.getWidth();
+				final int width = mainGrid.getWidth() - 5;
 				final int height = mainGrid.getHeight();
 
 				final TextView schedDrag = new TextView(mainGrid.getContext());
@@ -213,7 +216,7 @@ public class ScheduleActivity extends Activity implements
 							startTime.set(Calendar.YEAR, yearData[position[0]]);
 							startTime.set(Calendar.MONTH, monthData[position[0]]);
 							startTime.set(Calendar.DAY_OF_MONTH, dayData[position[0]]);
-							startTime.set(Calendar.HOUR_OF_DAY, position[1]);
+							startTime.set(Calendar.HOUR_OF_DAY, position[1] - 1);
 							startTime.set(Calendar.MINUTE, 0);
 							startTime.set(Calendar.SECOND, 0);
 							intent.putExtra("startTime", startTime);
@@ -226,9 +229,9 @@ public class ScheduleActivity extends Activity implements
 							result = true;
 							break;
 						case DragEvent.ACTION_DRAG_LOCATION: 
-							n = Math.round(Math.max(e.getY(), 0) / (mainGrid.getHeight() / 24)); 
+							n = Math.round(Math.max(e.getY(), 0) / (mainGrid.getHeight() / 24)) + 1; 
 							ViewGroup.LayoutParams lp = schedDrag.getLayoutParams();
-							lp.height = height * (n + 1) / 24;
+							lp.height = height * n / 24;
 							schedDrag.setLayoutParams(lp);
 							result = true;
 							break;
@@ -264,7 +267,23 @@ public class ScheduleActivity extends Activity implements
 			@Override
 			public void onShowPress(MotionEvent e) {}
 			@Override
-			public boolean onSingleTapUp(MotionEvent e) { return true; }
+			public boolean onSingleTapUp(MotionEvent e) {
+				final int[] position = estimatePosition(e.getX(), e.getY());
+
+				Intent intent = new Intent(ScheduleActivity.this, ScheduleInputActivity.class);
+				Calendar startTime = Calendar.getInstance();
+				startTime.set(Calendar.YEAR, yearData[position[0]]);
+				startTime.set(Calendar.MONTH, monthData[position[0]]);
+				startTime.set(Calendar.DAY_OF_MONTH, dayData[position[0]]);
+				startTime.set(Calendar.HOUR_OF_DAY, position[1] - 1);
+				startTime.set(Calendar.MINUTE, 0);
+				startTime.set(Calendar.SECOND, 0);
+				intent.putExtra("startTime", startTime);
+
+				startActivity(intent);
+
+				return true; 
+			}
 			
 			private int[] estimatePosition(float x, float y) {
 				int[] array = new int[2];
