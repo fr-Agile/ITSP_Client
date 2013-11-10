@@ -12,6 +12,7 @@ import com.appspot.fragile_t.groupEndpoint.GroupEndpoint;
 import com.appspot.fragile_t.loginEndpoint.LoginEndpoint;
 import com.appspot.fragile_t.pushMessageEndpoint.PushMessageEndpoint;
 import com.appspot.fragile_t.registerEndpoint.RegisterEndpoint;
+import com.appspot.fragile_t.registrationIdEndpoint.RegistrationIdEndpoint;
 import com.appspot.fragile_t.repeatScheduleEndpoint.RepeatScheduleEndpoint;
 import com.appspot.fragile_t.scheduleEndpoint.ScheduleEndpoint;
 import com.google.api.client.extensions.android.http.AndroidHttp;
