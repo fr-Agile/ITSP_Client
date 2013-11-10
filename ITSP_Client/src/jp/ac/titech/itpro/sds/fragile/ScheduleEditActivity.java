@@ -160,6 +160,7 @@ public class ScheduleEditActivity extends Activity{
 		repeatChk = (CheckBox) findViewById(R.id.repeartCheckbox);
 		if(repeat){
 			repeatdaysView.setVisibility(View.VISIBLE);
+			repeatChk.setChecked(true);
 		}
 		repeatChk.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -310,7 +311,6 @@ public class ScheduleEditActivity extends Activity{
 								scheduleFinishTime
 										- startOfToday.getTimeInMillis(),
 								contain);
-				RepeatScheduleResultV1Dto result = repeatschedule.execute();
 				repeatschedule.execute();	
 				return true;
 			} catch (Exception e) {
