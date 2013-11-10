@@ -181,8 +181,8 @@ public class ScheduleActivity extends Activity implements
                 startTime.set(Calendar.MONTH, monthData[position % 7]);
                 startTime.set(Calendar.DAY_OF_MONTH, dayData[position % 7]);
                 startTime.set(Calendar.HOUR_OF_DAY, position / 7);
-                startTime.set(Calendar.SECOND, 0);
                 startTime.set(Calendar.MINUTE, 0);
+                startTime.set(Calendar.SECOND, 0);
                 intent.putExtra("startTime", startTime);
 
                 startActivity(intent);
