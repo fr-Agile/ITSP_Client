@@ -3,7 +3,6 @@ package jp.ac.titech.itpro.sds.fragile;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 import jp.ac.titech.itpro.sds.fragile.api.RemoteApi;
@@ -19,6 +18,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager.LayoutParams;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.DatePicker;
@@ -28,14 +28,10 @@ import android.widget.TimePicker.OnTimeChangedListener;
 import android.widget.Toast;
 
 import com.appspot.fragile_t.repeatScheduleEndpoint.RepeatScheduleEndpoint;
-import com.appspot.fragile_t.repeatScheduleEndpoint.RepeatScheduleEndpoint.RepeatScheduleV1EndPoint.CreateRepeatSchedule;
 import com.appspot.fragile_t.repeatScheduleEndpoint.RepeatScheduleEndpoint.RepeatScheduleV1EndPoint.EditRepeatSchedule;
 import com.appspot.fragile_t.repeatScheduleEndpoint.model.RepeatScheduleContainer;
-import com.appspot.fragile_t.repeatScheduleEndpoint.model.RepeatScheduleResultV1Dto;
 import com.appspot.fragile_t.scheduleEndpoint.ScheduleEndpoint;
-import com.appspot.fragile_t.scheduleEndpoint.ScheduleEndpoint.ScheduleV1EndPoint.CreateSchedule;
 import com.appspot.fragile_t.scheduleEndpoint.ScheduleEndpoint.ScheduleV1EndPoint.EditSchedule;
-import com.appspot.fragile_t.scheduleEndpoint.model.ScheduleResultV1Dto;
 
 public class ScheduleEditActivity extends Activity{
 	private static final String TAG = "ScheduleEditActivity";
@@ -78,6 +74,7 @@ public class ScheduleEditActivity extends Activity{
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        this.getWindow().setSoftInputMode(LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
         setContentView(R.layout.activity_inputschedule);
         
         mInputScheduleView = findViewById(R.id.inputScheduleView);
@@ -152,6 +149,7 @@ public class ScheduleEditActivity extends Activity{
 				StoreData data = new StoreData(nowCal);
 				intent.putExtra("StoreData", data);
 				intent.setAction(Intent.ACTION_VIEW);
+				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 				startActivity(intent);
 			}
 		});

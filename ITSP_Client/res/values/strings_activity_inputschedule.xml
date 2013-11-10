@@ -11,7 +11,7 @@
     <string name="dateTxt">日付</string>
     <string name="startTimeTxt">開始時刻</string>
     <string name="finishTimeTxt">終了時刻</string>
-    <string name="showScheduleViewLabel">スケジュール一覧</string>
+    <string name="showScheduleViewLabel">スケジュール一覧に戻る</string>
     <string name="input_schedule_progress">登録中&#8230;</string>
     <string name="repeat">繰り返し</string>
     <string name="everyday">毎日</string>

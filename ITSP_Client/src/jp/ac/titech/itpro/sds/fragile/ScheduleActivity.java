@@ -329,7 +329,6 @@ public class ScheduleActivity extends Activity implements
 	public boolean dispatchKeyEvent(KeyEvent event){
 	    if(event.getAction()==KeyEvent.ACTION_UP){
 	        if(event.getKeyCode()==KeyEvent.KEYCODE_BACK){
-	            //trueを返して戻るのを無効化する
 	            return true;
 	        }
 	    }
