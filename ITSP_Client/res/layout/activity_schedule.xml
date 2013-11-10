@@ -45,7 +45,9 @@
 	            android:layout_height="1514dp"
 	            android:layout_marginLeft="40dp"
         		android:layout_marginRight="0dp"
-	            android:background="#DDDDDD"
+        		android:horizontalSpacing="1dp"
+			    android:verticalSpacing="1dp"
+	            android:background="@color/light_gray"
 	            android:listSelector="@layout/list_selector"
 	            android:numColumns="7" >
 	        </GridView>
