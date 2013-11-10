@@ -18,6 +18,7 @@ public class CalendarUtils {
 		
 		return ret;
 	}
+	
 	public static Calendar getEndOfDate(long time) {
 		Calendar ret = Calendar.getInstance();
 		ret.setTimeInMillis(time);
@@ -28,4 +29,6 @@ public class CalendarUtils {
 		
 		return ret;
 	}
+	
+	public static final long ONEDAY_INMILLIS = 24 * 60 * 60 * 1000 - 1;
 }

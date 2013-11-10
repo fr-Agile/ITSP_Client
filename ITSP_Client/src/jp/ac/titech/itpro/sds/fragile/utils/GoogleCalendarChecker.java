@@ -53,6 +53,7 @@ public class GoogleCalendarChecker implements LoaderCallbacks<Cursor> {
 	private <Curosr> void finish(boolean result, Cursor arg1) {
 		if (listener != null) {
 			listener.onGoogleCalendarCheckFinish(result, arg1);
+			listener = null;
 		}
 	}
 	
@@ -82,6 +83,7 @@ public class GoogleCalendarChecker implements LoaderCallbacks<Cursor> {
 	        time.minute = 0;
 	        time.second = 0;
 	        */
+	        // TODO 下はデバッグ用。上に直す
 	        time.month = 9;
 	        time.monthDay = 1;
 	        time.hour = 0;
