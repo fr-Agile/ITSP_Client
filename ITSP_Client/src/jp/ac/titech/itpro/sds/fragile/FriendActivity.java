@@ -32,6 +32,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.appspot.fragile_t.friendEndpoint.FriendEndpoint;
 import com.appspot.fragile_t.friendEndpoint.FriendEndpoint.FriendV1Endpoint.Friendship;
@@ -285,15 +286,16 @@ public class FriendActivity extends Activity implements
 
 			if (success) {
 				Log.d("DEBUG", "登録成功");
-				// 成功した場合、トップ画面に戻る
-				Intent next_intent = new Intent(FriendActivity.this,
-						ScheduleActivity.class);
-				next_intent.putExtra(EXTRA_MESSAGE,
-						getString(R.string.friend_register_ok));
-				startActivity(next_intent);
-				finish();
+				// 成功した場合、トースト表示
+				Toast.makeText(getApplicationContext(),"友人申請を行いました", Toast.LENGTH_SHORT).show();
+				// メール入力欄を空に
+				fEmailView.setText("");
+
+				
 			} else {
 				Log.d("DEBUG", "登録失敗");
+				
+
 			}
 		}
 
