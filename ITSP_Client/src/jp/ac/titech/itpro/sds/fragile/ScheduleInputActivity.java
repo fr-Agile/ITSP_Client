@@ -392,7 +392,7 @@ public class ScheduleInputActivity extends Activity implements GetGroupFinishLis
 						int idx = layout.indexOfChild(radioButton);
 						GroupV1Dto group = groupList.get(idx);
 						ScheduleEndpoint endpoint = RemoteApi.getScheduleEndpoint();
-						CreateGroupSchedule groupSchedule = endpoint.scheduleV1EndPoint().createGroupSchedule(scheduleStartTime, scheduleFinishTime, group.getKey());
+						CreateGroupSchedule groupSchedule = endpoint.scheduleV1EndPoint().createGroupSchedule(scheduleStartTime, scheduleFinishTime, mEmail, group.getKey());
 						ScheduleResultV1Dto result = groupSchedule.execute();
 						
 						if (SUCCESS.equals(result.getResult())) {
