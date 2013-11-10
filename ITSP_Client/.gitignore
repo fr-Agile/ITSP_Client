@@ -21,5 +21,6 @@ local.properties
 .settings/
 
 endpoint-libs/
+.DS_Store
 
 
