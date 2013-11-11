@@ -19,6 +19,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager.LayoutParams;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.DatePicker;
@@ -87,6 +88,7 @@ public class ScheduleInputActivity extends Activity implements GetGroupFinishLis
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		this.getWindow().setSoftInputMode(LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 		setContentView(R.layout.activity_inputschedule);
 
 		Intent intent = getIntent();
@@ -203,6 +205,7 @@ public class ScheduleInputActivity extends Activity implements GetGroupFinishLis
 				StoreData data = new StoreData(nowCal);
 				intent.putExtra("StoreData", data);
 				intent.setAction(Intent.ACTION_VIEW);
+				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 				startActivity(intent);
 
 			}
@@ -529,122 +532,3 @@ public class ScheduleInputActivity extends Activity implements GetGroupFinishLis
 	}
 
 }
-
-// Debug
-// Log.d("vietDebug", "click done button");
-
-// /**
-// * Shows the progress UI and hides the login form.
-// */
-// @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
-// private void showProgress(final boolean show) {
-// // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
-// // for very easy animations. If available, use these APIs to fade-in
-// // the progress spinner.
-// if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-// int shortAnimTime = getResources().getInteger(
-// android.R.integer.config_shortAnimTime);
-//
-// mLoginStatusView.setVisibility(View.VISIBLE);
-// mLoginStatusView.animate().setDuration(shortAnimTime)
-// .alpha(show ? 1 : 0)
-// .setListener(new AnimatorListenerAdapter() {
-// @Override
-// public void onAnimationEnd(Animator animation) {
-// mLoginStatusView.setVisibility(show ? View.VISIBLE
-// : View.GONE);
-// }
-// });
-//
-// mLoginFormView.setVisibility(View.VISIBLE);
-// mLoginFormView.animate().setDuration(shortAnimTime)
-// .alpha(show ? 0 : 1)
-// .setListener(new AnimatorListenerAdapter() {
-// @Override
-// public void onAnimationEnd(Animator animation) {
-// mLoginFormView.setVisibility(show ? View.GONE
-// : View.VISIBLE);
-// }
-// });
-// } else {
-// // The ViewPropertyAnimator APIs are not available, so simply show
-// // and hide the relevant UI components.
-// mLoginStatusView.setVisibility(show ? View.VISIBLE : View.GONE);
-// mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-// }
-// }
-
-// findViewById(R.id.startTimeBtn).setOnClickListener(
-// new View.OnClickListener() {
-// public void onClick(View view) {
-// chooseStartTime();
-// }
-// });
-//
-// findViewById(R.id.finishTimeBtn).setOnClickListener(
-// new View.OnClickListener() {
-// public void onClick(View view) {
-// chooseFinishTime();
-// }
-// });
-//
-// findViewById(R.id.dateBtn).setOnClickListener(
-// new View.OnClickListener() {
-// public void onClick(View view) {
-// chooseDate();
-// }
-// });
-
-// public void chooseDate(){
-// new DatePickerDialog(ScheduleInputActivity.this, d,
-// dateTime.get(Calendar.YEAR),dateTime.get(Calendar.MONTH),
-// dateTime.get(Calendar.DAY_OF_MONTH)).show();
-// }
-//
-// public void chooseStartTime(){
-// new TimePickerDialog(ScheduleInputActivity.this, st,
-// dateTime.get(Calendar.HOUR_OF_DAY), dateTime.get(Calendar.MINUTE),
-// true).show();
-// }
-//
-// public void chooseFinishTime(){
-// new TimePickerDialog(ScheduleInputActivity.this, ft,
-// dateTime.get(Calendar.HOUR_OF_DAY), dateTime.get(Calendar.MINUTE),
-// true).show();
-// }
-
-// DatePickerDialog.OnDateSetListener d=new DatePickerDialog.OnDateSetListener()
-// {
-// public void onDateSet(DatePicker view, int year, int monthOfYear,int
-// dayOfMonth) {
-// dateTime.set(Calendar.YEAR,year);
-// dateTime.set(Calendar.MONTH, monthOfYear);
-// dateTime.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-// setButtonEnable();
-// }
-// };
-// TimePickerDialog.OnTimeSetListener st=new
-// TimePickerDialog.OnTimeSetListener() {
-//
-// public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-// // TODO Auto-generated method stub
-// dateTime.set(Calendar.HOUR_OF_DAY, hourOfDay);
-// dateTime.set(Calendar.MINUTE,minute);
-// startTimeLabel.setText(formatDateTime.format(dateTime.getTime()));
-// scheduleStartTime = dateTime.getTime().getTime();
-// setButtonEnable();
-// }
-// };
-//
-// TimePickerDialog.OnTimeSetListener ft=new
-// TimePickerDialog.OnTimeSetListener() {
-//
-// public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-// // TODO Auto-generated method stub
-// dateTime.set(Calendar.HOUR_OF_DAY, hourOfDay);
-// dateTime.set(Calendar.MINUTE,minute);
-// finishTimeLabel.setText(formatDateTime.format(dateTime.getTime()));
-// scheduleFinishTime = dateTime.getTime().getTime();
-// setButtonEnable();
-// }
-// };

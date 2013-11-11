@@ -1,9 +1,12 @@
 package jp.ac.titech.itpro.sds.fragile;
 
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 import jp.ac.titech.itpro.sds.fragile.api.RemoteApi;
+import jp.ac.titech.itpro.sds.fragile.api.constant.CommonConstant;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
@@ -15,17 +18,20 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager.LayoutParams;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.DatePicker.OnDateChangedListener;
 import android.widget.TimePicker;
 import android.widget.TimePicker.OnTimeChangedListener;
 import android.widget.Toast;
 
+import com.appspot.fragile_t.repeatScheduleEndpoint.RepeatScheduleEndpoint;
+import com.appspot.fragile_t.repeatScheduleEndpoint.RepeatScheduleEndpoint.RepeatScheduleV1EndPoint.EditRepeatSchedule;
+import com.appspot.fragile_t.repeatScheduleEndpoint.model.RepeatScheduleContainer;
 import com.appspot.fragile_t.scheduleEndpoint.ScheduleEndpoint;
-import com.appspot.fragile_t.scheduleEndpoint.ScheduleEndpoint.ScheduleV1EndPoint.CreateSchedule;
 import com.appspot.fragile_t.scheduleEndpoint.ScheduleEndpoint.ScheduleV1EndPoint.EditSchedule;
-import com.appspot.fragile_t.scheduleEndpoint.model.ScheduleResultV1Dto;
 
 public class ScheduleEditActivity extends Activity{
 	private static final String TAG = "ScheduleEditActivity";
@@ -36,20 +42,39 @@ public class ScheduleEditActivity extends Activity{
 	private DatePicker mDatepicker;
 	private TimePicker mStartTimePicker;
 	private TimePicker mFinishTimePicker;
+	
+	private CheckBox repeatChk;
+	private CheckBox everydayChk;
+	private CheckBox monChk;
+	private CheckBox tueChk;
+	private CheckBox wedChk;
+	private CheckBox thuChk;
+	private CheckBox friChk;
+	private CheckBox satChk;
+	private CheckBox sunChk;
+	private View repeatdaysView;
+
+	private List<Integer> repeats;
+	
 	private View mInputScheduleView;
 	private View mSpinView;
-	private static String SUCCESS = "success";
-	private EditScheduleTask mAuthTask = null;
+	private static String SUCCESS = CommonConstant.SUCCESS;
 	
-	DateFormat formatDateTime = DateFormat.getDateTimeInstance();
-	Calendar startTime=Calendar.getInstance();
-	Calendar finishTime=Calendar.getInstance();
-	String keyS="";
+	private EditRepeatScheduleTask mRepeatAuthTask = null;
+	private EditScheduleTask mAuthTask = null;
+
+	private DateFormat formatDateTime = DateFormat.getDateTimeInstance();
+	private Calendar startTime=Calendar.getInstance();
+	private Calendar finishTime=Calendar.getInstance();
+	private String keyS="";
+	private boolean repeat;
+	
 	
 	/** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        this.getWindow().setSoftInputMode(LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
         setContentView(R.layout.activity_inputschedule);
         
         mInputScheduleView = findViewById(R.id.inputScheduleView);
@@ -68,8 +93,9 @@ public class ScheduleEditActivity extends Activity{
 		
 		startE.setTimeInMillis(intentE.getLongExtra("start", 0));
 		finishE.setTimeInMillis(intentE.getLongExtra("finish", 0));
-		keyS=intentE.getStringExtra("key");
-        
+		keyS = intentE.getStringExtra("key");
+		repeat = intentE.getBooleanExtra("repeat", false);
+		
         mDatepicker.init(startE.get(Calendar.YEAR),startE.get(Calendar.MONTH),startE.get(Calendar.DAY_OF_MONTH), 		 
         		new OnDateChangedListener(){
         	public void onDateChanged(DatePicker view, int year, int monthOfYear,int dayOfMonth) {
@@ -104,7 +130,7 @@ public class ScheduleEditActivity extends Activity{
         	}});
         
         doneBtn = (Button)findViewById(R.id.doneBtn);
-        doneBtn.setEnabled(false);
+        doneBtn.setEnabled(true);
         doneBtn.setOnClickListener(
         		new View.OnClickListener() {
         			public void onClick(View view) {
@@ -116,17 +142,99 @@ public class ScheduleEditActivity extends Activity{
         showScheduleViewBtn.setOnClickListener(new View.OnClickListener() {
 			
 			public void onClick(View v) {
-				finish();
+				Intent intent = new Intent(ScheduleEditActivity.this,
+						ScheduleActivity.class);
+				Calendar nowCal = Calendar.getInstance();
+				// nowCal.add(Calendar.DAY_OF_YEAR, 7);
+				StoreData data = new StoreData(nowCal);
+				intent.putExtra("StoreData", data);
+				intent.setAction(Intent.ACTION_VIEW);
+				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				startActivity(intent);
 			}
 		});
-    }
-        
-    public void clickDoneButton(){
-    	showProgress(true);
-    	mAuthTask = new EditScheduleTask();
-		mAuthTask.execute();
-    }
+        repeatdaysView = findViewById(R.id.repeatdaysView);
 
+		repeatChk = (CheckBox) findViewById(R.id.repeartCheckbox);
+		if(repeat){
+			repeatdaysView.setVisibility(View.VISIBLE);
+			repeatChk.setChecked(true);
+		}
+		repeatChk.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if (((CheckBox) v).isChecked()) {
+					repeatdaysView.setVisibility(View.VISIBLE);
+					// Toast.makeText(getApplicationContext(),"Repeat Checked:)",
+					// Toast.LENGTH_LONG).show();
+				} else {
+					repeatdaysView.setVisibility(View.GONE);
+				}
+			}
+		});
+
+		sunChk = (CheckBox) findViewById(R.id.sundayCheckbox);
+		monChk = (CheckBox) findViewById(R.id.mondayCheckbox);
+		tueChk = (CheckBox) findViewById(R.id.tuesdayCheckbox);
+		wedChk = (CheckBox) findViewById(R.id.wednesdayCheckbox);
+		thuChk = (CheckBox) findViewById(R.id.thursdayCheckbox);
+		friChk = (CheckBox) findViewById(R.id.fridayCheckbox);
+		satChk = (CheckBox) findViewById(R.id.saturdayCheckbox);
+
+		everydayChk = (CheckBox) findViewById(R.id.everydayCheckbox);
+		everydayChk.setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				if (((CheckBox) v).isChecked()) {
+					sunChk.setChecked(true);
+					monChk.setChecked(true);
+					tueChk.setChecked(true);
+					wedChk.setChecked(true);
+					thuChk.setChecked(true);
+					friChk.setChecked(true);
+					satChk.setChecked(true);
+				} else {
+					sunChk.setChecked(false);
+					monChk.setChecked(false);
+					tueChk.setChecked(false);
+					wedChk.setChecked(false);
+					thuChk.setChecked(false);
+					friChk.setChecked(false);
+					satChk.setChecked(false);
+				}
+			}
+		});
+
+	}
+
+	public void clickDoneButton() {
+
+		repeats = new ArrayList<Integer>();
+		if (sunChk.isChecked())
+			repeats.add(0);
+		if (monChk.isChecked())
+			repeats.add(1);
+		if (tueChk.isChecked())
+			repeats.add(2);
+		if (wedChk.isChecked())
+			repeats.add(3);
+		if (thuChk.isChecked())
+			repeats.add(4);
+		if (friChk.isChecked())
+			repeats.add(5);
+		if (satChk.isChecked())
+			repeats.add(6);
+
+		showProgress(true);
+		if(repeat){
+			mRepeatAuthTask = new EditRepeatScheduleTask();
+			mRepeatAuthTask.execute((Void) null);
+		}else{
+			mAuthTask = new EditScheduleTask();
+			mAuthTask.execute((Void) null);
+		}
+	}
 	private void setButtonEnable() {
 		if (scheduleStartTime == 0 || scheduleFinishTime == 0 || scheduleStartTime >= scheduleFinishTime){
 			doneBtn.setEnabled(false);
@@ -176,6 +284,65 @@ public class ScheduleEditActivity extends Activity{
 		}
 	}
 	
+	public class EditRepeatScheduleTask extends AsyncTask<Void, Void, Boolean> {
+		@Override
+		protected Boolean doInBackground(Void... args) {
+
+			try {
+				SharedPreferences pref = getSharedPreferences("user", Activity.MODE_PRIVATE);
+				mEmail = pref.getString("email","");	
+				Log.d(TAG,"time:"+ scheduleStartTime + " and " + scheduleFinishTime + "email:" +mEmail);
+				// repeat schedule
+				RepeatScheduleContainer contain = new RepeatScheduleContainer();
+				contain.setIntegers(repeats);
+
+				// startTimeとfinishTimeを今日の00:00からのミリ秒を表すlongにする
+				// そのため今日の00:00をCalendar型で作成
+				Calendar startOfToday = Calendar.getInstance();
+				startOfToday.set(Calendar.HOUR_OF_DAY, 0);
+				startOfToday.set(Calendar.MINUTE, 0);
+				startOfToday.set(Calendar.SECOND, 0);
+				startOfToday.set(Calendar.MILLISECOND, 0);
+
+				RepeatScheduleEndpoint endpoint = RemoteApi
+						.getRepeatScheduleEndpoint();
+				EditRepeatSchedule repeatschedule = endpoint
+						.repeatScheduleV1EndPoint().editRepeatSchedule(
+								keyS,
+								scheduleStartTime
+										- startOfToday.getTimeInMillis(),
+								scheduleFinishTime
+										- startOfToday.getTimeInMillis(),
+								contain);
+				repeatschedule.execute();	
+				return true;
+			} catch (Exception e) {
+				Toast.makeText(getApplicationContext(),"Failed with exception:" + e,Toast.LENGTH_SHORT).show();
+				Log.d(TAG, "failed with exception:" + e);
+				return false;
+			}
+		}
+
+		@Override
+		protected void onPostExecute(final Boolean success) {
+			mRepeatAuthTask = null;
+			showProgress(false);
+			if (success) {
+				Log.d(TAG, "post successed " + scheduleStartTime + " and " + scheduleFinishTime);
+				Toast.makeText(getApplicationContext(),"スケジュール登録成功", Toast.LENGTH_SHORT).show();
+			} else {
+				Log.d(TAG, "post failed " + scheduleStartTime + " and " + scheduleFinishTime);
+				Toast.makeText(getApplicationContext(),"スケジュール登録失敗", Toast.LENGTH_SHORT).show();
+			}
+		}
+
+		@Override
+		protected void onCancelled() {
+			mRepeatAuthTask = null;
+			showProgress(false);
+		}
+	}
+	
 	public class EditScheduleTask extends AsyncTask<Void, Void, Boolean> {
 		@Override
 		protected Boolean doInBackground(Void... args) {
@@ -198,11 +365,9 @@ public class ScheduleEditActivity extends Activity{
 
 		@Override
 		protected void onPostExecute(final Boolean success) {
-			mAuthTask = null;
 			showProgress(false);
 			if (success) {
 				Log.d(TAG, "post successed " + scheduleStartTime + " and " + scheduleFinishTime);
-//				Toast.makeText(getApplicationContext(),"Successed " + scheduleStartTime + " and " + scheduleFinishTime, Toast.LENGTH_SHORT).show();
 				Toast.makeText(getApplicationContext(),"スケジュール登録成功", Toast.LENGTH_SHORT).show();
 			} else {
 				Log.d(TAG, "post failed " + scheduleStartTime + " and " + scheduleFinishTime);
@@ -212,7 +377,6 @@ public class ScheduleEditActivity extends Activity{
 
 		@Override
 		protected void onCancelled() {
-			mAuthTask = null;
 			showProgress(false);
 		}
 	}
