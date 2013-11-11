@@ -2,11 +2,11 @@ package jp.ac.titech.itpro.sds.fragile;
 
 import jp.ac.titech.itpro.sds.fragile.api.RemoteApi;
 import jp.ac.titech.itpro.sds.fragile.api.constant.CommonConstant;
-import jp.ac.titech.itpro.sds.fragile.api.constant.FriendConstant;
 
-import com.appspot.fragile_t.friendEndpoint.FriendEndpoint;
-import com.appspot.fragile_t.friendEndpoint.FriendEndpoint.FriendV1Endpoint.Friendship;
-import com.appspot.fragile_t.friendEndpoint.model.FriendResultV1Dto;
+import com.appspot.fragile_t.scheduleEndpoint.ScheduleEndpoint;
+import com.appspot.fragile_t.scheduleEndpoint.ScheduleEndpoint.ScheduleV1EndPoint.DeleteSchedule;
+import com.appspot.fragile_t.scheduleEndpoint.model.ScheduleResultV1Dto;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -17,12 +17,14 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 
-public class TransparentActivity extends Activity {
+public class TransparentActivity2 extends Activity {
 	
-	private String fEmail;
-	private SharedPreferences pref;
+	private String address;
+	private String startTime;
+	private String endTime;
+	private String key;
 	
-	private FriendTask mAuthTask = null;
+	private ScheduleDelTask mAuthTask = null;
 	
 	private Context context;
 	
@@ -30,35 +32,31 @@ public class TransparentActivity extends Activity {
 	
 	private static final String SUCCESS = CommonConstant.SUCCESS;
 	private static final String FAIL = CommonConstant.FAIL;
-
-	private static final String NULLMY = FriendConstant.NULLMY;
-	private static final String NOFRIEND = FriendConstant.NOFRIEND;
-	private static final String ALREADY = FriendConstant.ALREADY;
 	
 	@Override
 	  protected void onCreate(Bundle savedInstanceState) {
 	    super.onCreate(savedInstanceState);
 	    
-	    pref = getSharedPreferences("user", Activity.MODE_PRIVATE);
 	    context = this;
-	    fEmail = getIntent().getStringExtra("msg");
-	    
+	    address = getIntent().getStringExtra("address");
+	    startTime = getIntent().getStringExtra("startTime");
+	    endTime = getIntent().getStringExtra("endTIme");
+	    key = getIntent().getStringExtra("key");
 	    	    
 	    AlertDialog.Builder builder = new AlertDialog.Builder(this);
-	    builder.setTitle(fEmail+"があなたを友人登録しました")
-	    		.setPositiveButton("登録する", new DialogInterface.OnClickListener() {
+	    builder.setTitle(address+"さんがあなたを"+startTime+"〜"+endTime+"の予定に招待しています。参加しますか？")
+	    		.setPositiveButton("参加する", new DialogInterface.OnClickListener() {
 	    			public void onClick(DialogInterface dialog, int whichButton) {
 	    			  dialog.cancel();
-	    			  
-	    			  mAuthTask = new FriendTask();
-	    			  mAuthTask.execute((Void) null);
-	    			  
+	    			  TransparentActivity2.this.finish();	    			  
 	    			}
 	    		})
-	           .setNegativeButton("登録しない", new DialogInterface.OnClickListener() {
+	           .setNegativeButton("参加しない", new DialogInterface.OnClickListener() {
 	              public void onClick(DialogInterface dialog, int id) {
 	                dialog.cancel();                
-	                TransparentActivity.this.finish();
+	                
+	                mAuthTask = new ScheduleDelTask();
+	    			mAuthTask.execute((Void) null);
 	              }
 	            });
 	    AlertDialog alert = builder.create();
@@ -67,7 +65,7 @@ public class TransparentActivity extends Activity {
 	
 	
 	
-	public class FriendTask extends AsyncTask<Void, Void, Void> {
+	public class ScheduleDelTask extends AsyncTask<Void, Void, Void> {
 		
 		ProgressDialog dialog;
 		
@@ -75,11 +73,11 @@ public class TransparentActivity extends Activity {
 		protected Void doInBackground(Void... args) {
 
 			try {
-				FriendEndpoint endpoint = RemoteApi.getFriendEndpoint();
-				Friendship friend = endpoint.friendV1Endpoint().friendship(
-						fEmail, pref.getString("email", ""));
+				ScheduleEndpoint endpoint = RemoteApi.getScheduleEndpoint();
+				DeleteSchedule delschedule = endpoint.scheduleV1EndPoint().deleteSchedule(key);
+				
 
-				FriendResultV1Dto result = friend.execute();
+				ScheduleResultV1Dto result = delschedule.execute();
 				rs = result.getResult();
 
 			} catch (Exception e) {
@@ -95,59 +93,42 @@ public class TransparentActivity extends Activity {
 			if(dialog != null){
 	    	      dialog.dismiss();
 	    	}
-			String msg;
 
 			if (rs.equals(SUCCESS)) {
-				Log.d("DEBUG", "登録成功");
-				msg = "登録成功しました";
-			}else if(rs.equals(NULLMY)){
-				Log.d("DEBUG", "登録失敗");
-				msg = "ログインしてください";
-			}else if(rs.equals(NOFRIEND)){
-				Log.d("DEBUG", "登録失敗");
-				msg = "友人が見つかりませんでした";
-			}else if(rs.equals(ALREADY)){
-				Log.d("DEBUG", "登録失敗");
-				msg = "すでに登録済みです";
-			} else {
-				Log.d("DEBUG", "登録失敗："+rs.toString());
-				msg = null;
-			}
-			
-			if(msg==null){
+				Log.d("DEBUG", "削除成功");
 				
 				AlertDialog.Builder builder = new AlertDialog.Builder(context);
-			    builder.setTitle("通信エラー")
-			    		.setPositiveButton("再接続", new DialogInterface.OnClickListener() {
-			    			public void onClick(DialogInterface dialog, int whichButton) {
-			    			  dialog.cancel();
-			    			  
-			    			  mAuthTask = new FriendTask();
-			    			  mAuthTask.execute((Void) null);
-			    			  
-			    			}
-			    		})
-			           .setNegativeButton("やめる", new DialogInterface.OnClickListener() {
+			    builder.setTitle("参加拒否しました")
+			           .setNegativeButton("OK", new DialogInterface.OnClickListener() {
 			              public void onClick(DialogInterface dialog, int id) {
 			                dialog.cancel();                
-			                TransparentActivity.this.finish();
+			                TransparentActivity2.this.finish();
 			              }
 			            });
 			    AlertDialog alert = builder.create();
 			    alert.show();
 				
 			} else {
-			
+				Log.d("DEBUG", "削除失敗："+rs.toString());
+				
 				AlertDialog.Builder builder = new AlertDialog.Builder(context);
-				builder.setTitle(msg)
-					.setNegativeButton("OK", new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int id) {
-							dialog.cancel();                
-							TransparentActivity.this.finish();
-						}
-				});
-				AlertDialog alert = builder.create();
-		    	alert.show();
+			    builder.setTitle("通信エラー")
+			    		.setPositiveButton("再接続", new DialogInterface.OnClickListener() {
+			    			public void onClick(DialogInterface dialog, int whichButton) {
+			    			  dialog.cancel();
+			    			  mAuthTask = new ScheduleDelTask();
+				    		  mAuthTask.execute((Void) null);    			  
+			    			}
+			    		})
+			           .setNegativeButton("やめる", new DialogInterface.OnClickListener() {
+			              public void onClick(DialogInterface dialog, int id) {
+			                dialog.cancel();                
+			                TransparentActivity2.this.finish();	
+			              }
+			            });
+			    AlertDialog alert = builder.create();
+			    alert.show();
+				
 			}
 		}
 		
@@ -165,7 +146,7 @@ public class TransparentActivity extends Activity {
 			if(dialog != null){
 	    	      dialog.dismiss();
 	    	}
-			TransparentActivity.this.finish();
+			TransparentActivity2.this.finish();
 		}
 	}
 	

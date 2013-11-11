@@ -1,6 +1,8 @@
 package jp.ac.titech.itpro.sds.fragile;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import jp.ac.titech.itpro.sds.fragile.api.RemoteApi;
 import jp.ac.titech.itpro.sds.fragile.utils.CommonUtils;
@@ -69,13 +71,40 @@ public class GCMIntentService extends GCMBaseIntentService {
     	
     	// アプリサーバから送信されたPushメッセージの受信。
         // Message.data が Intent.extra になるらしい。
-        CharSequence msg = intent.getCharSequenceExtra("msg");
-        Log.d("DEBUG", "onMessage: msg = " + msg);
+        CharSequence value = intent.getCharSequenceExtra("value");
+        Log.d("DEBUG", "onMessage: value = " + value);
         
-        Intent in = new Intent(getApplicationContext(),TransparentActivity.class);
-        in.putExtra("msg", msg);
-        in.setFlags( Intent.FLAG_ACTIVITY_NEW_TASK );
-        startActivity(in); 
+        if(value.equals("addFriend")){
+        	CharSequence msg = intent.getCharSequenceExtra("msg");
+        	Log.d("DEBUG", "onMessage: msg = " + msg);
+        	
+        	Intent in = new Intent(getApplicationContext(),TransparentActivity.class);
+        	in.putExtra("msg", msg);
+        	in.setFlags( Intent.FLAG_ACTIVITY_NEW_TASK );
+        	startActivity(in);
+        } else if(value.equals("groupSchedule")){
+        	CharSequence address = intent.getCharSequenceExtra("address");
+        	CharSequence start = intent.getCharSequenceExtra("start");
+        	Date startTime = new Date(Long.parseLong(start.toString()));
+        	CharSequence end = intent.getCharSequenceExtra("end");
+        	Date endTime = new Date(Long.parseLong(end.toString()));
+        	CharSequence key = intent.getCharSequenceExtra("key");
+        	Log.d("DEBUG", "onMessage: address = " + address);
+        	Log.d("DEBUG", "onMessage: start = " + startTime.toString());
+        	Log.d("DEBUG", "onMessage: end = " +  endTime.toString());
+        	Log.d("DEBUG", "onMessage: key = " + key);
+        	
+        	SimpleDateFormat sdf = new SimpleDateFormat("MM/dd HH:mm");
+        	
+        	Intent in = new Intent(getApplicationContext(),TransparentActivity2.class);
+        	in.putExtra("address", address);
+        	in.putExtra("startTime", sdf.format(startTime));
+        	in.putExtra("endTime", sdf.format(endTime));
+        	in.putExtra("key", key);
+        	
+        	in.setFlags( Intent.FLAG_ACTIVITY_NEW_TASK );
+        	startActivity(in);
+        }
         
     	Log.d("DEBUG", "メッセージを受信しました");
     }
