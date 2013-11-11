@@ -3,6 +3,12 @@ package jp.ac.titech.itpro.sds.fragile;
 import jp.ac.titech.itpro.sds.fragile.api.RemoteApi;
 import jp.ac.titech.itpro.sds.fragile.api.constant.CommonConstant;
 
+import com.appspot.fragile_t.getUserEndpoint.GetUserEndpoint;
+import com.appspot.fragile_t.getUserEndpoint.GetUserEndpoint.GetUserV1Endpoint.GetUser;
+import com.appspot.fragile_t.getUserEndpoint.model.GetUserResultV1Dto;
+import com.appspot.fragile_t.pushMessageEndpoint.PushMessageEndpoint;
+import com.appspot.fragile_t.pushMessageEndpoint.PushMessageEndpoint.PushMessageV1Endpoint.SendMessageFromRegisterId;
+import com.appspot.fragile_t.pushMessageEndpoint.model.PushMessageResultV1Dto;
 import com.appspot.fragile_t.scheduleEndpoint.ScheduleEndpoint;
 import com.appspot.fragile_t.scheduleEndpoint.ScheduleEndpoint.ScheduleV1EndPoint.DeleteSchedule;
 import com.appspot.fragile_t.scheduleEndpoint.model.ScheduleResultV1Dto;
@@ -19,6 +25,7 @@ import android.util.Log;
 
 public class TransparentActivity2 extends Activity {
 	
+	private String email;
 	private String address;
 	private String startTime;
 	private String endTime;
@@ -27,6 +34,8 @@ public class TransparentActivity2 extends Activity {
 	private ScheduleDelTask mAuthTask = null;
 	
 	private Context context;
+	
+	private SharedPreferences pref;
 	
 	private String rs;
 	
@@ -38,6 +47,8 @@ public class TransparentActivity2 extends Activity {
 	    super.onCreate(savedInstanceState);
 	    
 	    context = this;
+	    pref = getSharedPreferences("user", Activity.MODE_PRIVATE);
+	    email = getIntent().getStringExtra("email");
 	    address = getIntent().getStringExtra("address");
 	    startTime = getIntent().getStringExtra("startTime");
 	    endTime = getIntent().getStringExtra("endTIme");
@@ -76,6 +87,22 @@ public class TransparentActivity2 extends Activity {
 				ScheduleEndpoint endpoint = RemoteApi.getScheduleEndpoint();
 				DeleteSchedule delschedule = endpoint.scheduleV1EndPoint().deleteSchedule(key);
 				
+				try{
+					GetUserEndpoint endpoint2 = RemoteApi.getGetUserEndpoint();
+					GetUser getuser = endpoint2.getUserV1Endpoint().getUser(pref.getString("email", ""));
+					GetUserResultV1Dto result2 = getuser.execute();
+					
+					PushMessageEndpoint endpoint3 = RemoteApi.getPushMessageEndpoint();
+					SendMessageFromRegisterId pushmsg = endpoint3.pushMessageV1Endpoint().sendMessageFromRegisterId("noJoin", 
+																				result2.getUser().getFirstName()+result2.getUser().getLastName(),
+																				email);
+					PushMessageResultV1Dto result3 = pushmsg.execute();
+					Log.d("DEBUG", "プッシュリザルト："+result3.getResult());	
+					
+				} catch (Exception e) {
+					Log.d("DEBUG", "プッシュ通知の配信に失敗しました");
+					Log.d("DEBUG", e.toString());
+				}
 
 				ScheduleResultV1Dto result = delschedule.execute();
 				rs = result.getResult();

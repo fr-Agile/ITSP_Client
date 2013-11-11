@@ -83,12 +83,14 @@ public class GCMIntentService extends GCMBaseIntentService {
         	in.setFlags( Intent.FLAG_ACTIVITY_NEW_TASK );
         	startActivity(in);
         } else if(value.equals("groupSchedule")){
+        	CharSequence email = intent.getCharSequenceExtra("email");
         	CharSequence address = intent.getCharSequenceExtra("address");
         	CharSequence start = intent.getCharSequenceExtra("start");
         	Date startTime = new Date(Long.parseLong(start.toString()));
         	CharSequence end = intent.getCharSequenceExtra("end");
         	Date endTime = new Date(Long.parseLong(end.toString()));
         	CharSequence key = intent.getCharSequenceExtra("key");
+        	Log.d("DEBUG", "onMessage: address = " + email);
         	Log.d("DEBUG", "onMessage: address = " + address);
         	Log.d("DEBUG", "onMessage: start = " + startTime.toString());
         	Log.d("DEBUG", "onMessage: end = " +  endTime.toString());
@@ -97,11 +99,20 @@ public class GCMIntentService extends GCMBaseIntentService {
         	SimpleDateFormat sdf = new SimpleDateFormat("MM/dd HH:mm");
         	
         	Intent in = new Intent(getApplicationContext(),TransparentActivity2.class);
+        	in.putExtra("email", email);
         	in.putExtra("address", address);
         	in.putExtra("startTime", sdf.format(startTime));
         	in.putExtra("endTime", sdf.format(endTime));
         	in.putExtra("key", key);
         	
+        	in.setFlags( Intent.FLAG_ACTIVITY_NEW_TASK );
+        	startActivity(in);
+        } else if(value.equals("noJoin")) {
+        	CharSequence msg = intent.getCharSequenceExtra("msg");
+        	Log.d("DEBUG", "onMessage: msg = " + msg);
+        	
+        	Intent in = new Intent(getApplicationContext(),TransparentActivity3.class);
+        	in.putExtra("msg", msg);
         	in.setFlags( Intent.FLAG_ACTIVITY_NEW_TASK );
         	startActivity(in);
         }
