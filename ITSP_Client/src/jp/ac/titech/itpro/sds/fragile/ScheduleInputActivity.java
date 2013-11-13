@@ -31,9 +31,6 @@ import android.widget.TimePicker.OnTimeChangedListener;
 import android.widget.Toast;
 
 import com.appspot.fragile_t.groupEndpoint.model.GroupV1Dto;
-import com.appspot.fragile_t.pushGroupMemberEndpoint.PushGroupMemberEndpoint;
-import com.appspot.fragile_t.pushGroupMemberEndpoint.PushGroupMemberEndpoint.PushGroupMemberV1Endpoint.SendMessageFromRegisterIdList;
-import com.appspot.fragile_t.pushGroupMemberEndpoint.model.PushGroupMemberResultV1Dto;
 import com.appspot.fragile_t.repeatScheduleEndpoint.RepeatScheduleEndpoint;
 import com.appspot.fragile_t.repeatScheduleEndpoint.RepeatScheduleEndpoint.RepeatScheduleV1EndPoint.CreateRepeatSchedule;
 import com.appspot.fragile_t.repeatScheduleEndpoint.model.RepeatScheduleContainer;

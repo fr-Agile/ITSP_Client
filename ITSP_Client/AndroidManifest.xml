@@ -108,7 +108,28 @@
       			<action android:name="android.intent.action.MAIN" />
   			</intent-filter>
 		</activity>
-        
+		<activity
+            android:name=".TestActivity2"
+            android:label="@string/title_activity_makegroup">
+        </activity>
+        <activity
+ 			android:name="TransparentActivity2"
+  			android:theme="@android:style/Theme.Translucent.NoTitleBar">
+  			<intent-filter>
+      			<action android:name="android.intent.action.MAIN" />
+  			</intent-filter>
+		</activity>
+        <activity
+            android:name=".TestActivity3"
+            android:label="@string/title_activity_makegroup">
+        </activity>
+        <activity
+ 			android:name="TransparentActivity3"
+  			android:theme="@android:style/Theme.Translucent.NoTitleBar">
+  			<intent-filter>
+      			<action android:name="android.intent.action.MAIN" />
+  			</intent-filter>
+		</activity>
         
 
     <receiver 

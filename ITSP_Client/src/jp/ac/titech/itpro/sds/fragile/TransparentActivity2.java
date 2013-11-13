@@ -51,7 +51,7 @@ public class TransparentActivity2 extends Activity {
 	    email = getIntent().getStringExtra("email");
 	    address = getIntent().getStringExtra("address");
 	    startTime = getIntent().getStringExtra("startTime");
-	    endTime = getIntent().getStringExtra("endTIme");
+	    endTime = getIntent().getStringExtra("endTime");
 	    key = getIntent().getStringExtra("key");
 	    	    
 	    AlertDialog.Builder builder = new AlertDialog.Builder(this);
