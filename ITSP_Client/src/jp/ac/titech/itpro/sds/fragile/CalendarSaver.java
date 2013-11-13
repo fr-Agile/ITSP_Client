@@ -10,18 +10,17 @@ import jp.ac.titech.itpro.sds.fragile.DeleteAllRepeatScheduleTask.DeleteAllRepea
 import jp.ac.titech.itpro.sds.fragile.DeleteAllScheduleTask.DeleteAllScheduleFinishListener;
 import jp.ac.titech.itpro.sds.fragile.api.constant.CommonConstant;
 import jp.ac.titech.itpro.sds.fragile.utils.CalendarUtils;
+import android.app.Activity;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.util.Log;
 
 import com.appspot.fragile_t.repeatScheduleEndpoint.model.RepeatScheduleResultV1Dto;
 import com.appspot.fragile_t.repeatScheduleEndpoint.model.RepeatScheduleV1Dto;
 import com.appspot.fragile_t.scheduleEndpoint.model.ScheduleResultV1Dto;
 import com.appspot.fragile_t.scheduleEndpoint.model.ScheduleV1Dto;
 import com.google.api.client.util.DateTime;
-
-import android.app.Activity;
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.database.Cursor;
-import android.util.Log;
 
 
 /**

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import jp.ac.titech.itpro.sds.fragile.GetGroupTask.GetGroupFinishListener;
 import jp.ac.titech.itpro.sds.fragile.GoogleCalendarExporter.GoogleCalendarExportFinishListener;
 import jp.ac.titech.itpro.sds.fragile.api.RemoteApi;
 import jp.ac.titech.itpro.sds.fragile.api.constant.CommonConstant;
@@ -25,20 +26,28 @@ import android.view.WindowManager.LayoutParams;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.DatePicker;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.DatePicker.OnDateChangedListener;
 import android.widget.TimePicker;
 import android.widget.TimePicker.OnTimeChangedListener;
 import android.widget.Toast;
 
+import com.appspot.fragile_t.groupEndpoint.model.GroupV1Dto;
 import com.appspot.fragile_t.repeatScheduleEndpoint.RepeatScheduleEndpoint;
+import com.appspot.fragile_t.repeatScheduleEndpoint.RepeatScheduleEndpoint.RepeatScheduleV1EndPoint.CreateRepeatSchedule;
 import com.appspot.fragile_t.repeatScheduleEndpoint.RepeatScheduleEndpoint.RepeatScheduleV1EndPoint.EditRepeatSchedule;
 import com.appspot.fragile_t.repeatScheduleEndpoint.model.RepeatScheduleContainer;
 import com.appspot.fragile_t.scheduleEndpoint.ScheduleEndpoint;
+import com.appspot.fragile_t.scheduleEndpoint.ScheduleEndpoint.ScheduleV1EndPoint.CreateGroupSchedule;
+import com.appspot.fragile_t.scheduleEndpoint.ScheduleEndpoint.ScheduleV1EndPoint.CreateSchedule;
+import com.appspot.fragile_t.scheduleEndpoint.ScheduleEndpoint.ScheduleV1EndPoint.CreateScheduleWithGId;
 import com.appspot.fragile_t.scheduleEndpoint.ScheduleEndpoint.ScheduleV1EndPoint.EditSchedule;
 import com.appspot.fragile_t.scheduleEndpoint.model.ScheduleResultV1Dto;
 import com.appspot.fragile_t.scheduleEndpoint.model.ScheduleV1Dto;
 
-public class ScheduleEditActivity extends Activity implements GoogleAccountCheckFinishListener, GoogleCalendarExportFinishListener{
+public class ScheduleEditActivity extends Activity implements GetGroupFinishListener,
+	GoogleAccountCheckFinishListener, GoogleCalendarExportFinishListener{
 	private static final String TAG = "ScheduleEditActivity";
 	private static final String FAIL = CommonConstant.FAIL;
 	private Button doneBtn, showScheduleViewBtn;
@@ -58,24 +67,29 @@ public class ScheduleEditActivity extends Activity implements GoogleAccountCheck
 	private CheckBox friChk;
 	private CheckBox satChk;
 	private CheckBox sunChk;
+	private CheckBox groupChk;
 	private View repeatdaysView;
+	private RadioGroup layout;
 
 	private List<Integer> repeats;
+	private List<GroupV1Dto> groupList;
 	
 	private View mInputScheduleView;
 	private View mSpinView;
 	private static String SUCCESS = CommonConstant.SUCCESS;
 	
 	private CheckBox googleChk;
+	private boolean googleChecked;
 	
 	private EditRepeatScheduleTask mRepeatAuthTask = null;
 	private EditScheduleTask mAuthTask = null;
 
 	private DateFormat formatDateTime = DateFormat.getDateTimeInstance();
-	private Calendar startTime=Calendar.getInstance();
-	private Calendar finishTime=Calendar.getInstance();
+	private Calendar startTime = Calendar.getInstance();
+	private Calendar finishTime = Calendar.getInstance();
 	private String keyS="";
 	private boolean repeat;
+	private boolean create;
 	
 	
 	/** Called when the activity is first created. */
@@ -95,16 +109,35 @@ public class ScheduleEditActivity extends Activity implements GoogleAccountCheck
         mStartTimePicker = (TimePicker)findViewById(R.id.timePicker1);
         mFinishTimePicker = (TimePicker)findViewById(R.id.timePicker2);
         
-        Calendar startE = Calendar.getInstance();
-		Calendar finishE = Calendar.getInstance();
-		Intent intentE = getIntent();
+		Intent intent = getIntent();
+		Bundle extras = intent.getExtras();
 		
-		startE.setTimeInMillis(intentE.getLongExtra("start", 0));
-		finishE.setTimeInMillis(intentE.getLongExtra("finish", 0));
-		keyS = intentE.getStringExtra("key");
-		repeat = intentE.getBooleanExtra("repeat", false);
+		if (extras != null) {
+			keyS = extras.getString("key");
+			repeat = extras.getBoolean("repeat", false);
+			create = extras.getBoolean("create", false);
+
+			if (extras.containsKey("startTime")) {
+				Calendar cal = (Calendar) extras.get("startTime");
+				Log.d("myDEBUG", extras.get("startTime").toString());
+				startTime = (Calendar) cal.clone();
+			} 
+
+			Calendar cal = Calendar.getInstance();
+
+			if(extras.containsKey("finishTime")){
+				cal = (Calendar) extras.get("finishTime");
+			} else if(extras.containsKey("length")){
+				cal.add(Calendar.HOUR_OF_DAY, (int) extras.getInt("length"));
+			} else {
+				cal.add(Calendar.HOUR_OF_DAY, 1);
+			} 
+				
+			finishTime = (Calendar) cal.clone();
+		}
 		
-        mDatepicker.init(startE.get(Calendar.YEAR),startE.get(Calendar.MONTH),startE.get(Calendar.DAY_OF_MONTH), 		 
+        mDatepicker.init(startTime.get(Calendar.YEAR), 
+        		startTime.get(Calendar.MONTH), startTime.get(Calendar.DAY_OF_MONTH), 		 
         		new OnDateChangedListener(){
         	public void onDateChanged(DatePicker view, int year, int monthOfYear,int dayOfMonth) {
         		startTime.set(year, monthOfYear, dayOfMonth);
@@ -115,8 +148,8 @@ public class ScheduleEditActivity extends Activity implements GoogleAccountCheck
         		Log.d(TAG,"time:"+ formatDateTime.format(startTime.getTime()) + " and " + formatDateTime.format(finishTime.getTime()));
         	}});
         
-        mStartTimePicker.setCurrentHour(startE.get(Calendar.HOUR_OF_DAY));
-        mStartTimePicker.setCurrentMinute(startE.get(Calendar.MINUTE));
+        mStartTimePicker.setCurrentHour(startTime.get(Calendar.HOUR_OF_DAY));
+        mStartTimePicker.setCurrentMinute(startTime.get(Calendar.MINUTE));
         mStartTimePicker.setOnTimeChangedListener(new OnTimeChangedListener(){
         	public void onTimeChanged(TimePicker view, int hourOfDay, int minute) {
         		startTime.set(Calendar.HOUR_OF_DAY, hourOfDay);
@@ -126,8 +159,8 @@ public class ScheduleEditActivity extends Activity implements GoogleAccountCheck
     			Log.d(TAG,"time:"+ formatDateTime.format(startTime.getTime()) + " and " + formatDateTime.format(finishTime.getTime()));
         	}});
         
-        mFinishTimePicker.setCurrentHour(finishE.get(Calendar.HOUR_OF_DAY));
-        mFinishTimePicker.setCurrentMinute(finishE.get(Calendar.MINUTE));
+        mFinishTimePicker.setCurrentHour(finishTime.get(Calendar.HOUR_OF_DAY));
+        mFinishTimePicker.setCurrentMinute(finishTime.get(Calendar.MINUTE));
         mFinishTimePicker.setOnTimeChangedListener(new OnTimeChangedListener(){
         	public void onTimeChanged(TimePicker view, int hourOfDay, int minute) {
         		finishTime.set(Calendar.HOUR_OF_DAY, hourOfDay);
@@ -138,7 +171,12 @@ public class ScheduleEditActivity extends Activity implements GoogleAccountCheck
         	}});
         
         doneBtn = (Button)findViewById(R.id.doneBtn);
-        doneBtn.setEnabled(true);
+
+        if (startTime.getTime().getTime() >= finishTime.getTime().getTime()) 
+        	doneBtn.setEnabled(false);
+        else 
+        	doneBtn.setEnabled(true);
+		
         doneBtn.setOnClickListener(
         		new View.OnClickListener() {
         			public void onClick(View view) {
@@ -168,8 +206,6 @@ public class ScheduleEditActivity extends Activity implements GoogleAccountCheck
 			@Override
 			public void onClick(View v) {}
 		});
-        
-		
 
 		repeatChk = (CheckBox) findViewById(R.id.repeartCheckbox);
 		if(repeat){
@@ -221,7 +257,28 @@ public class ScheduleEditActivity extends Activity implements GoogleAccountCheck
 				}
 			}
 		});
-
+		
+		if (create) {
+			groupChk = (CheckBox) findViewById(R.id.groupScheduleCheckbox);
+			groupChk.setOnClickListener(new View.OnClickListener() {
+	
+				@Override
+				public void onClick(View v) {
+					if (((CheckBox) v).isChecked()) {
+						showGroups();
+					} else {
+						hideGroups();
+					}
+				}
+			});
+			
+			// 最初グループチェックボックスは見えないようにする
+			groupChk.setVisibility(View.INVISIBLE);
+	
+			groupList = new ArrayList<GroupV1Dto>();
+			layout = (RadioGroup) findViewById(R.id.radioButtonGroup);
+			getGroupList();
+		}
 	}
 
 	public void clickDoneButton() {
@@ -241,13 +298,15 @@ public class ScheduleEditActivity extends Activity implements GoogleAccountCheck
 			repeats.add(5);
 		if (satChk.isChecked())
 			repeats.add(6);
+		if(googleChk.isChecked())
+			googleChecked = true;
 
 		showProgress(true);
 		if(repeat){
 			mRepeatAuthTask = new EditRepeatScheduleTask();
 			mRepeatAuthTask.execute((Void) null);
 		}else{
-			if (googleChk.isChecked()) {
+			if (googleChecked) {
 				GoogleAccountChecker gac = 
 						new GoogleAccountChecker(ScheduleEditActivity.this, ScheduleEditActivity.this);
 				gac.run();
@@ -265,6 +324,16 @@ public class ScheduleEditActivity extends Activity implements GoogleAccountCheck
 		}
 	}
 	
+
+	private void showGroups() {
+		Log.d("Viet DEBUG", "show groups");
+		layout.setVisibility(View.VISIBLE);
+	}
+
+	private void hideGroups() {
+		Log.d("Viet DEBUG", "hide groups");
+		layout.setVisibility(View.GONE);
+	}
 	/**
 	 * Shows the progress UI and hides the login form.
 	 */
@@ -328,15 +397,27 @@ public class ScheduleEditActivity extends Activity implements GoogleAccountCheck
 
 				RepeatScheduleEndpoint endpoint = RemoteApi
 						.getRepeatScheduleEndpoint();
-				EditRepeatSchedule repeatschedule = endpoint
-						.repeatScheduleV1EndPoint().editRepeatSchedule(
-								keyS,
-								scheduleStartTime
-										- startOfToday.getTimeInMillis(),
-								scheduleFinishTime
-										- startOfToday.getTimeInMillis(),
-								contain);
-				repeatschedule.execute();	
+				
+				if(create) {
+					CreateRepeatSchedule repeatschedule = endpoint
+							.repeatScheduleV1EndPoint().createRepeatSchedule(
+									scheduleStartTime
+											- startOfToday.getTimeInMillis(),
+									scheduleFinishTime
+											- startOfToday.getTimeInMillis(),
+									mEmail, contain);
+				} else {
+					EditRepeatSchedule repeatschedule = endpoint
+							.repeatScheduleV1EndPoint().editRepeatSchedule(
+									keyS,
+									scheduleStartTime
+											- startOfToday.getTimeInMillis(),
+									scheduleFinishTime
+											- startOfToday.getTimeInMillis(),
+									contain);
+					repeatschedule.execute();	
+				}
+
 				return true;
 			} catch (Exception e) {
 				Toast.makeText(getApplicationContext(),"Failed with exception:" + e,Toast.LENGTH_SHORT).show();
@@ -366,6 +447,12 @@ public class ScheduleEditActivity extends Activity implements GoogleAccountCheck
 	}
 	
 	public class EditScheduleTask extends AsyncTask<Void, Void, Boolean> {
+		private String googleIdInTask = null;
+		
+		public void setGoogleId(String googleId) {
+			this.googleIdInTask = googleId;
+		}
+
 		@Override
 		protected Boolean doInBackground(Void... args) {
 
@@ -374,12 +461,47 @@ public class ScheduleEditActivity extends Activity implements GoogleAccountCheck
 				mEmail = pref.getString("email","");	
 				Log.d(TAG,"time:"+ scheduleStartTime + " and " + scheduleFinishTime + "email:" +mEmail);
 				ScheduleEndpoint endpoint = RemoteApi.getScheduleEndpoint();
-				EditSchedule schedule = endpoint.scheduleV1EndPoint().editSchedule(
-						keyS,scheduleStartTime, scheduleFinishTime);
-				schedule.execute();	
-				return true;
+				ScheduleResultV1Dto result;
+
+				if(create) {
+					if(!groupChk.isChecked()) {
+						if(this.googleIdInTask != null) {
+							CreateScheduleWithGId schedule;
+							schedule = endpoint.scheduleV1EndPoint()
+									.createScheduleWithGId(scheduleStartTime,
+											scheduleFinishTime, this.googleIdInTask, mEmail);
+							result = schedule.execute();
+						} else {
+							CreateSchedule schedule = endpoint.scheduleV1EndPoint()
+									.createSchedule(
+									scheduleStartTime, scheduleFinishTime, mEmail);
+							result = schedule.execute();	
+						}
+					} else {
+						int radioButtonID = layout.getCheckedRadioButtonId();
+						View radioButton = layout.findViewById(radioButtonID);
+						int idx = layout.indexOfChild(radioButton);
+						GroupV1Dto group = groupList.get(idx);
+						CreateGroupSchedule groupSchedule = endpoint.scheduleV1EndPoint().createGroupSchedule(scheduleStartTime, scheduleFinishTime, mEmail, group.getKey());
+						result = groupSchedule.execute();
+					}
+				} else {
+					EditSchedule schedule = endpoint.scheduleV1EndPoint()
+							.editSchedule(
+							keyS,scheduleStartTime, scheduleFinishTime);
+					result = schedule.execute();	
+				}
+				
+				if(SUCCESS.equals(result.getResult())) {
+					Log.d(TAG, "Successed");
+					return true;
+				} else {
+					// Toast.makeText(getApplicationContext(),"Failed",Toast.LENGTH_SHORT).show();
+					Log.d(TAG, "Failed");
+					return false;
+				}
 			} catch (Exception e) {
-				Toast.makeText(getApplicationContext(),"Failed with exception:" + e,Toast.LENGTH_SHORT).show();
+				//Toast.makeText(getApplicationContext(),"Failed with exception:" + e,Toast.LENGTH_SHORT).show();
 				Log.d(TAG, "failed with exception:" + e);
 				return false;
 			}
@@ -387,6 +509,7 @@ public class ScheduleEditActivity extends Activity implements GoogleAccountCheck
 
 		@Override
 		protected void onPostExecute(final Boolean success) {
+			mAuthTask = null;
 			showProgress(false);
 			if (success) {
 				Log.d(TAG, "post successed " + scheduleStartTime + " and " + scheduleFinishTime);
@@ -399,7 +522,55 @@ public class ScheduleEditActivity extends Activity implements GoogleAccountCheck
 
 		@Override
 		protected void onCancelled() {
+			mAuthTask = null;
 			showProgress(false);
+		}
+	}
+
+	private void getGroupList() {
+		try {
+			Log.d("Viet DEBUG", "get friend start");
+			SharedPreferences pref = getSharedPreferences("user",
+					Activity.MODE_PRIVATE);
+			String userEmail = pref.getString("email", "");
+
+			// groupのemailリストを取得する
+			GetGroupTask task = new GetGroupTask(this);
+			task.execute(userEmail);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			Log.d("DEBUG", "get friend fail");
+		}
+	}
+
+	@Override
+	public void onFinish(List<GroupV1Dto> result) {
+		try {
+			if (result != null) {
+				groupList = result;
+				
+				// グループが一つ以上取得できたら表示する
+				if(!groupList.isEmpty()){
+					groupChk.setVisibility(View.VISIBLE);
+				}
+				
+				final List<String> groupNameList = new ArrayList<String>();
+				for (GroupV1Dto group : result) {
+					groupNameList.add(group.getName());
+				}
+				String[] nameStrList = groupNameList
+						.toArray(new String[groupNameList.size()]);
+
+				for (String name : nameStrList) {
+					RadioButton radioBtn = new RadioButton(this);
+					radioBtn.setText(name);
+					layout.addView(radioBtn);
+					Log.d("DEBUG", "added group name :" + name);
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -416,14 +587,17 @@ public class ScheduleEditActivity extends Activity implements GoogleAccountCheck
 				mEmail = pref.getString("email", "");
 				
 				if (false) {
-					// 繰り返しの場合
 				} else {
 					ScheduleV1Dto newSchedule = new ScheduleV1Dto();
 					newSchedule.setStartTime(this.scheduleStartTime);
 					newSchedule.setFinishTime(this.scheduleFinishTime);
 					GoogleCalendarExporter gce = 
 							new GoogleCalendarExporter(this, this);
-					gce.edit(keyS, newSchedule);
+
+					if(create)
+						gce.insert(newSchedule);
+					else
+						gce.edit(keyS, newSchedule);
 				}
 			} else {
 				// アカウントが登録されていない場合、ダイアログを表示して登録を促す
@@ -439,11 +613,11 @@ public class ScheduleEditActivity extends Activity implements GoogleAccountCheck
 
 	@Override
 	public void onGoogleCalendarExportFinish(String googleId) {
-		Log.d("DEBUG", "edit: " + googleId); 
 		if (FAIL.equals(googleId)) {
 			showProgress(false);
 		} else {
 			mAuthTask = new EditScheduleTask();
+			mAuthTask.setGoogleId(googleId);
 			mAuthTask.execute();
 		}
 	}
