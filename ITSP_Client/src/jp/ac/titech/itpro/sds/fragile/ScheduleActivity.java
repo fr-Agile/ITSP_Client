@@ -9,8 +9,11 @@ import jp.ac.titech.itpro.sds.fragile.CalendarSaver.GoogleCalendarSaveFinishList
 import jp.ac.titech.itpro.sds.fragile.GetFriendTask.GetFriendFinishListener;
 import jp.ac.titech.itpro.sds.fragile.GetGroupTask.GetGroupFinishListener;
 import jp.ac.titech.itpro.sds.fragile.GetShareTimeTask.GetShareTimeFinishListener;
+import jp.ac.titech.itpro.sds.fragile.CalendarSaver.GoogleCalendarSaveFinishListener;
+import jp.ac.titech.itpro.sds.fragile.GoogleCalendarExporter.GoogleCalendarExportFinishListener;
 import jp.ac.titech.itpro.sds.fragile.api.RemoteApi;
 import jp.ac.titech.itpro.sds.fragile.api.constant.CommonConstant;
+import jp.ac.titech.itpro.sds.fragile.api.constant.GoogleConstant;
 import jp.ac.titech.itpro.sds.fragile.utils.CalendarAdapter;
 import jp.ac.titech.itpro.sds.fragile.utils.CalendarUtils;
 import jp.ac.titech.itpro.sds.fragile.utils.DayAdapter;
@@ -61,14 +64,15 @@ import com.appspot.fragile_t.repeatScheduleEndpoint.model.RepeatScheduleV1Dto;
 import com.appspot.fragile_t.scheduleEndpoint.ScheduleEndpoint;
 import com.appspot.fragile_t.scheduleEndpoint.ScheduleEndpoint.ScheduleV1EndPoint.DeleteSchedule;
 import com.appspot.fragile_t.scheduleEndpoint.ScheduleEndpoint.ScheduleV1EndPoint.GetSchedule;
+import com.appspot.fragile_t.scheduleEndpoint.ScheduleEndpoint.ScheduleV1EndPoint.GetScheduleByKeyS;
 import com.appspot.fragile_t.scheduleEndpoint.model.ScheduleV1Dto;
 import com.google.api.client.util.DateTime;
 
 public class ScheduleActivity extends Activity implements
-		GetFriendFinishListener, GetShareTimeFinishListener,
-		GetGroupFinishListener, GoogleAccountCheckFinishListener,
-		GoogleCalendarCheckFinishListener, GoogleCalendarSaveFinishListener {
-
+		GetFriendFinishListener, GetShareTimeFinishListener, GetGroupFinishListener,
+		GoogleAccountCheckFinishListener, GoogleCalendarCheckFinishListener, 
+		GoogleCalendarSaveFinishListener, GoogleCalendarExportFinishListener {
+	
 	private static final String TAG = "ScheduleActivity";
 	private static final long START_OF_DAY = 0;
 	private static final long END_OF_DAY = 24 * 60 * 60 * 1000;
@@ -145,7 +149,7 @@ public class ScheduleActivity extends Activity implements
 		timeAdapter = new TimeAdapter(this, R.layout.time_row);
 		for (int i = 0; i < 24; i++) {
 			timeData[i] = i < 10 ? "0" : "";
-			timeData[i] = i < 22 ? "0" : "";
+			timeData[i] += Integer.toString(i) + ":00";
 			
 			for (int j = 0; j < 7; j++) {
 				mainData[i * 7 + j] = "";
@@ -986,11 +990,25 @@ public class ScheduleActivity extends Activity implements
 			String keySS = args[0];
 			try {
 				ScheduleEndpoint endpoint = RemoteApi.getScheduleEndpoint();
+				// googleから削除
+				GetScheduleByKeyS getScheduleByKeyS = endpoint.scheduleV1EndPoint()
+						.getScheduleByKeyS(keySS);
+				ScheduleV1Dto schedule = getScheduleByKeyS.execute();
+				if ((schedule != null) && 
+						!GoogleConstant.UNTIED_TO_GOOGLE.equals(schedule.getGoogleId())) {
+					GoogleCalendarExporter gce = new GoogleCalendarExporter(
+							ScheduleActivity.this, ScheduleActivity.this);
+					gce.delete(schedule);
+				}				
+				// データベースから削除
 				DeleteSchedule deleteSchedule = endpoint.scheduleV1EndPoint()
 						.deleteSchedule(keySS);
 				deleteSchedule.execute();
+				
+					
 				return true;
 			} catch (Exception e) {
+				e.printStackTrace();
 				return false;
 			}
 		}
@@ -1072,26 +1090,9 @@ public class ScheduleActivity extends Activity implements
 
 			} else {
 				// アカウントが登録されていない場合、ダイアログを表示して登録を促す
-				new AlertDialog.Builder(ScheduleActivity.this)
-						.setTitle("Googleアカウントが登録されていません。Googleアカウントを登録してください。")
-						.setNegativeButton("いいえ",
-								new DialogInterface.OnClickListener() {
-									@Override
-									public void onClick(DialogInterface dialog,
-											int which) {
-									}
-								})
-
-						.setPositiveButton("はい",
-								new DialogInterface.OnClickListener() {
-									@Override
-									public void onClick(DialogInterface dialog,
-											int which) {
-										ScheduleActivity.this
-												.startActivity(new Intent(
-														android.provider.Settings.ACTION_SETTINGS));
-									}
-								}).show();
+				new GoogleAccountRegistDialogBuilder(ScheduleActivity.this)
+					.setDefault()
+					.show();
 			}
 			Log.d("DEBUG", "checking google account success");
 		} else {
@@ -1126,4 +1127,9 @@ public class ScheduleActivity extends Activity implements
 	/**
 	 * GoogleCalendarのインポート処理ここまで
 	 */
+
+	@Override
+	public void onGoogleCalendarExportFinish(String googleId) {
+		Log.d("DEBUG", "delete: " + googleId); 
+	}
 }

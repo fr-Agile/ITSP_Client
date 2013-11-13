@@ -66,6 +66,7 @@ public class GoogleAccountChecker implements LoaderCallbacks<Cursor> {
 	private void finish(boolean result) {
 		if (listener != null) {
 			listener.onGoogleAccountCheckFinish(result, accountList);
+			listener = null;
 		}
 	}
 		

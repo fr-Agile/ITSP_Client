@@ -5,8 +5,11 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import jp.ac.titech.itpro.sds.fragile.GoogleCalendarExporter.GoogleCalendarExportFinishListener;
 import jp.ac.titech.itpro.sds.fragile.api.RemoteApi;
 import jp.ac.titech.itpro.sds.fragile.api.constant.CommonConstant;
+import jp.ac.titech.itpro.sds.fragile.utils.GoogleAccountChecker;
+import jp.ac.titech.itpro.sds.fragile.utils.GoogleAccountChecker.GoogleAccountCheckFinishListener;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
@@ -32,9 +35,12 @@ import com.appspot.fragile_t.repeatScheduleEndpoint.RepeatScheduleEndpoint.Repea
 import com.appspot.fragile_t.repeatScheduleEndpoint.model.RepeatScheduleContainer;
 import com.appspot.fragile_t.scheduleEndpoint.ScheduleEndpoint;
 import com.appspot.fragile_t.scheduleEndpoint.ScheduleEndpoint.ScheduleV1EndPoint.EditSchedule;
+import com.appspot.fragile_t.scheduleEndpoint.model.ScheduleResultV1Dto;
+import com.appspot.fragile_t.scheduleEndpoint.model.ScheduleV1Dto;
 
-public class ScheduleEditActivity extends Activity{
+public class ScheduleEditActivity extends Activity implements GoogleAccountCheckFinishListener, GoogleCalendarExportFinishListener{
 	private static final String TAG = "ScheduleEditActivity";
+	private static final String FAIL = CommonConstant.FAIL;
 	private Button doneBtn, showScheduleViewBtn;
 	private long scheduleStartTime;
 	private long scheduleFinishTime;
@@ -59,6 +65,8 @@ public class ScheduleEditActivity extends Activity{
 	private View mInputScheduleView;
 	private View mSpinView;
 	private static String SUCCESS = CommonConstant.SUCCESS;
+	
+	private CheckBox googleChk;
 	
 	private EditRepeatScheduleTask mRepeatAuthTask = null;
 	private EditScheduleTask mAuthTask = null;
@@ -154,6 +162,14 @@ public class ScheduleEditActivity extends Activity{
 			}
 		});
         repeatdaysView = findViewById(R.id.repeatdaysView);
+        
+		googleChk = (CheckBox) findViewById(R.id.googleCheckbox);
+		googleChk.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {}
+		});
+        
+		
 
 		repeatChk = (CheckBox) findViewById(R.id.repeartCheckbox);
 		if(repeat){
@@ -231,8 +247,14 @@ public class ScheduleEditActivity extends Activity{
 			mRepeatAuthTask = new EditRepeatScheduleTask();
 			mRepeatAuthTask.execute((Void) null);
 		}else{
-			mAuthTask = new EditScheduleTask();
-			mAuthTask.execute((Void) null);
+			if (googleChk.isChecked()) {
+				GoogleAccountChecker gac = 
+						new GoogleAccountChecker(ScheduleEditActivity.this, ScheduleEditActivity.this);
+				gac.run();
+			} else {
+				mAuthTask = new EditScheduleTask();
+				mAuthTask.execute((Void) null);
+			}
 		}
 	}
 	private void setButtonEnable() {
@@ -378,6 +400,51 @@ public class ScheduleEditActivity extends Activity{
 		@Override
 		protected void onCancelled() {
 			showProgress(false);
+		}
+	}
+
+	@Override
+	public void onGoogleAccountCheckFinish(boolean result,
+			List<String> accountList) {
+		if (result) {
+			if (accountList != null && accountList.size() > 0) {
+				// アカウントが登録されているのでスケジュールをエクスポートする
+				
+				// スケジュールを生成
+				SharedPreferences pref = getSharedPreferences("user",
+						Activity.MODE_PRIVATE);
+				mEmail = pref.getString("email", "");
+				
+				if (false) {
+					// 繰り返しの場合
+				} else {
+					ScheduleV1Dto newSchedule = new ScheduleV1Dto();
+					newSchedule.setStartTime(this.scheduleStartTime);
+					newSchedule.setFinishTime(this.scheduleFinishTime);
+					GoogleCalendarExporter gce = 
+							new GoogleCalendarExporter(this, this);
+					gce.edit(keyS, newSchedule);
+				}
+			} else {
+				// アカウントが登録されていない場合、ダイアログを表示して登録を促す
+				new GoogleAccountRegistDialogBuilder(ScheduleEditActivity.this)
+					.setDefault()
+					.show();
+			}
+			Log.d("DEBUG", "checking google account success");
+		} else {
+			Log.d("DEBUG", "checking google account fail");
+		}
+	}
+
+	@Override
+	public void onGoogleCalendarExportFinish(String googleId) {
+		Log.d("DEBUG", "edit: " + googleId); 
+		if (FAIL.equals(googleId)) {
+			showProgress(false);
+		} else {
+			mAuthTask = new EditScheduleTask();
+			mAuthTask.execute();
 		}
 	}
 }

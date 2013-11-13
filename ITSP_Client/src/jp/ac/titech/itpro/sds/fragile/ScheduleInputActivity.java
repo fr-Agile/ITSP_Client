@@ -6,8 +6,11 @@ import java.util.Calendar;
 import java.util.List;
 
 import jp.ac.titech.itpro.sds.fragile.GetGroupTask.GetGroupFinishListener;
+import jp.ac.titech.itpro.sds.fragile.GoogleCalendarExporter.GoogleCalendarExportFinishListener;
 import jp.ac.titech.itpro.sds.fragile.api.RemoteApi;
 import jp.ac.titech.itpro.sds.fragile.api.constant.CommonConstant;
+import jp.ac.titech.itpro.sds.fragile.utils.GoogleAccountChecker;
+import jp.ac.titech.itpro.sds.fragile.utils.GoogleAccountChecker.GoogleAccountCheckFinishListener;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
@@ -38,10 +41,15 @@ import com.appspot.fragile_t.repeatScheduleEndpoint.model.RepeatScheduleResultV1
 import com.appspot.fragile_t.scheduleEndpoint.ScheduleEndpoint;
 import com.appspot.fragile_t.scheduleEndpoint.ScheduleEndpoint.ScheduleV1EndPoint.CreateGroupSchedule;
 import com.appspot.fragile_t.scheduleEndpoint.ScheduleEndpoint.ScheduleV1EndPoint.CreateSchedule;
+import com.appspot.fragile_t.scheduleEndpoint.ScheduleEndpoint.ScheduleV1EndPoint.CreateScheduleWithGId;
 import com.appspot.fragile_t.scheduleEndpoint.model.ScheduleResultV1Dto;
+import com.appspot.fragile_t.scheduleEndpoint.model.ScheduleV1Dto;
 
-public class ScheduleInputActivity extends Activity implements GetGroupFinishListener {
+public class ScheduleInputActivity extends Activity 
+	implements GetGroupFinishListener,
+		GoogleAccountCheckFinishListener, GoogleCalendarExportFinishListener {
 
+	private static final String FAIL = CommonConstant.FAIL;
 	private static final String TAG = "ScheduleInputActivity";
 	private Button doneBtn, showScheduleViewBtn;
 	private long scheduleStartTime;
@@ -67,6 +75,9 @@ public class ScheduleInputActivity extends Activity implements GetGroupFinishLis
 
 	private List<Integer> repeats;
 	private List<GroupV1Dto> groupList;
+	
+	private CheckBox googleChk;
+	private boolean googleChecked;
 
 	private View mInputScheduleView;
 	private View mSpinView;
@@ -207,6 +218,13 @@ public class ScheduleInputActivity extends Activity implements GetGroupFinishLis
 
 			}
 		});
+		
+		
+		googleChk = (CheckBox) findViewById(R.id.googleCheckbox);
+		googleChk.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {}
+		});
 
 		repeatdaysView = findViewById(R.id.repeatdaysView);
 
@@ -297,10 +315,21 @@ public class ScheduleInputActivity extends Activity implements GetGroupFinishLis
 			repeats.add(5);
 		if (satChk.isChecked())
 			repeats.add(6);
+		
+		if (googleChk.isChecked()) 
+			googleChecked = true;
 
 		showProgress(true);
-		mAuthTask = new ScheduleInputTask();
-		mAuthTask.execute((Void) null);
+		
+		
+		if (googleChecked) {
+			GoogleAccountChecker gac = 
+					new GoogleAccountChecker(ScheduleInputActivity.this, ScheduleInputActivity.this);
+			gac.run();
+		} else {
+			mAuthTask = new ScheduleInputTask();
+			mAuthTask.execute((Void) null);
+		}
 	}
 
 	private void setButtonEnable() {
@@ -363,6 +392,12 @@ public class ScheduleInputActivity extends Activity implements GetGroupFinishLis
 	}
 
 	public class ScheduleInputTask extends AsyncTask<Void, Void, Boolean> {
+		private String googleIdInTask = null;
+		
+		public void setGoogleId(String googleId) {
+			this.googleIdInTask = googleId;
+		}
+		
 		@Override
 		protected Boolean doInBackground(Void... args) {
 
@@ -377,10 +412,20 @@ public class ScheduleInputActivity extends Activity implements GetGroupFinishLis
 					if (!groupChk.isChecked()) {
 						// schedule
 						ScheduleEndpoint endpoint = RemoteApi.getScheduleEndpoint();
-						CreateSchedule schedule = endpoint.scheduleV1EndPoint()
-								.createSchedule(scheduleStartTime,
-										scheduleFinishTime, mEmail);
-						ScheduleResultV1Dto result = schedule.execute();
+						ScheduleResultV1Dto result;
+						if (this.googleIdInTask != null) {
+							// googleにエクスポートした
+							CreateScheduleWithGId schedule;
+							schedule = endpoint.scheduleV1EndPoint()
+									.createScheduleWithGId(scheduleStartTime,
+											scheduleFinishTime, this.googleIdInTask, mEmail);
+							result = schedule.execute();
+						} else {
+							CreateSchedule schedule = endpoint.scheduleV1EndPoint()
+									.createSchedule(scheduleStartTime,
+											scheduleFinishTime, mEmail);
+							result = schedule.execute();
+						}
 
 						if (SUCCESS.equals(result.getResult())) {
 							// Toast.makeText(getApplicationContext(),"Successed",Toast.LENGTH_SHORT).show();
@@ -528,4 +573,49 @@ public class ScheduleInputActivity extends Activity implements GetGroupFinishLis
 		}
 	}
 
+	@Override
+	public void onGoogleAccountCheckFinish(boolean result,
+			List<String> accountList) {
+		if (result) {
+			if (accountList != null && accountList.size() > 0) {
+				// アカウントが登録されているのでスケジュールをエクスポートする
+				
+				// スケジュールを生成
+				SharedPreferences pref = getSharedPreferences("user",
+						Activity.MODE_PRIVATE);
+				mEmail = pref.getString("email", "");
+				
+				if (repeatChk.isChecked()) {
+				
+				} else {
+					ScheduleV1Dto schedule = new ScheduleV1Dto();
+					schedule.setStartTime(this.scheduleStartTime);
+					schedule.setFinishTime(this.scheduleFinishTime);
+					GoogleCalendarExporter gcet = 
+							new GoogleCalendarExporter(this, this);
+					gcet.insert(schedule);
+				}
+			} else {
+				// アカウントが登録されていない場合、ダイアログを表示して登録を促す
+				new GoogleAccountRegistDialogBuilder(ScheduleInputActivity.this)
+					.setDefault()
+					.show();
+			}
+			Log.d("DEBUG", "checking google account success");
+		} else {
+			Log.d("DEBUG", "checking google account fail");
+		}
+		
+	}
+
+	@Override
+	public void onGoogleCalendarExportFinish(String googleId) {
+		if (FAIL.equals(googleId)) {
+			showProgress(false);
+		} else {
+			mAuthTask = new ScheduleInputTask();
+			mAuthTask.setGoogleId(googleId);
+			mAuthTask.execute();
+		}
+	}
 }

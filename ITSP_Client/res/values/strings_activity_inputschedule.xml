@@ -23,6 +23,7 @@
     <string name="friday">金</string>
     <string name="saturday">土</string>
     <string name="group">参加グループを選択</string> 
+    <string name="googleCheckText">Googleカレンダーにエクスポートする</string>
     
 
 </resources>

@@ -45,11 +45,11 @@ public class CalendarSaver implements DeleteAllScheduleFinishListener, CreateSch
 	public void save(Cursor arg1) {
 		boolean result = translateToDto(arg1);
 		if (result) {
-			// まず、登録されている予定を削除
+			// まず、登録されているGoogleの予定を削除
 			SharedPreferences pref = context.getSharedPreferences("user",
 					Activity.MODE_PRIVATE);
 			String email = pref.getString("email", "");
-			DeleteAllScheduleTask delAllTask = new DeleteAllScheduleTask(this);
+			DeleteAllScheduleTask delAllTask = new DeleteAllScheduleTask(this, true);
 			delAllTask.execute(email);
 			
 			DeleteAllRepeatScheduleTask delAllRepTask = new DeleteAllRepeatScheduleTask(this);
@@ -77,7 +77,7 @@ public class CalendarSaver implements DeleteAllScheduleFinishListener, CreateSch
 						if (gci.getAllday()) {
 							// 終日の予定の場合
 							startTime = 0;
-							finishTime = 24 * 60 * 60 * 1000 - 1;
+							finishTime = CalendarUtils.ONEDAY_INMILLIS;
 						} else {
 							long beginOfDate = 
 									CalendarUtils.getBeginOfDate(gci.getBeginTime()).getTimeInMillis();
@@ -137,6 +137,7 @@ public class CalendarSaver implements DeleteAllScheduleFinishListener, CreateSch
 						sche.setStartTime(gci.getBeginTime());
 						sche.setFinishTime(gci.getEndTime());
 					}
+					sche.setGoogleId(gci.getGoogleId());
 					mCreateScheduleList.add(sche);
 				}
 				
