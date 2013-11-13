@@ -1000,6 +1000,7 @@ public class ScheduleActivity extends Activity implements
 							ScheduleActivity.this, ScheduleActivity.this);
 					gce.delete(schedule);
 				}				
+				// データベースから削除
 				DeleteSchedule deleteSchedule = endpoint.scheduleV1EndPoint()
 						.deleteSchedule(keySS);
 				deleteSchedule.execute();

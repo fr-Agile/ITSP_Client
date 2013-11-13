@@ -44,8 +44,8 @@ public class GoogleCalendarExporter {
 		new GoogleExportTask().execute();
 	}
 	
-	public void delete(String keyS) {
-		this.keyS = keyS;
+	public void delete(ScheduleV1Dto schedule) {
+		gci = new GoogleCalendarInstance(schedule);
 		new GoogleDeleteTask().execute();
 	}
 	
@@ -102,13 +102,8 @@ public class GoogleCalendarExporter {
 		@Override
 		protected String doInBackground(Void... args) {
 			try {
-				ScheduleEndpoint endpoint = RemoteApi.getScheduleEndpoint();
-				GetScheduleByKeyS getScheduleByKeyS = endpoint.scheduleV1EndPoint()
-						.getScheduleByKeyS(keyS);
-				ScheduleV1Dto schedule = getScheduleByKeyS.execute();
-				
-				if ((schedule != null) && 
-						GoogleConstant.UNTIED_TO_GOOGLE.equals(schedule.getGoogleId())) {
+				if ((gci != null) && 
+						GoogleConstant.UNTIED_TO_GOOGLE.equals(gci.getGoogleId())) {
 					//　スケジュールがgoogleと紐づけられていたら消去する
 					ContentResolver cr = activity.getContentResolver();
 					Uri deleteUri = ContentUris.withAppendedId(Events.CONTENT_URI, gci.getEventId());
