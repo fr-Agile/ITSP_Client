@@ -86,27 +86,28 @@ public class TransparentActivity2 extends Activity {
 			try {
 				ScheduleEndpoint endpoint = RemoteApi.getScheduleEndpoint();
 				DeleteSchedule delschedule = endpoint.scheduleV1EndPoint().deleteSchedule(key);
-				
-				try{
-					GetUserEndpoint endpoint2 = RemoteApi.getGetUserEndpoint();
-					GetUser getuser = endpoint2.getUserV1Endpoint().getUser(pref.getString("email", ""));
-					GetUserResultV1Dto result2 = getuser.execute();
-					
-					PushMessageEndpoint endpoint3 = RemoteApi.getPushMessageEndpoint();
-					SendMessageFromRegisterId pushmsg = endpoint3.pushMessageV1Endpoint().sendMessageFromRegisterId("noJoin", 
-																				result2.getUser().getFirstName()+result2.getUser().getLastName(),
-																				email);
-					PushMessageResultV1Dto result3 = pushmsg.execute();
-					Log.d("DEBUG", "プッシュリザルト："+result3.getResult());	
-					
-				} catch (Exception e) {
-					Log.d("DEBUG", "プッシュ通知の配信に失敗しました");
-					Log.d("DEBUG", e.toString());
-				}
+				Log.d("DEBUG", "key="+key);	
 
 				ScheduleResultV1Dto result = delschedule.execute();
 				rs = result.getResult();
-
+				
+				if (rs.equals(SUCCESS)) {
+					try{
+						GetUserEndpoint endpoint2 = RemoteApi.getGetUserEndpoint();
+						GetUser getuser = endpoint2.getUserV1Endpoint().getUser(pref.getString("email", ""));
+						GetUserResultV1Dto result2 = getuser.execute();
+						
+						PushMessageEndpoint endpoint3 = RemoteApi.getPushMessageEndpoint();
+						SendMessageFromRegisterId pushmsg = endpoint3.pushMessageV1Endpoint().sendMessageFromRegisterId("noJoin", 
+																					result2.getUser().getFirstName()+result2.getUser().getLastName(),
+																					email);
+						PushMessageResultV1Dto result3 = pushmsg.execute();
+						Log.d("DEBUG", "プッシュリザルト："+result3.getResult());
+					} catch (Exception e) {
+						Log.d("DEBUG", "プッシュ通知の配信に失敗しました");
+						Log.d("DEBUG", e.toString());
+					}
+				}
 			} catch (Exception e) {
 				Log.d("DEBUG", e.toString());
 				rs = FAIL;
