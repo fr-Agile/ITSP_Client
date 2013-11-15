@@ -44,6 +44,11 @@ public class GoogleCalendarExporter {
 		new GoogleExportTask().execute();
 	}
 	
+	public void insert(RepeatScheduleV1Dto schedule) {
+		gci = new GoogleCalendarInstance(schedule);
+		new GoogleExportTask().execute();
+	}
+	
 	public void delete(ScheduleV1Dto schedule) {
 		gci = new GoogleCalendarInstance(schedule);
 		new GoogleDeleteTask().execute();
@@ -75,6 +80,7 @@ public class GoogleCalendarExporter {
 				}
 				Uri uri = cr.insert(Events.CONTENT_URI, values);
 				
+				GoogleCalendarInstance g = gci;
 				
 				// get the event ID that is the last element in the Uri
 				String eventId = uri.getLastPathSegment();

@@ -45,14 +45,14 @@ public class CalendarSaver implements DeleteAllScheduleFinishListener, CreateSch
 	public void save(Cursor arg1) {
 		boolean result = translateToDto(arg1);
 		if (result) {
-			// まず、登録されているGoogleの予定を削除
+			// まず、登録されているGoogleの予定を削除(2つ目の引数trueでgoogleのみ)
 			SharedPreferences pref = context.getSharedPreferences("user",
 					Activity.MODE_PRIVATE);
 			String email = pref.getString("email", "");
 			DeleteAllScheduleTask delAllTask = new DeleteAllScheduleTask(this, true);
 			delAllTask.execute(email);
 			
-			DeleteAllRepeatScheduleTask delAllRepTask = new DeleteAllRepeatScheduleTask(this);
+			DeleteAllRepeatScheduleTask delAllRepTask = new DeleteAllRepeatScheduleTask(this, true);
 			delAllRepTask.execute(email);
 		}
 	}
@@ -120,6 +120,7 @@ public class CalendarSaver implements DeleteAllScheduleFinishListener, CreateSch
 								break;
 							}
 						}
+						repsche.setGoogleId(gci.getGoogleId());
 						// 例外日を設定
 						repsche.setExcepts(exceptCandidates);
 						mCreateRepeatScheduleList.add(repsche);
@@ -161,7 +162,7 @@ public class CalendarSaver implements DeleteAllScheduleFinishListener, CreateSch
 
 	@Override
 	public void onDeleteAllScheduleTaskFinish(ScheduleResultV1Dto result) {
-		if (SUCCESS.equals(result.getResult())) {
+		if ((result != null) && SUCCESS.equals(result.getResult())) {
 			// 予定を削除したらリストを追加
 			SharedPreferences pref = context.getSharedPreferences("user",
 					Activity.MODE_PRIVATE);
@@ -177,7 +178,7 @@ public class CalendarSaver implements DeleteAllScheduleFinishListener, CreateSch
 
 	@Override
 	public void onCreateScheduleListTaskFinish(ScheduleResultV1Dto result) {
-		if (SUCCESS.equals(result.getResult())) {
+		if ((result != null) && SUCCESS.equals(result.getResult())) {
 			// フラグを建てる
 			if (finishFlag) {
 				this.finish();
@@ -193,7 +194,7 @@ public class CalendarSaver implements DeleteAllScheduleFinishListener, CreateSch
 	@Override
 	public void onDeleteAllRepeatScheduleTaskFinish(
 			RepeatScheduleResultV1Dto result) {
-		if (SUCCESS.equals(result.getResult())) {
+		if ((result != null) && SUCCESS.equals(result.getResult())) {
 			// 予定を削除したらリストを追加
 			SharedPreferences pref = context.getSharedPreferences("user",
 					Activity.MODE_PRIVATE);
@@ -210,7 +211,7 @@ public class CalendarSaver implements DeleteAllScheduleFinishListener, CreateSch
 	@Override
 	public void onCreateRepeatScheduleListTaskFinish(
 			RepeatScheduleResultV1Dto result) {
-		if (SUCCESS.equals(result.getResult())) {
+		if ((result != null) && SUCCESS.equals(result.getResult())) {
 			// フラグを建てる
 			if (finishFlag) {
 				this.finish();

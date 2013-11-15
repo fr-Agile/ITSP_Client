@@ -68,6 +68,7 @@ public class GoogleCalendarInstance {
 	public GoogleCalendarInstance(RepeatScheduleV1Dto schedule) {
 		this.dtstart = schedule.getRepeatBegin() + schedule.getStartTime();
 		this.dtend = schedule.getRepeatEnd() + schedule.getFinishTime();
+		
 		this.duration = "P" 
 				+ Long.toString((schedule.getFinishTime() - schedule.getStartTime()) / 1000)
 				+ "S" ;
@@ -82,6 +83,13 @@ public class GoogleCalendarInstance {
 		this.rrule = "FREQ=WEEKLY;UNTIL=" + sdf.format(until.getTime()) + ";WKST=MO;BYDAY=";
 		this.rrule += getStringDays(schedule);
 		
+		String googleId = schedule.getGoogleId();
+		if ((googleId != null)
+				&& !GoogleConstant.UNTIED_TO_GOOGLE.equals(googleId)) {
+			String[] strArray = googleId.split("_");
+			this.cal_id = Long.parseLong(strArray[0]);
+			this.event_id = Long.parseLong(strArray[1]);
+		}
 	}
 	
 	private String getStringDays(RepeatScheduleV1Dto schedule) {

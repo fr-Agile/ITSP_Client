@@ -9,6 +9,8 @@ import jp.ac.titech.itpro.sds.fragile.GetGroupTask.GetGroupFinishListener;
 import jp.ac.titech.itpro.sds.fragile.GoogleCalendarExporter.GoogleCalendarExportFinishListener;
 import jp.ac.titech.itpro.sds.fragile.api.RemoteApi;
 import jp.ac.titech.itpro.sds.fragile.api.constant.CommonConstant;
+import jp.ac.titech.itpro.sds.fragile.api.constant.RepeatConstant;
+import jp.ac.titech.itpro.sds.fragile.utils.CalendarUtils;
 import jp.ac.titech.itpro.sds.fragile.utils.GoogleAccountChecker;
 import jp.ac.titech.itpro.sds.fragile.utils.GoogleAccountChecker.GoogleAccountCheckFinishListener;
 import android.animation.Animator;
@@ -36,8 +38,10 @@ import android.widget.Toast;
 import com.appspot.fragile_t.groupEndpoint.model.GroupV1Dto;
 import com.appspot.fragile_t.repeatScheduleEndpoint.RepeatScheduleEndpoint;
 import com.appspot.fragile_t.repeatScheduleEndpoint.RepeatScheduleEndpoint.RepeatScheduleV1EndPoint.CreateRepeatSchedule;
+import com.appspot.fragile_t.repeatScheduleEndpoint.RepeatScheduleEndpoint.RepeatScheduleV1EndPoint.CreateRepeatScheduleWithGId;
 import com.appspot.fragile_t.repeatScheduleEndpoint.model.RepeatScheduleContainer;
 import com.appspot.fragile_t.repeatScheduleEndpoint.model.RepeatScheduleResultV1Dto;
+import com.appspot.fragile_t.repeatScheduleEndpoint.model.RepeatScheduleV1Dto;
 import com.appspot.fragile_t.scheduleEndpoint.ScheduleEndpoint;
 import com.appspot.fragile_t.scheduleEndpoint.ScheduleEndpoint.ScheduleV1EndPoint.CreateGroupSchedule;
 import com.appspot.fragile_t.scheduleEndpoint.ScheduleEndpoint.ScheduleV1EndPoint.CreateSchedule;
@@ -427,7 +431,7 @@ public class ScheduleInputActivity extends Activity
 							result = schedule.execute();
 						}
 
-						if (SUCCESS.equals(result.getResult())) {
+						if ((result != null) && SUCCESS.equals(result.getResult())) {
 							// Toast.makeText(getApplicationContext(),"Successed",Toast.LENGTH_SHORT).show();
 							Log.d(TAG, "Successed");
 							return true;
@@ -446,7 +450,7 @@ public class ScheduleInputActivity extends Activity
 						CreateGroupSchedule groupSchedule = endpoint.scheduleV1EndPoint().createGroupSchedule(scheduleStartTime, scheduleFinishTime, mEmail, group.getKey());
 						ScheduleResultV1Dto result = groupSchedule.execute();
 						
-						if (SUCCESS.equals(result.getResult())) {
+						if ((result != null) && SUCCESS.equals(result.getResult())) {
 							// Toast.makeText(getApplicationContext(),"Successed",Toast.LENGTH_SHORT).show();
 							Log.d(TAG, "group schedule Successed");
 							return true;
@@ -461,27 +465,31 @@ public class ScheduleInputActivity extends Activity
 					// repeat schedule
 					RepeatScheduleContainer contain = new RepeatScheduleContainer();
 					contain.setIntegers(repeats);
-
-					// startTimeとfinishTimeを今日の00:00からのミリ秒を表すlongにする
-					// そのため今日の00:00をCalendar型で作成
-					Calendar startOfToday = Calendar.getInstance();
-					startOfToday.set(Calendar.HOUR_OF_DAY, 0);
-					startOfToday.set(Calendar.MINUTE, 0);
-					startOfToday.set(Calendar.SECOND, 0);
-					startOfToday.set(Calendar.MILLISECOND, 0);
-
+					RepeatScheduleV1Dto repscheDto = makeRepeatScheduleDto(
+							scheduleStartTime, scheduleFinishTime, repeats);
+					
 					RepeatScheduleEndpoint endpoint = RemoteApi
 							.getRepeatScheduleEndpoint();
-					CreateRepeatSchedule repeatschedule = endpoint
-							.repeatScheduleV1EndPoint().createRepeatSchedule(
-									scheduleStartTime
-											- startOfToday.getTimeInMillis(),
-									scheduleFinishTime
-											- startOfToday.getTimeInMillis(),
-									mEmail, contain);
-					RepeatScheduleResultV1Dto result = repeatschedule.execute();
+					RepeatScheduleResultV1Dto result;
+					if (this.googleIdInTask != null) {
+						// googleにエクスポートした
+						CreateRepeatScheduleWithGId repschedule = endpoint
+								.repeatScheduleV1EndPoint()
+								.createRepeatScheduleWithGId(
+										repscheDto.getStartTime(), repscheDto.getFinishTime(),
+										repscheDto.getRepeatBegin(), repscheDto.getRepeatEnd(),
+										this.googleIdInTask, mEmail, contain);
+						result = repschedule.execute();
+					} else {
+						CreateRepeatSchedule repschedule = endpoint
+								.repeatScheduleV1EndPoint().createRepeatSchedule(
+										repscheDto.getStartTime(),
+										repscheDto.getFinishTime(),
+										mEmail, contain);
+						result = repschedule.execute();
+					}
 
-					if (SUCCESS.equals(result.getResult())) {
+					if ((result != null) && SUCCESS.equals(result.getResult())) {
 						// Toast.makeText(getApplicationContext(),"Successed",Toast.LENGTH_SHORT).show();
 						Log.d(TAG, "RS Successed");
 						return true;
@@ -524,6 +532,24 @@ public class ScheduleInputActivity extends Activity
 			mAuthTask = null;
 			showProgress(false);
 		}
+	}
+	
+	// google e
+	private RepeatScheduleV1Dto makeRepeatScheduleDto(long startTime, long finishTime,
+			List<Integer> repeats) {
+		// startTimeとfinishTimeを00:00からのミリ秒を表すlongにする
+		// そのためその日の00:00をCalendar型で作成
+		Calendar startOfTheDay = CalendarUtils.getBeginOfDate(startTime);
+		
+		long repeatBegin = RepeatConstant.REPEAT_BEGIN;
+		long repeatEnd = RepeatConstant.REPEAT_END;
+		RepeatScheduleV1Dto repsche = new RepeatScheduleV1Dto();
+		repsche.setStartTime(startTime - startOfTheDay.getTimeInMillis());
+		repsche.setFinishTime(finishTime - startOfTheDay.getTimeInMillis());
+		repsche.setRepeatBegin(repeatBegin);
+		repsche.setRepeatEnd(repeatEnd);
+		repsche.setRepeatDays(repeats);
+		return repsche;
 	}
 
 	private void getGroupList() {
@@ -586,14 +612,18 @@ public class ScheduleInputActivity extends Activity
 				mEmail = pref.getString("email", "");
 				
 				if (repeatChk.isChecked()) {
-				
+					RepeatScheduleV1Dto schedule = makeRepeatScheduleDto(
+							scheduleStartTime, scheduleFinishTime, repeats);
+					GoogleCalendarExporter gce = 
+							new GoogleCalendarExporter(this, this);
+					gce.insert(schedule);
 				} else {
 					ScheduleV1Dto schedule = new ScheduleV1Dto();
 					schedule.setStartTime(this.scheduleStartTime);
 					schedule.setFinishTime(this.scheduleFinishTime);
-					GoogleCalendarExporter gcet = 
+					GoogleCalendarExporter gce = 
 							new GoogleCalendarExporter(this, this);
-					gcet.insert(schedule);
+					gce.insert(schedule);
 				}
 			} else {
 				// アカウントが登録されていない場合、ダイアログを表示して登録を促す
