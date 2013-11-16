@@ -42,7 +42,10 @@ public class GoogleCalendarInstance {
 			}
 			this.duration = arg1.getString(12);
 			this.cal_id = Long.parseLong(arg1.getString(13));
-			
+			if ((this.rrule!=null) && this.rrule.contains("UNTIL")) {
+				Log.d("DEBUG", this.rrule);
+			}
+ 			
 		} catch (Exception e) {
 			Log.d("DEBUG", "GoogleCalendarInstance constructer fail");
 			e.printStackTrace();

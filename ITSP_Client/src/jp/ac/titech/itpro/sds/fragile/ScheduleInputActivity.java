@@ -9,10 +9,10 @@ import jp.ac.titech.itpro.sds.fragile.GetGroupTask.GetGroupFinishListener;
 import jp.ac.titech.itpro.sds.fragile.GoogleCalendarExporter.GoogleCalendarExportFinishListener;
 import jp.ac.titech.itpro.sds.fragile.api.RemoteApi;
 import jp.ac.titech.itpro.sds.fragile.api.constant.CommonConstant;
-import jp.ac.titech.itpro.sds.fragile.api.constant.RepeatConstant;
 import jp.ac.titech.itpro.sds.fragile.utils.CalendarUtils;
 import jp.ac.titech.itpro.sds.fragile.utils.GoogleAccountChecker;
 import jp.ac.titech.itpro.sds.fragile.utils.GoogleAccountChecker.GoogleAccountCheckFinishListener;
+import jp.ac.titech.itpro.sds.fragile.utils.RepeatUtils;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
@@ -37,8 +37,8 @@ import android.widget.Toast;
 
 import com.appspot.fragile_t.groupEndpoint.model.GroupV1Dto;
 import com.appspot.fragile_t.repeatScheduleEndpoint.RepeatScheduleEndpoint;
-import com.appspot.fragile_t.repeatScheduleEndpoint.RepeatScheduleEndpoint.RepeatScheduleV1EndPoint.CreateRepeatSchedule;
 import com.appspot.fragile_t.repeatScheduleEndpoint.RepeatScheduleEndpoint.RepeatScheduleV1EndPoint.CreateRepeatScheduleWithGId;
+import com.appspot.fragile_t.repeatScheduleEndpoint.RepeatScheduleEndpoint.RepeatScheduleV1EndPoint.CreateRepeatScheduleWithTerm;
 import com.appspot.fragile_t.repeatScheduleEndpoint.model.RepeatScheduleContainer;
 import com.appspot.fragile_t.repeatScheduleEndpoint.model.RepeatScheduleResultV1Dto;
 import com.appspot.fragile_t.repeatScheduleEndpoint.model.RepeatScheduleV1Dto;
@@ -481,10 +481,10 @@ public class ScheduleInputActivity extends Activity
 										this.googleIdInTask, mEmail, contain);
 						result = repschedule.execute();
 					} else {
-						CreateRepeatSchedule repschedule = endpoint
-								.repeatScheduleV1EndPoint().createRepeatSchedule(
-										repscheDto.getStartTime(),
-										repscheDto.getFinishTime(),
+						CreateRepeatScheduleWithTerm repschedule = endpoint
+								.repeatScheduleV1EndPoint().createRepeatScheduleWithTerm(
+										repscheDto.getStartTime(), repscheDto.getFinishTime(),
+										repscheDto.getRepeatBegin(), repscheDto.getRepeatEnd(),
 										mEmail, contain);
 						result = repschedule.execute();
 					}
@@ -541,8 +541,9 @@ public class ScheduleInputActivity extends Activity
 		// そのためその日の00:00をCalendar型で作成
 		Calendar startOfTheDay = CalendarUtils.getBeginOfDate(startTime);
 		
-		long repeatBegin = RepeatConstant.REPEAT_BEGIN;
-		long repeatEnd = RepeatConstant.REPEAT_END;
+		long repeatBegin = RepeatUtils.getTrueRepeatBegin(startOfTheDay.getTimeInMillis(), repeats);
+		long repeatEnd = RepeatUtils.getDefaultRepeatEnd(repeatBegin);
+		
 		RepeatScheduleV1Dto repsche = new RepeatScheduleV1Dto();
 		repsche.setStartTime(startTime - startOfTheDay.getTimeInMillis());
 		repsche.setFinishTime(finishTime - startOfTheDay.getTimeInMillis());

@@ -8,8 +8,11 @@ import java.util.List;
 import jp.ac.titech.itpro.sds.fragile.GoogleCalendarExporter.GoogleCalendarExportFinishListener;
 import jp.ac.titech.itpro.sds.fragile.api.RemoteApi;
 import jp.ac.titech.itpro.sds.fragile.api.constant.CommonConstant;
+import jp.ac.titech.itpro.sds.fragile.api.constant.GoogleConstant;
+import jp.ac.titech.itpro.sds.fragile.utils.CalendarUtils;
 import jp.ac.titech.itpro.sds.fragile.utils.GoogleAccountChecker;
 import jp.ac.titech.itpro.sds.fragile.utils.GoogleAccountChecker.GoogleAccountCheckFinishListener;
+import jp.ac.titech.itpro.sds.fragile.utils.RepeatUtils;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
@@ -32,9 +35,13 @@ import android.widget.Toast;
 
 import com.appspot.fragile_t.repeatScheduleEndpoint.RepeatScheduleEndpoint;
 import com.appspot.fragile_t.repeatScheduleEndpoint.RepeatScheduleEndpoint.RepeatScheduleV1EndPoint.EditRepeatSchedule;
+import com.appspot.fragile_t.repeatScheduleEndpoint.RepeatScheduleEndpoint.RepeatScheduleV1EndPoint.EditRepeatScheduleWithGId;
 import com.appspot.fragile_t.repeatScheduleEndpoint.model.RepeatScheduleContainer;
+import com.appspot.fragile_t.repeatScheduleEndpoint.model.RepeatScheduleResultV1Dto;
+import com.appspot.fragile_t.repeatScheduleEndpoint.model.RepeatScheduleV1Dto;
 import com.appspot.fragile_t.scheduleEndpoint.ScheduleEndpoint;
 import com.appspot.fragile_t.scheduleEndpoint.ScheduleEndpoint.ScheduleV1EndPoint.EditSchedule;
+import com.appspot.fragile_t.scheduleEndpoint.ScheduleEndpoint.ScheduleV1EndPoint.EditScheduleWithGId;
 import com.appspot.fragile_t.scheduleEndpoint.model.ScheduleResultV1Dto;
 import com.appspot.fragile_t.scheduleEndpoint.model.ScheduleV1Dto;
 
@@ -243,15 +250,15 @@ public class ScheduleEditActivity extends Activity implements GoogleAccountCheck
 			repeats.add(6);
 
 		showProgress(true);
-		if(repeat){
-			mRepeatAuthTask = new EditRepeatScheduleTask();
-			mRepeatAuthTask.execute((Void) null);
-		}else{
-			if (googleChk.isChecked()) {
-				GoogleAccountChecker gac = 
-						new GoogleAccountChecker(ScheduleEditActivity.this, ScheduleEditActivity.this);
-				gac.run();
-			} else {
+		if (googleChk.isChecked()) {
+			GoogleAccountChecker gac = 
+					new GoogleAccountChecker(ScheduleEditActivity.this, ScheduleEditActivity.this);
+			gac.run();
+		} else { 
+			if(repeat){
+				mRepeatAuthTask = new EditRepeatScheduleTask();
+				mRepeatAuthTask.execute((Void) null);
+			}else{
 				mAuthTask = new EditScheduleTask();
 				mAuthTask.execute((Void) null);
 			}
@@ -307,6 +314,10 @@ public class ScheduleEditActivity extends Activity implements GoogleAccountCheck
 	}
 	
 	public class EditRepeatScheduleTask extends AsyncTask<Void, Void, Boolean> {
+		private String googleIdInTask = GoogleConstant.UNTIED_TO_GOOGLE;
+		public void setGoogleId(String googleId) {
+			this.googleIdInTask = googleId;
+		}
 		@Override
 		protected Boolean doInBackground(Void... args) {
 
@@ -317,27 +328,42 @@ public class ScheduleEditActivity extends Activity implements GoogleAccountCheck
 				// repeat schedule
 				RepeatScheduleContainer contain = new RepeatScheduleContainer();
 				contain.setIntegers(repeats);
+				RepeatScheduleV1Dto repscheDto = makeRepeatScheduleDto(
+						scheduleStartTime, scheduleFinishTime, repeats);
 
-				// startTimeとfinishTimeを今日の00:00からのミリ秒を表すlongにする
-				// そのため今日の00:00をCalendar型で作成
-				Calendar startOfToday = Calendar.getInstance();
-				startOfToday.set(Calendar.HOUR_OF_DAY, 0);
-				startOfToday.set(Calendar.MINUTE, 0);
-				startOfToday.set(Calendar.SECOND, 0);
-				startOfToday.set(Calendar.MILLISECOND, 0);
 
 				RepeatScheduleEndpoint endpoint = RemoteApi
 						.getRepeatScheduleEndpoint();
-				EditRepeatSchedule repeatschedule = endpoint
-						.repeatScheduleV1EndPoint().editRepeatSchedule(
-								keyS,
-								scheduleStartTime
-										- startOfToday.getTimeInMillis(),
-								scheduleFinishTime
-										- startOfToday.getTimeInMillis(),
-								contain);
-				repeatschedule.execute();	
-				return true;
+				RepeatScheduleResultV1Dto result;
+				if (!GoogleConstant.UNTIED_TO_GOOGLE.equals(this.googleIdInTask)) {
+					// googleにエクスポートした
+					EditRepeatScheduleWithGId repschedule = endpoint
+							.repeatScheduleV1EndPoint()
+							.editRepeatScheduleWithGId(
+									keyS,
+									repscheDto.getStartTime(), repscheDto.getFinishTime(),
+									this.googleIdInTask, contain);
+					result = repschedule.execute();
+				} else {
+					// googleと紐づけずにデータベースをedit
+					EditRepeatScheduleWithGId repschedule = endpoint
+							.repeatScheduleV1EndPoint()
+							.editRepeatScheduleWithGId(
+									keyS,
+									repscheDto.getStartTime(), repscheDto.getFinishTime(),
+									this.googleIdInTask, contain);
+					result = repschedule.execute();
+				}
+				
+				if ((result != null) && SUCCESS.equals(result.getResult())) {
+					// Toast.makeText(getApplicationContext(),"Successed",Toast.LENGTH_SHORT).show();
+					Log.d(TAG, "RS Successed");
+					return true;
+				} else {
+					// Toast.makeText(getApplicationContext(),"Failed",Toast.LENGTH_SHORT).show();
+					Log.d(TAG, "RS Failed");
+					return false;
+				}
 			} catch (Exception e) {
 				Toast.makeText(getApplicationContext(),"Failed with exception:" + e,Toast.LENGTH_SHORT).show();
 				Log.d(TAG, "failed with exception:" + e);
@@ -366,6 +392,10 @@ public class ScheduleEditActivity extends Activity implements GoogleAccountCheck
 	}
 	
 	public class EditScheduleTask extends AsyncTask<Void, Void, Boolean> {
+		private String googleIdInTask = GoogleConstant.UNTIED_TO_GOOGLE;
+		public void setGoogleId(String googleId) {
+			this.googleIdInTask = googleId;
+		}
 		@Override
 		protected Boolean doInBackground(Void... args) {
 
@@ -374,10 +404,28 @@ public class ScheduleEditActivity extends Activity implements GoogleAccountCheck
 				mEmail = pref.getString("email","");	
 				Log.d(TAG,"time:"+ scheduleStartTime + " and " + scheduleFinishTime + "email:" +mEmail);
 				ScheduleEndpoint endpoint = RemoteApi.getScheduleEndpoint();
-				EditSchedule schedule = endpoint.scheduleV1EndPoint().editSchedule(
-						keyS,scheduleStartTime, scheduleFinishTime);
-				schedule.execute();	
-				return true;
+				ScheduleResultV1Dto result;
+				
+				if (!GoogleConstant.UNTIED_TO_GOOGLE.equals(googleIdInTask)) {
+					// googleにエクスポートした
+					EditScheduleWithGId schedule = endpoint.scheduleV1EndPoint()
+							.editScheduleWithGId(keyS,scheduleStartTime, scheduleFinishTime,
+									googleIdInTask);
+					result = schedule.execute();
+				} else { 
+					// googleと紐づけずにedit
+					EditScheduleWithGId schedule = endpoint.scheduleV1EndPoint()
+							.editScheduleWithGId(keyS,scheduleStartTime, scheduleFinishTime,
+									googleIdInTask);
+					result = schedule.execute();
+				}
+				if ((result != null) && SUCCESS.equals(result.getResult())) {
+					Log.d(TAG, "Successed");
+					return true;
+				} else {
+					Log.d(TAG, "failed");
+					return false;
+				}
 			} catch (Exception e) {
 				Toast.makeText(getApplicationContext(),"Failed with exception:" + e,Toast.LENGTH_SHORT).show();
 				Log.d(TAG, "failed with exception:" + e);
@@ -402,6 +450,24 @@ public class ScheduleEditActivity extends Activity implements GoogleAccountCheck
 			showProgress(false);
 		}
 	}
+	
+	// google e
+	private RepeatScheduleV1Dto makeRepeatScheduleDto(long startTime, long finishTime,
+			List<Integer> repeats) {
+		// startTimeとfinishTimeを00:00からのミリ秒を表すlongにする
+		// そのためその日の00:00をCalendar型で作成
+		Calendar startOfTheDay = CalendarUtils.getBeginOfDate(startTime);
+		
+		long repeatBegin = RepeatUtils.getTrueRepeatBegin(startOfTheDay.getTimeInMillis(), repeats);
+		long repeatEnd = RepeatUtils.getDefaultRepeatEnd(repeatBegin);
+		RepeatScheduleV1Dto repsche = new RepeatScheduleV1Dto();
+		repsche.setStartTime(startTime - startOfTheDay.getTimeInMillis());
+		repsche.setFinishTime(finishTime - startOfTheDay.getTimeInMillis());
+		repsche.setRepeatBegin(repeatBegin);
+		repsche.setRepeatEnd(repeatEnd);
+		repsche.setRepeatDays(repeats);
+		return repsche;
+	}
 
 	@Override
 	public void onGoogleAccountCheckFinish(boolean result,
@@ -415,12 +481,18 @@ public class ScheduleEditActivity extends Activity implements GoogleAccountCheck
 						Activity.MODE_PRIVATE);
 				mEmail = pref.getString("email", "");
 				
-				if (false) {
+				if (repeatChk.isChecked()) {
 					// 繰り返しの場合
+					RepeatScheduleV1Dto newSchedule = 
+							makeRepeatScheduleDto(scheduleStartTime, scheduleFinishTime, repeats);
+					GoogleCalendarExporter gce = 
+							new GoogleCalendarExporter(this, this);
+					gce.edit(keyS, newSchedule);
+					
 				} else {
 					ScheduleV1Dto newSchedule = new ScheduleV1Dto();
-					newSchedule.setStartTime(this.scheduleStartTime);
-					newSchedule.setFinishTime(this.scheduleFinishTime);
+					newSchedule.setStartTime(scheduleStartTime);
+					newSchedule.setFinishTime(scheduleFinishTime);
 					GoogleCalendarExporter gce = 
 							new GoogleCalendarExporter(this, this);
 					gce.edit(keyS, newSchedule);
@@ -440,11 +512,18 @@ public class ScheduleEditActivity extends Activity implements GoogleAccountCheck
 	@Override
 	public void onGoogleCalendarExportFinish(String googleId) {
 		Log.d("DEBUG", "edit: " + googleId); 
-		if (FAIL.equals(googleId)) {
+		if ((googleId == null) || FAIL.equals(googleId)) {
 			showProgress(false);
 		} else {
-			mAuthTask = new EditScheduleTask();
-			mAuthTask.execute();
+			if (repeatChk.isChecked()) {
+				mRepeatAuthTask = new EditRepeatScheduleTask();
+				mRepeatAuthTask.setGoogleId(googleId);
+				mRepeatAuthTask.execute();
+			} else {
+				mAuthTask = new EditScheduleTask();
+				mAuthTask.setGoogleId(googleId);
+				mAuthTask.execute();
+			}
 		}
 	}
 }

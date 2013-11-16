@@ -60,6 +60,7 @@ import com.appspot.fragile_t.groupEndpoint.model.GroupV1Dto;
 import com.appspot.fragile_t.repeatScheduleEndpoint.RepeatScheduleEndpoint;
 import com.appspot.fragile_t.repeatScheduleEndpoint.RepeatScheduleEndpoint.RepeatScheduleV1EndPoint.DeleteRepeatSchedule;
 import com.appspot.fragile_t.repeatScheduleEndpoint.RepeatScheduleEndpoint.RepeatScheduleV1EndPoint.GetRepeatSchedule;
+import com.appspot.fragile_t.repeatScheduleEndpoint.RepeatScheduleEndpoint.RepeatScheduleV1EndPoint.GetRepeatScheduleByKeyS;
 import com.appspot.fragile_t.repeatScheduleEndpoint.model.RepeatScheduleV1Dto;
 import com.appspot.fragile_t.scheduleEndpoint.ScheduleEndpoint;
 import com.appspot.fragile_t.scheduleEndpoint.ScheduleEndpoint.ScheduleV1EndPoint.DeleteSchedule;
@@ -1041,11 +1042,22 @@ public class ScheduleActivity extends Activity implements
 		protected Boolean doInBackground(String... args) {
 			String keyS = args[0];
 			try {
-				RepeatScheduleEndpoint endpoint = RemoteApi
-						.getRepeatScheduleEndpoint();
-				DeleteRepeatSchedule deleteSchedule = endpoint
-						.repeatScheduleV1EndPoint().deleteRepeatSchedule(keyS);
-				deleteSchedule.execute();
+				// googleから削除
+				RepeatScheduleEndpoint endpoint = RemoteApi.getRepeatScheduleEndpoint();
+				GetRepeatScheduleByKeyS getRepeatScheduleByKeyS = 
+						endpoint.repeatScheduleV1EndPoint().getRepeatScheduleByKeyS(keyS);
+				RepeatScheduleV1Dto schedule = getRepeatScheduleByKeyS.execute();
+				if ((schedule != null) && 
+						!GoogleConstant.UNTIED_TO_GOOGLE.equals(schedule.getGoogleId())) {
+					GoogleCalendarExporter gce = new GoogleCalendarExporter(
+							ScheduleActivity.this, ScheduleActivity.this);
+					gce.delete(schedule);
+				}				
+				// データベースから削除
+				DeleteRepeatSchedule deleteRepeatSchedule = 
+						endpoint.repeatScheduleV1EndPoint().deleteRepeatSchedule(keyS);
+				deleteRepeatSchedule.execute();
+				
 				return true;
 			} catch (Exception e) {
 				return false;
