@@ -99,6 +99,9 @@ public class FriendActivity extends Activity implements
 		logged_btn.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) { 
 				finish();
+				onDestroy();
+				Intent in = new Intent(getApplicationContext(),ScheduleActivity.class);
+	        	startActivity(in);
 			}
 		});
 
