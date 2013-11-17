@@ -46,6 +46,7 @@
 				android:layout_height="42dp"
                 android:layout_marginTop="16dp"
                 android:hint="@string/register_prompt_lastname"
+	            android:textColorHint="@color/light_gray"
                 android:inputType="textPersonName"
                 android:maxLines="1"
                 android:singleLine="true" >
@@ -58,6 +59,7 @@
 				android:layout_height="42dp"
                 android:layout_marginTop="16dp"
                 android:hint="@string/register_prompt_firstname"
+	            android:textColorHint="@color/light_gray"
                 android:inputType="textPersonName"
                 android:maxLines="1"
                 android:singleLine="true" />    
@@ -68,6 +70,7 @@
 				android:layout_height="42dp"
                 android:layout_marginTop="16dp"
                 android:hint="@string/register_prompt_email"
+	            android:textColorHint="@color/light_gray"
                 android:inputType="textEmailAddress"
                 android:maxLines="1"
                 android:singleLine="true" />
@@ -78,6 +81,7 @@
 				android:layout_height="42dp"
                 android:layout_marginTop="16dp"
                 android:hint="@string/register_prompt_password"
+	            android:textColorHint="@color/light_gray"
                 android:imeActionId="@+id/register"
                 android:imeActionLabel="@string/register_action_sign_up_short"
                 android:imeOptions="actionUnspecified"
@@ -91,6 +95,7 @@
 				android:layout_height="42dp"
                 android:layout_marginTop="16dp"
                 android:hint="@string/register_prompt_password_again"
+	            android:textColorHint="@color/light_gray"
                 android:imeActionId="@+id/register"
                 android:imeActionLabel="@string/register_action_sign_up_short"
                 android:imeOptions="actionUnspecified"

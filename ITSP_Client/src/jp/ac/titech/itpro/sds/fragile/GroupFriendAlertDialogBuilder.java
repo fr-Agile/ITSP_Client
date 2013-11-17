@@ -1,31 +1,28 @@
 package jp.ac.titech.itpro.sds.fragile;
 
-import java.util.ArrayList;
 import java.util.List;
-
-import com.appspot.fragile_t.getFriendEndpoint.model.UserV1Dto;
-import com.appspot.fragile_t.groupEndpoint.model.GroupV1Dto;
 
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.graphics.Color;
-import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.appspot.fragile_t.getFriendEndpoint.model.UserV1Dto;
+import com.appspot.fragile_t.groupEndpoint.model.GroupV1Dto;
+
 public class GroupFriendAlertDialogBuilder extends AlertDialog.Builder {
+	private Context context;
 	public GroupFriendAlertDialogBuilder(Context arg0) {
 		super(arg0);
+		context = arg0;
 	}
 
 	public class MyAdapter extends ArrayAdapter<String> {
@@ -79,16 +76,22 @@ public class GroupFriendAlertDialogBuilder extends AlertDialog.Builder {
 			// 行によって表示する内容(View)を変える
 			if (p < GROUP_LINE) {
 				// "Group"と表示する行
-				view.setBackgroundColor(Color.CYAN);
+				view.setBackgroundColor(context.getResources().getColor(R.color.base_light));
 				view.findViewById(R.id.check_text).setVisibility(View.INVISIBLE);
 				view.findViewById(R.id.important_text).setVisibility(View.INVISIBLE);
+				TextView checkText = (TextView)view.findViewById(R.id.checkbox_text);
+				checkText.setTextColor(context.getResources().getColor(R.color.light_gray));
+				
 				checkBox.setVisibility(View.INVISIBLE);
 				checkBoxImportant.setVisibility(View.INVISIBLE);
 			} else if (p >= lines_of_groups && p < lines_of_groups + FRIEND_LINE) {
 				// "Friend"と表示する行
-				view.setBackgroundColor(Color.CYAN);
+				view.setBackgroundColor(context.getResources().getColor(R.color.base_light));
 				view.findViewById(R.id.check_text).setVisibility(View.INVISIBLE);
 				view.findViewById(R.id.important_text).setVisibility(View.INVISIBLE);
+				TextView checkText = (TextView)view.findViewById(R.id.checkbox_text);
+				checkText.setTextColor(context.getResources().getColor(R.color.light_gray));
+
 				checkBox.setVisibility(View.INVISIBLE);
 				checkBoxImportant.setVisibility(View.INVISIBLE);
 				
