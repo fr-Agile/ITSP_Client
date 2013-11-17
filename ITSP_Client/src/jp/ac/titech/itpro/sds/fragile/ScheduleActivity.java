@@ -183,7 +183,7 @@ public class ScheduleActivity extends Activity implements
 			public void onItemClick(AdapterView<?> parent, View view,
 					int position, long id) {
 				Intent intent = new Intent(ScheduleActivity.this,
-						ScheduleInputActivity.class);
+						ScheduleEditActivity.class);
 				Calendar startTime = Calendar.getInstance();
 				startTime.set(Calendar.YEAR, yearData[position % 7]);
 				startTime.set(Calendar.MONTH, monthData[position % 7]);
@@ -192,6 +192,7 @@ public class ScheduleActivity extends Activity implements
 				startTime.set(Calendar.MINUTE, 0);
 				startTime.set(Calendar.SECOND, 0);
 				intent.putExtra("startTime", startTime);
+				intent.putExtra("create", true);
 				startActivity(intent);
 			}
 		});
@@ -224,7 +225,7 @@ public class ScheduleActivity extends Activity implements
 								case DragEvent.ACTION_DRAG_ENDED:
 									Intent intent = new Intent(
 											ScheduleActivity.this,
-											ScheduleInputActivity.class);
+											ScheduleEditActivity.class);
 									Calendar startTime = Calendar.getInstance();
 									startTime.set(Calendar.YEAR,
 											yearData[position[0]]);
@@ -239,6 +240,7 @@ public class ScheduleActivity extends Activity implements
 									intent.putExtra("startTime", startTime);
 									Log.d("myDEBUG", "length = " + n);
 									intent.putExtra("length", n);
+									intent.putExtra("create", true);
 
 									mainFrame.removeView(schedDrag);
 									startActivity(intent);
@@ -304,30 +306,31 @@ public class ScheduleActivity extends Activity implements
 
 					@Override
 					public boolean onSingleTapUp(MotionEvent e) {
-            final int[]position = estimatePosition(e.getX(), e.getY());
+						final int[]position = estimatePosition(e.getX(), e.getY());
 
-            Intent intent = new Intent(ScheduleActivity.this, ScheduleInputActivity.class);
-            Calendar startTime = Calendar.getInstance();
-            startTime.set(Calendar.YEAR,
-                yearData[position[0]]);
-            startTime.set(Calendar.MONTH,
-                monthData[position[0]]);
-            startTime.set(Calendar.DAY_OF_MONTH,
-                dayData[position[0]]);
-            startTime.set(Calendar.HOUR_OF_DAY,
-                position[1] - 1);
-            startTime.set(Calendar.MINUTE, 0);
-            startTime.set(Calendar.SECOND, 0);
-            intent.putExtra("startTime", startTime);
+						Intent intent = new Intent(ScheduleActivity.this, ScheduleEditActivity.class);
+						Calendar startTime = Calendar.getInstance();
+						startTime.set(Calendar.YEAR,
+								yearData[position[0]]);
+						startTime.set(Calendar.MONTH,
+								monthData[position[0]]);
+						startTime.set(Calendar.DAY_OF_MONTH,
+								dayData[position[0]]);
+						startTime.set(Calendar.HOUR_OF_DAY,
+								position[1] - 1);
+						startTime.set(Calendar.MINUTE, 0);
+						startTime.set(Calendar.SECOND, 0);
+						intent.putExtra("startTime", startTime);
+						intent.putExtra("create", true);
 
-            startActivity(intent);
+						startActivity(intent);
 						return true;
 					}
 
 					private int[] estimatePosition(float x, float y) {
 						int[] array = new int[2];
 						array[0] = (int) Math.ceil((x * 7)
-								/ mainGrid.getWidth());
+								/ mainGrid.getWidth()) - 1;
 						array[1] = (int) Math.ceil((y * 24)
 								/ mainGrid.getHeight());
 
@@ -438,8 +441,10 @@ public class ScheduleActivity extends Activity implements
 				new MenuItem.OnMenuItemClickListener() {
 					@Override
 					public boolean onMenuItemClick(MenuItem item) {
-						startActivity(new Intent(ScheduleActivity.this,
-								ScheduleInputActivity.class));
+						Intent intent = new Intent(ScheduleActivity.this,
+								ScheduleEditActivity.class);
+						intent.putExtra("create", true);
+						startActivity(intent);
 
 						return true;
 					}
@@ -812,6 +817,7 @@ public class ScheduleActivity extends Activity implements
 													finishE);
 											intentEdit.putExtra("repeat",
 													repeat);
+											intentEdit.putExtra("create", false);
 											startActivity(intentEdit);
 										}
 									})
