@@ -9,7 +9,6 @@ import jp.ac.titech.itpro.sds.fragile.CalendarSaver.GoogleCalendarSaveFinishList
 import jp.ac.titech.itpro.sds.fragile.GetFriendTask.GetFriendFinishListener;
 import jp.ac.titech.itpro.sds.fragile.GetGroupTask.GetGroupFinishListener;
 import jp.ac.titech.itpro.sds.fragile.GetShareTimeTask.GetShareTimeFinishListener;
-import jp.ac.titech.itpro.sds.fragile.CalendarSaver.GoogleCalendarSaveFinishListener;
 import jp.ac.titech.itpro.sds.fragile.GoogleCalendarExporter.GoogleCalendarExportFinishListener;
 import jp.ac.titech.itpro.sds.fragile.api.RemoteApi;
 import jp.ac.titech.itpro.sds.fragile.api.constant.CommonConstant;
@@ -112,6 +111,8 @@ public class ScheduleActivity extends Activity implements
 
 	private GetScheduleTask mCalTask = null;
 	private DeleteScheduleTask mDelTask = null;
+	
+	private MenuItem mShareTaskMenu = null;
 
 	private int[] mFriendCheckFlags;
 	private int[] mGroupCheckFlags;
@@ -119,6 +120,8 @@ public class ScheduleActivity extends Activity implements
 
 	private List<UserV1Dto> mFriendList = null;
 	private List<GroupV1Dto> mGroupList = null;
+	
+	private boolean shareTaskState = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -403,9 +406,10 @@ public class ScheduleActivity extends Activity implements
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu items for use in the action bar
 		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.layout.schdule_activity_actions, menu);
+		final Menu fMenu = menu; 
+		inflater.inflate(R.layout.schdule_activity_actions, fMenu);
 
-		menu.getItem(0).setOnMenuItemClickListener(
+		fMenu.getItem(0).setOnMenuItemClickListener(
 				new MenuItem.OnMenuItemClickListener() {
 					@Override
 					public boolean onMenuItemClick(MenuItem item) {
@@ -416,7 +420,7 @@ public class ScheduleActivity extends Activity implements
 					}
 				});
 
-		menu.getItem(1).setOnMenuItemClickListener(
+		fMenu.getItem(1).setOnMenuItemClickListener(
 				new MenuItem.OnMenuItemClickListener() {
 					@Override
 					public boolean onMenuItemClick(MenuItem item) {
@@ -427,17 +431,19 @@ public class ScheduleActivity extends Activity implements
 					}
 				});
 
-		menu.getItem(2).setOnMenuItemClickListener(
+		mShareTaskMenu = fMenu.getItem(2);
+		mShareTaskMenu.setOnMenuItemClickListener(
 				new MenuItem.OnMenuItemClickListener() {
 					@Override
 					public boolean onMenuItemClick(MenuItem item) {
-						// 友人リストを取得
+
 						getFriendList();
+
 						return true;
 					}
 				});
 
-		menu.getItem(3).setOnMenuItemClickListener(
+		fMenu.getItem(3).setOnMenuItemClickListener(
 				new MenuItem.OnMenuItemClickListener() {
 					@Override
 					public boolean onMenuItemClick(MenuItem item) {
@@ -450,7 +456,7 @@ public class ScheduleActivity extends Activity implements
 					}
 				});
 
-		menu.getItem(4).setOnMenuItemClickListener(
+		fMenu.getItem(4).setOnMenuItemClickListener(
 				new MenuItem.OnMenuItemClickListener() {
 					@Override
 					public boolean onMenuItemClick(MenuItem item) {
@@ -461,7 +467,7 @@ public class ScheduleActivity extends Activity implements
 					}
 				});
 
-		menu.getItem(5).setOnMenuItemClickListener(
+		fMenu.getItem(5).setOnMenuItemClickListener(
 				new MenuItem.OnMenuItemClickListener() {
 					@Override
 					public boolean onMenuItemClick(MenuItem item) {
@@ -472,7 +478,7 @@ public class ScheduleActivity extends Activity implements
 					}
 				});
 
-		menu.getItem(6).setOnMenuItemClickListener(
+		fMenu.getItem(6).setOnMenuItemClickListener(
 				new MenuItem.OnMenuItemClickListener() {
 					@Override
 					public boolean onMenuItemClick(MenuItem item) {
@@ -490,7 +496,7 @@ public class ScheduleActivity extends Activity implements
 					}
 				});
 		// google calendarインポートボタン
-		menu.getItem(7).setOnMenuItemClickListener(
+		fMenu.getItem(7).setOnMenuItemClickListener(
 				new MenuItem.OnMenuItemClickListener() {
 					@Override
 					public boolean onMenuItemClick(MenuItem item) {
@@ -502,7 +508,7 @@ public class ScheduleActivity extends Activity implements
 					}
 				});
 
-		return super.onCreateOptionsMenu(menu);
+		return super.onCreateOptionsMenu(fMenu);
 	}
 
 	private void changeDateAfterClickNextPreviousButton() {
@@ -597,8 +603,20 @@ public class ScheduleActivity extends Activity implements
 		try {
 			if (result != null) {
 				mGroupList = result;
-				// alertDialogを表示
-				makeShareTimeAlertDialog();
+				
+				if(shareTaskState) {
+					for (View view : viewOfSchedule) {
+						mainFrame.removeView(view);
+					}
+					viewOfSchedule.clear();
+					shareTaskState = false;
+					
+					mShareTaskMenu.setIcon(R.drawable.compare_schedule_off);
+					displayCalendar();
+				} else {
+					// alertDialogを表示
+					makeShareTimeAlertDialog();
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -649,9 +667,12 @@ public class ScheduleActivity extends Activity implements
 											selectedList.add(tmp);
 										}
 									}
-									if (selectedList.size() > 0) {
+
+									if (selectedList.size() > 0 && !shareTaskState) {
 										// 共通空き時間表示
 										displayShareTimeWith(selectedList);
+										shareTaskState = true;
+										mShareTaskMenu.setIcon(R.drawable.compare_schedule_on);
 									} else {
 										// 自分のスケジュールを表示
 										displayCalendar();
