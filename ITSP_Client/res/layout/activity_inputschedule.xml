@@ -229,13 +229,6 @@
                 android:layout_gravity="center_horizontal"
                 android:text="@string/Done" />
 
-            <Button
-                android:id="@+id/showScheduleViewBtn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:text="@string/showScheduleViewLabel" />
-
             <Space
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />

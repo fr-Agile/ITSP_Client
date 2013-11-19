@@ -24,6 +24,9 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager.LayoutParams;
 import android.widget.Button;
@@ -56,7 +59,8 @@ public class ScheduleEditActivity extends Activity
 		GoogleAccountCheckFinishListener, GoogleCalendarExportFinishListener{
 	private static final String TAG = "ScheduleEditActivity";
 	private static final String FAIL = CommonConstant.FAIL;
-	private Button doneBtn, showScheduleViewBtn;
+	private Button doneBtn;
+//	private Button showScheduleViewBtn;
 	private long scheduleStartTime;
 	private long scheduleFinishTime;
 	private String mEmail;
@@ -104,6 +108,31 @@ public class ScheduleEditActivity extends Activity
         super.onCreate(savedInstanceState);
         this.getWindow().setSoftInputMode(LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
         setContentView(R.layout.activity_inputschedule);
+        
+        doneBtn = (Button)findViewById(R.id.doneBtn);
+        doneBtn.setEnabled(scheduleStartTime <= scheduleFinishTime);
+        doneBtn.setOnClickListener(
+        		new View.OnClickListener() {
+        			public void onClick(View view) {
+        				clickDoneButton();
+        			}
+        		});
+        
+//        showScheduleViewBtn = (Button)findViewById(R.id.showScheduleViewBtn);
+//        showScheduleViewBtn.setOnClickListener(new View.OnClickListener() {
+//			
+//			public void onClick(View v) {
+//				Intent intent = new Intent(ScheduleEditActivity.this,
+//						ScheduleActivity.class);
+//				Calendar nowCal = Calendar.getInstance();
+//				// nowCal.add(Calendar.DAY_OF_YEAR, 7);
+//				StoreData data = new StoreData(nowCal);
+//				intent.putExtra("StoreData", data);
+//				intent.setAction(Intent.ACTION_VIEW);
+//				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//				startActivity(intent);
+//			}
+//		});
         
 		Intent intent = getIntent();
 		Bundle extras = intent.getExtras();
@@ -177,30 +206,7 @@ public class ScheduleEditActivity extends Activity
     			Log.d(TAG,"time:"+ formatDateTime.format(startTime.getTime()) + " and " + formatDateTime.format(finishTime.getTime()));
         	}});
         
-        doneBtn = (Button)findViewById(R.id.doneBtn);
-        doneBtn.setEnabled(scheduleStartTime <= scheduleFinishTime);
-        doneBtn.setOnClickListener(
-        		new View.OnClickListener() {
-        			public void onClick(View view) {
-        				clickDoneButton();
-        			}
-        		});
         
-        showScheduleViewBtn = (Button)findViewById(R.id.showScheduleViewBtn);
-        showScheduleViewBtn.setOnClickListener(new View.OnClickListener() {
-			
-			public void onClick(View v) {
-				Intent intent = new Intent(ScheduleEditActivity.this,
-						ScheduleActivity.class);
-				Calendar nowCal = Calendar.getInstance();
-				// nowCal.add(Calendar.DAY_OF_YEAR, 7);
-				StoreData data = new StoreData(nowCal);
-				intent.putExtra("StoreData", data);
-				intent.setAction(Intent.ACTION_VIEW);
-				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-				startActivity(intent);
-			}
-		});
         repeatdaysView = findViewById(R.id.repeatdaysView);
         
 		googleChk = (CheckBox) findViewById(R.id.googleCheckbox);
@@ -219,10 +225,12 @@ public class ScheduleEditActivity extends Activity
 			public void onClick(View v) {
 				if (((CheckBox) v).isChecked()) {
 					repeatdaysView.setVisibility(View.VISIBLE);
+					repeat = true;
 					// Toast.makeText(getApplicationContext(),"Repeat Checked:)",
 					// Toast.LENGTH_LONG).show();
 				} else {
 					repeatdaysView.setVisibility(View.GONE);
+					repeat = false;
 				}
 			}
 		});
@@ -282,6 +290,32 @@ public class ScheduleEditActivity extends Activity
 		
 	}
 
+    @Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu items for use in the action bar
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.schedule_edit_activity_actions, menu);
+
+		menu.getItem(0).setOnMenuItemClickListener(
+				new MenuItem.OnMenuItemClickListener() {
+					@Override
+					public boolean onMenuItemClick(MenuItem item) {
+						Intent intent = new Intent(ScheduleEditActivity.this,
+								ScheduleActivity.class);
+						Calendar nowCal = Calendar.getInstance();
+						// nowCal.add(Calendar.DAY_OF_YEAR, 7);
+						StoreData data = new StoreData(nowCal);
+						intent.putExtra("StoreData", data);
+						intent.setAction(Intent.ACTION_VIEW);
+						intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+						startActivity(intent);
+						return true;
+					}
+				});
+
+		return super.onCreateOptionsMenu(menu);
+	}
+    
 	public void clickDoneButton() {
 
 		repeats = new ArrayList<Integer>();
