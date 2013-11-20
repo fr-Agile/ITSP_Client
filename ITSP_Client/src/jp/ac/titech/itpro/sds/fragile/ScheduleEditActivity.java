@@ -26,6 +26,9 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager.LayoutParams;
 import android.widget.Button;
@@ -201,14 +204,6 @@ public class ScheduleEditActivity extends Activity
     			Log.d(TAG,"time:"+ formatDateTime.format(startTime.getTime()) + " and " + formatDateTime.format(finishTime.getTime()));
         	}});
         
-        doneBtn = (Button)findViewById(R.id.doneBtn);
-        doneBtn.setEnabled(scheduleStartTime <= scheduleFinishTime);
-        doneBtn.setOnClickListener(
-        		new View.OnClickListener() {
-        			public void onClick(View view) {
-        				clickDoneButton();
-        			}
-        		});
         
         showScheduleViewBtn = (Button)findViewById(R.id.showScheduleViewBtn);
         showScheduleViewBtn.setOnClickListener(new View.OnClickListener() {
@@ -248,6 +243,7 @@ public class ScheduleEditActivity extends Activity
 					// Toast.LENGTH_LONG).show();
 				} else {
 					repeatdaysView.setVisibility(View.GONE);
+					repeat = false;
 				}
 			}
 		});
@@ -307,6 +303,32 @@ public class ScheduleEditActivity extends Activity
 		
 	}
 
+    @Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu items for use in the action bar
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.schedule_edit_activity_actions, menu);
+
+		menu.getItem(0).setOnMenuItemClickListener(
+				new MenuItem.OnMenuItemClickListener() {
+					@Override
+					public boolean onMenuItemClick(MenuItem item) {
+						Intent intent = new Intent(ScheduleEditActivity.this,
+								ScheduleActivity.class);
+						Calendar nowCal = Calendar.getInstance();
+						// nowCal.add(Calendar.DAY_OF_YEAR, 7);
+						StoreData data = new StoreData(nowCal);
+						intent.putExtra("StoreData", data);
+						intent.setAction(Intent.ACTION_VIEW);
+						intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+						startActivity(intent);
+						return true;
+					}
+				});
+
+		return super.onCreateOptionsMenu(menu);
+	}
+    
 	public void clickDoneButton() {
 
 		repeats = new ArrayList<Integer>();
