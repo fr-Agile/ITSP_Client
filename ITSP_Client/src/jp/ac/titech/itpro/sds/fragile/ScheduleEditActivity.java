@@ -557,7 +557,7 @@ public class ScheduleEditActivity extends Activity
 						result = schedule.execute();
 					} else {
 						EditScheduleWithGId schedule = endpoint.scheduleV1EndPoint()
-								.editScheduleWithGId(name, keyS,scheduleStartTime, scheduleFinishTime,
+								.editScheduleWithGId(keyS,name,scheduleStartTime, scheduleFinishTime,
 										googleIdInTask);
 						result = schedule.execute();
 					}
