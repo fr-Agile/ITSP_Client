@@ -271,7 +271,7 @@ public class ScheduleActivity extends Activity implements
 						FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
 								width / 7, height / 24);
 						lp.leftMargin = (int) Math.ceil(width / 7.0
-								* (position[0] - 1) + 40
+								* (position[0]) + 40
 								* metrics.scaledDensity);
 						lp.topMargin = (int) Math.ceil(1514 * (position[1] - 1)
 								/ 24.0 * metrics.scaledDensity);
