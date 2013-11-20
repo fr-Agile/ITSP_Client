@@ -26,6 +26,7 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -225,6 +226,10 @@ public class ScheduleEditActivity extends Activity
 				intent.putExtra("StoreData", data);
 				intent.setAction(Intent.ACTION_VIEW);
 				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				
+				finish();
+				onDestroy();
+				
 				startActivity(intent);
 			}
 		});
@@ -310,6 +315,32 @@ public class ScheduleEditActivity extends Activity
 		getGroupList();
 		
 	}
+    
+    //戻るボタン時に、スケジュールの変更が反映されるように新しいActivityとして遷移させる
+  	@Override
+  	public boolean dispatchKeyEvent(KeyEvent event){
+  	    if(event.getAction()==KeyEvent.ACTION_UP){
+  	        if(event.getKeyCode()==KeyEvent.KEYCODE_BACK){
+  	        	
+  	        	Intent intent = new Intent(ScheduleEditActivity.this,
+						ScheduleActivity.class);
+				Calendar nowCal = Calendar.getInstance();
+				// nowCal.add(Calendar.DAY_OF_YEAR, 7);
+				StoreData data = new StoreData(nowCal);
+				intent.putExtra("StoreData", data);
+				intent.setAction(Intent.ACTION_VIEW);
+				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				
+				finish();
+				onDestroy();
+				
+				startActivity(intent);
+  	        	
+  	            return true;
+  	        }
+  	    }
+  	    return super.dispatchKeyEvent(event);
+  	}
 
     @Override
 	public boolean onCreateOptionsMenu(Menu menu) {

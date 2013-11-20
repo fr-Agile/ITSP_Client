@@ -123,6 +123,8 @@ public class CalendarSaver implements DeleteAllScheduleFinishListener, CreateSch
 						repsche.setGoogleId(gci.getGoogleId());
 						// 例外日を設定
 						repsche.setExcepts(exceptCandidates);
+						// nameを登録
+						repsche.setName(gci.getTitle());
 						mCreateRepeatScheduleList.add(repsche);
 					}
 					
@@ -139,6 +141,8 @@ public class CalendarSaver implements DeleteAllScheduleFinishListener, CreateSch
 						sche.setFinishTime(gci.getEndTime());
 					}
 					sche.setGoogleId(gci.getGoogleId());
+					// nameを登録
+					sche.setName(gci.getTitle());
 					mCreateScheduleList.add(sche);
 				}
 				
