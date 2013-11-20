@@ -205,6 +205,14 @@ public class ScheduleEditActivity extends Activity
         	}});
         
         
+        doneBtn = (Button)findViewById(R.id.doneBtn);
+        doneBtn.setEnabled(scheduleStartTime <= scheduleFinishTime);
+        doneBtn.setOnClickListener(
+        		new View.OnClickListener() {
+        			public void onClick(View view) {
+        				clickDoneButton();
+        			}
+        		});
         showScheduleViewBtn = (Button)findViewById(R.id.showScheduleViewBtn);
         showScheduleViewBtn.setOnClickListener(new View.OnClickListener() {
 			
