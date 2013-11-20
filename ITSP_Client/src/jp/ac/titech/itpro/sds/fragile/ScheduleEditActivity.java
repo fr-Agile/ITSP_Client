@@ -52,6 +52,7 @@ import com.appspot.fragile_t.repeatScheduleEndpoint.model.RepeatScheduleContaine
 import com.appspot.fragile_t.repeatScheduleEndpoint.model.RepeatScheduleResultV1Dto;
 import com.appspot.fragile_t.repeatScheduleEndpoint.model.RepeatScheduleV1Dto;
 import com.appspot.fragile_t.scheduleEndpoint.ScheduleEndpoint;
+import com.appspot.fragile_t.scheduleEndpoint.ScheduleEndpoint.ScheduleV1EndPoint.CreateGroupSchedule;
 import com.appspot.fragile_t.scheduleEndpoint.ScheduleEndpoint.ScheduleV1EndPoint.CreateSchedule;
 import com.appspot.fragile_t.scheduleEndpoint.ScheduleEndpoint.ScheduleV1EndPoint.CreateScheduleWithGId;
 import com.appspot.fragile_t.scheduleEndpoint.ScheduleEndpoint.ScheduleV1EndPoint.EditScheduleWithGId;
@@ -578,32 +579,62 @@ public class ScheduleEditActivity extends Activity
 				ScheduleEndpoint endpoint = RemoteApi.getScheduleEndpoint();
 				ScheduleResultV1Dto result;
 				
-				if (!GoogleConstant.UNTIED_TO_GOOGLE.equals(googleIdInTask)) {
-					// googleにエクスポートした
-					if(create) {
-						CreateScheduleWithGId schedule;
-						schedule = endpoint.scheduleV1EndPoint()
-								.createScheduleWithGId(name, scheduleStartTime,
-										scheduleFinishTime, this.googleIdInTask, mEmail);
-						result = schedule.execute();
-					} else {
-						EditScheduleWithGId schedule = endpoint.scheduleV1EndPoint()
-								.editScheduleWithGId(keyS, name, scheduleStartTime, scheduleFinishTime,
-										googleIdInTask);
-						result = schedule.execute();
+
+				if (!groupChk.isChecked()) {
+				
+
+				
+					if (!GoogleConstant.UNTIED_TO_GOOGLE.equals(googleIdInTask)) {
+						// googleにエクスポートした
+						if(create) {
+							CreateScheduleWithGId schedule;
+							schedule = endpoint.scheduleV1EndPoint()
+									.createScheduleWithGId(name, scheduleStartTime,
+											scheduleFinishTime, this.googleIdInTask, mEmail);
+							result = schedule.execute();
+						} else {
+							EditScheduleWithGId schedule = endpoint.scheduleV1EndPoint()
+									.editScheduleWithGId(keyS, name, scheduleStartTime, scheduleFinishTime,
+											googleIdInTask);
+							result = schedule.execute();
+						}
+					} else { 
+						if(create) {
+							CreateSchedule schedule = endpoint.scheduleV1EndPoint()
+									.createSchedule(name, scheduleStartTime,
+											scheduleFinishTime, mEmail);
+							result = schedule.execute();
+						} else {
+							// googleと紐づけずにedit
+							EditScheduleWithGId schedule = endpoint.scheduleV1EndPoint()
+									.editScheduleWithGId(keyS, name, scheduleStartTime, scheduleFinishTime,
+											googleIdInTask);
+							result = schedule.execute();
+						}
 					}
-				} else { 
-					if(create) {
-						CreateSchedule schedule = endpoint.scheduleV1EndPoint()
-								.createSchedule(name, scheduleStartTime,
-										scheduleFinishTime, mEmail);
-						result = schedule.execute();
+				} else {
+					// group schedule
+					int radioButtonID = layout.getCheckedRadioButtonId();
+					View radioButton = layout.findViewById(radioButtonID);
+					int idx = layout.indexOfChild(radioButton);
+					GroupV1Dto group = groupList.get(idx);
+					endpoint = RemoteApi.getScheduleEndpoint();
+					CreateGroupSchedule groupSchedule = endpoint.scheduleV1EndPoint()
+							.createGroupSchedule(name, scheduleStartTime, scheduleFinishTime, 
+									mEmail, group.getKey());
+					result = groupSchedule.execute();
+
+					if ((result != null) && SUCCESS.equals(result.getResult())) {
+
+						// Toast.makeText(getApplicationContext(),"Successed",Toast.LENGTH_SHORT).show();
+
+					    Log.d(TAG, "group schedule Successed");
+
+					    return true;
 					} else {
-						// googleと紐づけずにedit
-						EditScheduleWithGId schedule = endpoint.scheduleV1EndPoint()
-								.editScheduleWithGId(keyS, name, scheduleStartTime, scheduleFinishTime,
-										googleIdInTask);
-						result = schedule.execute();
+						// Toast.makeText(getApplicationContext(),"Failed",Toast.LENGTH_SHORT).show();
+						Log.d(TAG, "group schedule Failed");
+						return false;	
 					}
 				}
 				if ((result != null) && SUCCESS.equals(result.getResult())) {
@@ -715,22 +746,30 @@ public class ScheduleEditActivity extends Activity
 				SharedPreferences pref = getSharedPreferences("user",
 						Activity.MODE_PRIVATE);
 				mEmail = pref.getString("email", "");
-				
+
 				if (repeatChk.isChecked()) {
 					// 繰り返しの場合
 					RepeatScheduleV1Dto newSchedule = 
 							makeRepeatScheduleDto(name, scheduleStartTime, scheduleFinishTime, repeats);
 					GoogleCalendarExporter gce = 
 							new GoogleCalendarExporter(this, this);
-					gce.edit(keyS, newSchedule);
-					
+					if (create) {
+						gce.insert(newSchedule);
+					} else {
+						gce.edit(keyS, newSchedule);
+					}
 				} else {
 					ScheduleV1Dto newSchedule = new ScheduleV1Dto();
 					newSchedule.setStartTime(scheduleStartTime);
 					newSchedule.setFinishTime(scheduleFinishTime);
+					newSchedule.setName(name);
 					GoogleCalendarExporter gce = 
 							new GoogleCalendarExporter(this, this);
-					gce.edit(keyS, newSchedule);
+					if (create) {
+						gce.insert(newSchedule);
+					} else {
+						gce.edit(keyS, newSchedule);
+					}
 				}
 			} else {
 				// アカウントが登録されていない場合、ダイアログを表示して登録を促す

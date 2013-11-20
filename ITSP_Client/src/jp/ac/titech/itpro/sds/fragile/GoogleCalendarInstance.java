@@ -55,7 +55,7 @@ public class GoogleCalendarInstance {
 	public GoogleCalendarInstance(ScheduleV1Dto schedule) {
 		this.dtstart = schedule.getStartTime();
 		this.dtend = schedule.getFinishTime();
-		this.title = "test";
+		this.title = schedule.getName();
 		this.allday = ((this.dtend - this.dtstart) == CalendarUtils.ONEDAY_INMILLIS);
 		this.rrule = null;
 		
@@ -75,7 +75,7 @@ public class GoogleCalendarInstance {
 		this.duration = "P" 
 				+ Long.toString((schedule.getFinishTime() - schedule.getStartTime()) / 1000)
 				+ "S" ;
-		this.title = "testrep";
+		this.title = schedule.getName();
 		this.allday 
 			= ((schedule.getFinishTime() - schedule.getStartTime()) 
 					== CalendarUtils.ONEDAY_INMILLIS);
