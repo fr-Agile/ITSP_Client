@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">FrAgileアプリ</string>
+    <string name="app_name">あじゃ助</string>
     <string name="action_settings">設定</string>
     <string name="message_logged_in">メニュー</string>
     <string name="logged_title">ユーザーページ</string>

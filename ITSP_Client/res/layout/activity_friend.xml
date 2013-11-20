@@ -35,7 +35,7 @@
         android:id="@+id/friendreg_form"
         android:layout_width="match_parent"
         android:layout_height="match_parent" >
-       
+ 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -49,21 +49,65 @@
                 android:inputType="textEmailAddress"
                 android:maxLines="1"
                 android:singleLine="true" />    
-            <Button
-                android:id="@+id/friend_regist"
-                android:layout_width="wrap_content"
+          <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/friend_regist" />
-            <Button
-                android:id="@+id/friend_email"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="アドレス帳から" />
-            <Button
-                android:id="@+id/go_to_logged_from_friend"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/back" />
-        </LinearLayout>
-</ScrollView>
+                android:orientation="horizontal" >
+            
+	            <LinearLayout
+	                android:layout_width="0dip"
+	                android:layout_weight="1"
+	                android:layout_height="match_parent"
+	                android:orientation="vertical" >
+	
+		            <Button
+		                android:id="@+id/friend_regist"
+					    style="@style/MyButton"
+					    android:layout_width="match_parent"
+					    android:layout_height="wrap_content"
+					    android:layout_gravity="center"
+					    android:layout_marginTop="16dp"
+					    android:paddingLeft="32dp"
+					    android:paddingRight="32dp"
+				        android:text="@string/friend_regist" />
+		        </LinearLayout>
+
+	            <LinearLayout
+	                android:layout_width="0dip"
+	                android:layout_weight="1"
+	                android:layout_height="match_parent"
+	                android:orientation="vertical" >
+	
+		            <Button
+		                android:id="@+id/friend_email"
+					    style="@style/MyButton"
+					    android:layout_width="match_parent"
+					    android:layout_height="wrap_content"
+					    android:layout_gravity="center"
+					    android:layout_marginTop="16dp"
+					    android:paddingLeft="32dp"
+					    android:paddingRight="32dp"
+				        android:text="アドレス帳から" />
+		        </LinearLayout>
+	
+	            <LinearLayout
+	                android:layout_width="0dip"
+	                android:layout_weight="1"
+	                android:layout_height="match_parent"
+	                android:orientation="vertical" >
+	
+		            <Button
+		                android:id="@+id/go_to_logged_from_friend"
+					    style="@style/MyButton"
+					    android:layout_width="match_parent"
+					    android:layout_height="wrap_content"
+					    android:layout_gravity="center"
+					    android:layout_marginTop="16dp"
+					    android:paddingLeft="32dp"
+					    android:paddingRight="32dp"
+		                android:text="@string/back" />
+		        </LinearLayout>
+	        </LinearLayout> 
+        </LinearLayout> 
+	</ScrollView>
 </merge>
