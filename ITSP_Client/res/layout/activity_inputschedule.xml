@@ -3,6 +3,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".ScheduleInputAcitivity" >
 
+    <!-- フォーカスダミー -->
+	<TextView
+	    android:layout_height="0dp"
+	    android:layout_width="0dp"
+	    android:focusable="true"
+	    android:focusableInTouchMode="true"
+	    android:text="" >
+	    <requestFocus />
+	</TextView>
+
     <!-- Spin Progress View -->
 
     <LinearLayout
@@ -15,7 +25,7 @@
         android:visibility="gone" >
 
         <ProgressBar
-            style="?android:attr/progressBarStyleLarge"
+            style="@android:attr/progressBarStyleLarge"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp" />
@@ -48,16 +58,47 @@
                 android:orientation="vertical" >
 
                 <TextView
+                    android:id="@+id/nameTextView"
+                    android:background="@color/base_dark"
+                    android:textColor="@color/light_gray"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:text="@string/nameTxt"
+                    android:gravity="center"
+                    android:textSize="28sp" />
+
+				<EditText
+					android:id="@+id/nameInput"
+					android:layout_width="match_parent"
+					android:layout_height="42dp"
+					android:hint="新しいイベント"
+					android:textColorHint="@color/dark_gray"
+					android:inputType="text"
+					android:maxLines="1"
+					android:singleLine="true" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" >
+
+                <TextView
                     android:id="@+id/dateTextView"
-                    android:layout_width="wrap_content"
+                    android:background="@color/base_dark"
+                    android:textColor="@color/light_gray"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
                     android:text="@string/dateTxt"
+                    android:gravity="center"
                     android:textSize="28sp" />
 
                 <DatePicker
                     android:id="@+id/datePicker1"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
             </LinearLayout>
 
@@ -71,16 +112,20 @@
                 android:orientation="horizontal" >
 
                 <LinearLayout
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dip"
+                    android:layout_weight="1"
                     android:layout_height="match_parent"
                     android:orientation="vertical" >
 
                     <TextView
                         android:id="@+id/startTimeTextView"
-                        android:layout_width="wrap_content"
+	                    android:background="@color/base_dark"
+	                    android:textColor="@color/light_gray"
+                        android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
                         android:text="@string/startTimeTxt"
+	                    android:gravity="center"
                         android:textSize="26sp" />
 
                     <TimePicker
@@ -89,23 +134,22 @@
                         android:layout_height="wrap_content" />
                 </LinearLayout>
 
-                <View
-                    android:id="@+id/view2"
-                    android:layout_width="100dp"
-                    android:layout_height="200dp" />
-
                 <LinearLayout
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dip"
+                    android:layout_weight="1"
                     android:layout_height="match_parent"
                     android:gravity="right"
                     android:orientation="vertical" >
 
                     <TextView
                         android:id="@+id/finishTimeTextView"
-                        android:layout_width="wrap_content"
+	                    android:background="@color/base_dark"
+	                    android:textColor="@color/light_gray"
+                        android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
                         android:text="@string/finishTimeTxt"
+	                    android:gravity="center"
                         android:textSize="26sp" />
 
                     <TimePicker
@@ -222,19 +266,47 @@
                 </RadioGroup>
             </LinearLayout>
 
-            <Button
-                android:id="@+id/doneBtn"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:text="@string/Done" />
-
-            <Button
-                android:id="@+id/showScheduleViewBtn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:text="@string/showScheduleViewLabel" />
+                android:orientation="horizontal" >
+            
+	            <LinearLayout
+	                android:layout_width="0dip"
+	                android:layout_weight="1"
+	                android:layout_height="match_parent"
+	                android:orientation="vertical" >
+	
+		            <Button
+		                android:id="@+id/doneBtn"
+					    style="@style/MyButton"
+					    android:layout_width="match_parent"
+					    android:layout_height="wrap_content"
+					    android:layout_gravity="center"
+					    android:layout_marginTop="16dp"
+					    android:paddingLeft="32dp"
+					    android:paddingRight="32dp"
+		                android:text="@string/Done" />
+		        </LinearLayout>
+	
+	            <LinearLayout
+	                android:layout_width="0dip"
+	                android:layout_weight="1"
+	                android:layout_height="match_parent"
+	                android:orientation="vertical" >
+	
+		            <Button
+		                android:id="@+id/showScheduleViewBtn"
+					    style="@style/MyButton"
+					    android:layout_width="match_parent"
+					    android:layout_height="wrap_content"
+					    android:layout_gravity="center"
+					    android:layout_marginTop="16dp"
+					    android:paddingLeft="32dp"
+					    android:paddingRight="32dp"
+		                android:text="@string/showScheduleViewLabel" />
+		        </LinearLayout>
+	        </LinearLayout>
 
             <Space
                 android:layout_width="match_parent"

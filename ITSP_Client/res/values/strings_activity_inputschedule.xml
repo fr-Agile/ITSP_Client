@@ -24,6 +24,7 @@
     <string name="saturday">土</string>
     <string name="group">参加グループを選択</string> 
     <string name="googleCheckText">Googleカレンダーにエクスポートする</string>
+    <string name="nameTxt">タイトル</string>
     
 
 </resources>

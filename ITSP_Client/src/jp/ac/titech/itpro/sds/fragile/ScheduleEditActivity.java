@@ -23,14 +23,17 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager.LayoutParams;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.DatePicker;
-import android.widget.RadioButton;
 import android.widget.DatePicker.OnDateChangedListener;
+import android.widget.EditText;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TimePicker;
 import android.widget.TimePicker.OnTimeChangedListener;
@@ -84,6 +87,7 @@ public class ScheduleEditActivity extends Activity
 	private boolean googleChecked;
 
 	private View mInputScheduleView;
+	private EditText mScheduleNameView;
 	private View mSpinView;
 	private static String SUCCESS = CommonConstant.SUCCESS;
 	
@@ -94,6 +98,7 @@ public class ScheduleEditActivity extends Activity
 	private Calendar startTime=Calendar.getInstance();
 	private Calendar finishTime=Calendar.getInstance();
 	private String keyS="";
+	private String name="";
 	private boolean repeat;
 	private boolean create;
 	
@@ -109,6 +114,7 @@ public class ScheduleEditActivity extends Activity
 		Bundle extras = intent.getExtras();
 
         mInputScheduleView = findViewById(R.id.inputScheduleView);
+        mScheduleNameView = (EditText) findViewById(R.id.nameInput);
 		mSpinView = findViewById(R.id.spinView);
                
 		if (extras != null) {
@@ -139,11 +145,29 @@ public class ScheduleEditActivity extends Activity
         mStartTimePicker = (TimePicker)findViewById(R.id.timePicker1);
         mFinishTimePicker = (TimePicker)findViewById(R.id.timePicker2);
 		
-        if(extras.containsKey("key"))
-			keyS = extras.get("key").toString();
+		keyS = extras.getString("key", "");
 		repeat = extras.containsKey("repeat") && (Boolean) extras.get("repeat");
 		create = extras.containsKey("create") && (Boolean) extras.get("create");
 		
+		if(extras.containsKey("name")) {
+	    	name = extras.getString("name");
+	    	mScheduleNameView.setText(name);
+		} else {
+	    	name = "新しいイベント";
+		}
+
+		mScheduleNameView.addTextChangedListener(new TextWatcher(){
+	          public void afterTextChanged(Editable s) {
+	        	  if(s.length() > 0){
+		        	  name = s.toString();
+	        	  } else {
+	        		  name = "新しいイベント";
+	        	  }
+	          }
+
+	          public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+	          public void onTextChanged(CharSequence s, int start, int before, int count) {}
+		});
         mDatepicker.init(startTime.get(Calendar.YEAR),startTime.get(Calendar.MONTH),startTime.get(Calendar.DAY_OF_MONTH), 		 
         		new OnDateChangedListener(){
         	public void onDateChanged(DatePicker view, int year, int monthOfYear,int dayOfMonth) {
@@ -219,6 +243,7 @@ public class ScheduleEditActivity extends Activity
 			public void onClick(View v) {
 				if (((CheckBox) v).isChecked()) {
 					repeatdaysView.setVisibility(View.VISIBLE);
+					repeat = true;
 					// Toast.makeText(getApplicationContext(),"Repeat Checked:)",
 					// Toast.LENGTH_LONG).show();
 				} else {
@@ -393,8 +418,7 @@ public class ScheduleEditActivity extends Activity
 				RepeatScheduleContainer contain = new RepeatScheduleContainer();
 				contain.setIntegers(repeats);
 				RepeatScheduleV1Dto repscheDto = makeRepeatScheduleDto(
-						scheduleStartTime, scheduleFinishTime, repeats);
-
+						name, scheduleStartTime, scheduleFinishTime, repeats);
 
 				RepeatScheduleEndpoint endpoint = RemoteApi
 						.getRepeatScheduleEndpoint();
@@ -405,6 +429,7 @@ public class ScheduleEditActivity extends Activity
 						CreateRepeatScheduleWithGId repschedule = endpoint
 								.repeatScheduleV1EndPoint()
 								.createRepeatScheduleWithGId(
+										repscheDto.getName(),
 										repscheDto.getStartTime(), repscheDto.getFinishTime(),
 										repscheDto.getRepeatBegin(), repscheDto.getRepeatEnd(),
 										this.googleIdInTask, mEmail, contain);
@@ -414,6 +439,7 @@ public class ScheduleEditActivity extends Activity
 								.repeatScheduleV1EndPoint()
 								.editRepeatScheduleWithGId(
 										keyS,
+										repscheDto.getName(),
 										repscheDto.getStartTime(), repscheDto.getFinishTime(),
 										this.googleIdInTask, contain);
 						result = repschedule.execute();
@@ -422,6 +448,7 @@ public class ScheduleEditActivity extends Activity
 					if(create){
 						CreateRepeatScheduleWithTerm repschedule = endpoint
 								.repeatScheduleV1EndPoint().createRepeatScheduleWithTerm(
+										repscheDto.getName(),
 										repscheDto.getStartTime(), repscheDto.getFinishTime(),
 										repscheDto.getRepeatBegin(), repscheDto.getRepeatEnd(),
 										mEmail, contain);
@@ -432,6 +459,7 @@ public class ScheduleEditActivity extends Activity
 								.repeatScheduleV1EndPoint()
 								.editRepeatScheduleWithGId(
 										keyS,
+										repscheDto.getName(),
 										repscheDto.getStartTime(), repscheDto.getFinishTime(),
 										this.googleIdInTask, contain);
 						result = repschedule.execute();
@@ -448,7 +476,7 @@ public class ScheduleEditActivity extends Activity
 					return false;
 				}
 			} catch (Exception e) {
-				Toast.makeText(getApplicationContext(),"Failed with exception:" + e,Toast.LENGTH_SHORT).show();
+				//Toast.makeText(getApplicationContext(),"Failed with exception:" + e,Toast.LENGTH_SHORT).show();
 				Log.d(TAG, "failed with exception:" + e);
 				return false;
 			}
@@ -494,25 +522,25 @@ public class ScheduleEditActivity extends Activity
 					if(create) {
 						CreateScheduleWithGId schedule;
 						schedule = endpoint.scheduleV1EndPoint()
-								.createScheduleWithGId(scheduleStartTime,
+								.createScheduleWithGId(name, scheduleStartTime,
 										scheduleFinishTime, this.googleIdInTask, mEmail);
 						result = schedule.execute();
 					} else {
 						EditScheduleWithGId schedule = endpoint.scheduleV1EndPoint()
-								.editScheduleWithGId(keyS,scheduleStartTime, scheduleFinishTime,
+								.editScheduleWithGId(name, keyS,scheduleStartTime, scheduleFinishTime,
 										googleIdInTask);
 						result = schedule.execute();
 					}
 				} else { 
 					if(create) {
 						CreateSchedule schedule = endpoint.scheduleV1EndPoint()
-								.createSchedule(scheduleStartTime,
+								.createSchedule(name, scheduleStartTime,
 										scheduleFinishTime, mEmail);
 						result = schedule.execute();
 					} else {
 						// googleと紐づけずにedit
 						EditScheduleWithGId schedule = endpoint.scheduleV1EndPoint()
-								.editScheduleWithGId(keyS,scheduleStartTime, scheduleFinishTime,
+								.editScheduleWithGId(name, keyS, scheduleStartTime, scheduleFinishTime,
 										googleIdInTask);
 						result = schedule.execute();
 					}
@@ -525,7 +553,7 @@ public class ScheduleEditActivity extends Activity
 					return false;
 				}
 			} catch (Exception e) {
-				Toast.makeText(getApplicationContext(),"Failed with exception:" + e,Toast.LENGTH_SHORT).show();
+				//Toast.makeText(getApplicationContext(),"Failed with exception:" + e,Toast.LENGTH_SHORT).show();
 				Log.d(TAG, "failed with exception:" + e);
 				return false;
 			}
@@ -550,7 +578,7 @@ public class ScheduleEditActivity extends Activity
 	}
 	
 	// google e
-	private RepeatScheduleV1Dto makeRepeatScheduleDto(long startTime, long finishTime,
+	private RepeatScheduleV1Dto makeRepeatScheduleDto(String name, long startTime, long finishTime,
 			List<Integer> repeats) {
 		// startTimeとfinishTimeを00:00からのミリ秒を表すlongにする
 		// そのためその日の00:00をCalendar型で作成
@@ -559,6 +587,7 @@ public class ScheduleEditActivity extends Activity
 		long repeatBegin = RepeatUtils.getTrueRepeatBegin(startOfTheDay.getTimeInMillis(), repeats);
 		long repeatEnd = RepeatUtils.getDefaultRepeatEnd(repeatBegin);
 		RepeatScheduleV1Dto repsche = new RepeatScheduleV1Dto();
+		repsche.setName(name);
 		repsche.setStartTime(startTime - startOfTheDay.getTimeInMillis());
 		repsche.setFinishTime(finishTime - startOfTheDay.getTimeInMillis());
 		repsche.setRepeatBegin(repeatBegin);
@@ -629,7 +658,7 @@ public class ScheduleEditActivity extends Activity
 				if (repeatChk.isChecked()) {
 					// 繰り返しの場合
 					RepeatScheduleV1Dto newSchedule = 
-							makeRepeatScheduleDto(scheduleStartTime, scheduleFinishTime, repeats);
+							makeRepeatScheduleDto(name, scheduleStartTime, scheduleFinishTime, repeats);
 					GoogleCalendarExporter gce = 
 							new GoogleCalendarExporter(this, this);
 					gce.edit(keyS, newSchedule);

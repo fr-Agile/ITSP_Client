@@ -416,6 +416,8 @@ public class ScheduleActivity extends Activity implements
 						current.setTimeInMillis(current.getTimeInMillis() - 7
 								* ONE_DAY);
 						changeDateAfterClickNextPreviousButton();
+						mShareTaskMenu.setIcon(R.drawable.compare_schedule_off);
+						shareTaskState = false;
 						return true;
 					}
 				});
@@ -427,6 +429,8 @@ public class ScheduleActivity extends Activity implements
 						current.setTimeInMillis(current.getTimeInMillis() + 7
 								* ONE_DAY);
 						changeDateAfterClickNextPreviousButton();
+						mShareTaskMenu.setIcon(R.drawable.compare_schedule_off);
+						shareTaskState = false;
 						return true;
 					}
 				});
@@ -495,6 +499,7 @@ public class ScheduleActivity extends Activity implements
 						return true;
 					}
 				});
+
 		// google calendarインポートボタン
 		fMenu.getItem(7).setOnMenuItemClickListener(
 				new MenuItem.OnMenuItemClickListener() {
@@ -743,7 +748,6 @@ public class ScheduleActivity extends Activity implements
 							.get(i);
 
 					unwise = unwise || mImportantList.contains(user.getEmail());
-					Log.d("myDEBUG", user.getEmail());
 
 					temp += user.getLastName() + " " + user.getFirstName();
 
@@ -757,7 +761,7 @@ public class ScheduleActivity extends Activity implements
 					//グループスケジュールのkeyはまだ
 					public void run() {
 						displaySchedule(false, gs.getStartTime(),
-								gs.getFinishTime(), "", userListStr,
+								gs.getFinishTime(), userListStr, "", 
 								unwiseFinal);
 					}
 				});
@@ -766,12 +770,17 @@ public class ScheduleActivity extends Activity implements
 	}
 
 	private void displaySchedule(Long startTime, Long finishTime,
-			final String keyS, String scheduleStr) {
-		displaySchedule(false, startTime, finishTime, keyS, scheduleStr, false);
+			final String keyS) {
+		displaySchedule(false, startTime, finishTime, "", keyS, false);
+	}
+
+	private void displaySchedule(String name, Long startTime, Long finishTime,
+			final String keyS) {
+		displaySchedule(false, startTime, finishTime, name, keyS, false);
 	}
 
 	private void displaySchedule(final Boolean repeat, Long startTime,
-			Long finishTime, final String keyS, String scheduleStr,
+			Long finishTime, final String name, final String keyS,
 			Boolean unwise) {
 		TextView sampleSched = new TextView(this);
 		double[] scheduleLayout = new double[3]; // scheduleの {x, y, height}
@@ -793,7 +802,8 @@ public class ScheduleActivity extends Activity implements
 		/* 5: 右側にあるなぞの隙間　たぶんバー？ */
 		int width = findViewById(R.id.gridView3).getWidth() - 5;
 
-		sampleSched.setText(scheduleStr);
+		Log.d("myDEBUG", name);
+		sampleSched.setText(name);
 		// sampleSched.setBackgroundColor(Color.CYAN);
 		if (unwise) {
 			sampleSched.setBackground(getResources().getDrawable(
@@ -832,6 +842,7 @@ public class ScheduleActivity extends Activity implements
 													ScheduleActivity.this,
 													ScheduleEditActivity.class);
 											intentEdit.putExtra("key", keyS);
+											intentEdit.putExtra("name", name);
 											intentEdit
 													.putExtra("start", startE);
 											intentEdit.putExtra("finish",
@@ -930,9 +941,10 @@ public class ScheduleActivity extends Activity implements
 					for (final ScheduleV1Dto schedule : schedules) {
 						mHandler.post(new Runnable() {
 							public void run() {
-								displaySchedule(schedule.getStartTime(),
+								displaySchedule(schedule.getName(),
+										schedule.getStartTime(),
 										schedule.getFinishTime(),
-										schedule.getKey(), "予定");
+										schedule.getKey());
 							}
 
 						});
@@ -978,8 +990,8 @@ public class ScheduleActivity extends Activity implements
 									mHandler.post(new Runnable() {
 										public void run() {
 											displaySchedule(true, start.getTime().getTime(),
-													finish.getTime().getTime(), repeat.getKey(),
-													"予定", false);
+													finish.getTime().getTime(), repeat.getName(), repeat.getKey(),
+													false);
 										}
 									});
 								}
