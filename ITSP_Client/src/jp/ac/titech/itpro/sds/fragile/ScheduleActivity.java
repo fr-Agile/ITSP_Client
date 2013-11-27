@@ -69,10 +69,11 @@ import com.appspot.fragile_t.scheduleEndpoint.model.ScheduleV1Dto;
 import com.google.api.client.util.DateTime;
 
 public class ScheduleActivity extends Activity implements
-		GetFriendFinishListener, GetShareTimeFinishListener, GetGroupFinishListener,
-		GoogleAccountCheckFinishListener, GoogleCalendarCheckFinishListener, 
-		GoogleCalendarSaveFinishListener, GoogleCalendarExportFinishListener {
-	
+		GetFriendFinishListener, GetShareTimeFinishListener,
+		GetGroupFinishListener, GoogleAccountCheckFinishListener,
+		GoogleCalendarCheckFinishListener, GoogleCalendarSaveFinishListener,
+		GoogleCalendarExportFinishListener {
+
 	private static final String TAG = "ScheduleActivity";
 	private static final long START_OF_DAY = 0;
 	private static final long END_OF_DAY = 24 * 60 * 60 * 1000;
@@ -111,7 +112,7 @@ public class ScheduleActivity extends Activity implements
 
 	private GetScheduleTask mCalTask = null;
 	private DeleteScheduleTask mDelTask = null;
-	
+
 	private MenuItem mShareTaskMenu = null;
 
 	private int[] mFriendCheckFlags;
@@ -120,7 +121,7 @@ public class ScheduleActivity extends Activity implements
 
 	private List<UserV1Dto> mFriendList = null;
 	private List<GroupV1Dto> mGroupList = null;
-	
+
 	private boolean shareTaskState = false;
 
 	@Override
@@ -154,7 +155,7 @@ public class ScheduleActivity extends Activity implements
 		for (int i = 0; i < 24; i++) {
 			timeData[i] = i < 10 ? "0" : "";
 			timeData[i] += Integer.toString(i) + ":00";
-			
+
 			for (int j = 0; j < 7; j++) {
 				mainData[i * 7 + j] = "";
 			}
@@ -199,7 +200,8 @@ public class ScheduleActivity extends Activity implements
 				startActivity(intent);
 			}
 		});
-    mainGrid.setAdapter(new ArrayAdapter<String>(this, R.layout.list_item, new ArrayList<String>(Arrays.asList(mainData))));
+		mainGrid.setAdapter(new ArrayAdapter<String>(this, R.layout.list_item,
+				new ArrayList<String>(Arrays.asList(mainData))));
 
 		final GestureDetector gesDetector = new GestureDetector(this,
 				new GestureDetector.OnGestureListener() {
@@ -271,8 +273,7 @@ public class ScheduleActivity extends Activity implements
 						FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
 								width / 7, height / 24);
 						lp.leftMargin = (int) Math.ceil(width / 7.0
-								* (position[0]) + 40
-								* metrics.scaledDensity);
+								* (position[0]) + 40 * metrics.scaledDensity);
 						lp.topMargin = (int) Math.ceil(1514 * (position[1] - 1)
 								/ 24.0 * metrics.scaledDensity);
 						schedDrag.setLayoutParams(lp);
@@ -309,18 +310,17 @@ public class ScheduleActivity extends Activity implements
 
 					@Override
 					public boolean onSingleTapUp(MotionEvent e) {
-						final int[]position = estimatePosition(e.getX(), e.getY());
+						final int[] position = estimatePosition(e.getX(),
+								e.getY());
 
-						Intent intent = new Intent(ScheduleActivity.this, ScheduleEditActivity.class);
+						Intent intent = new Intent(ScheduleActivity.this,
+								ScheduleEditActivity.class);
 						Calendar startTime = Calendar.getInstance();
-						startTime.set(Calendar.YEAR,
-								yearData[position[0]]);
-						startTime.set(Calendar.MONTH,
-								monthData[position[0]]);
+						startTime.set(Calendar.YEAR, yearData[position[0]]);
+						startTime.set(Calendar.MONTH, monthData[position[0]]);
 						startTime.set(Calendar.DAY_OF_MONTH,
 								dayData[position[0]]);
-						startTime.set(Calendar.HOUR_OF_DAY,
-								position[1] - 1);
+						startTime.set(Calendar.HOUR_OF_DAY, position[1] - 1);
 						startTime.set(Calendar.MINUTE, 0);
 						startTime.set(Calendar.SECOND, 0);
 						intent.putExtra("startTime", startTime);
@@ -351,17 +351,17 @@ public class ScheduleActivity extends Activity implements
 		displayCalendar(); // スケジュールを四角で表示
 	}
 
-	//戻るボタンを無効にしています
+	// 戻るボタンを無効にしています
 	@Override
-	public boolean dispatchKeyEvent(KeyEvent event){
-	    if(event.getAction()==KeyEvent.ACTION_UP){
-	        if(event.getKeyCode()==KeyEvent.KEYCODE_BACK){
-	            return true;
-	        }
-	    }
-	    return super.dispatchKeyEvent(event);
+	public boolean dispatchKeyEvent(KeyEvent event) {
+		if (event.getAction() == KeyEvent.ACTION_UP) {
+			if (event.getKeyCode() == KeyEvent.KEYCODE_BACK) {
+				return true;
+			}
+		}
+		return super.dispatchKeyEvent(event);
 	}
-	
+
 	private void setUpWeek() {
 		// 現在の時刻情報を色々取得
 		dayOfWeek = current.get(Calendar.DAY_OF_WEEK) - Calendar.SUNDAY;
@@ -406,7 +406,7 @@ public class ScheduleActivity extends Activity implements
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu items for use in the action bar
 		MenuInflater inflater = getMenuInflater();
-		final Menu fMenu = menu; 
+		final Menu fMenu = menu;
 		inflater.inflate(R.layout.schdule_activity_actions, fMenu);
 
 		fMenu.getItem(0).setOnMenuItemClickListener(
@@ -436,8 +436,8 @@ public class ScheduleActivity extends Activity implements
 				});
 
 		mShareTaskMenu = fMenu.getItem(2);
-		mShareTaskMenu.setOnMenuItemClickListener(
-				new MenuItem.OnMenuItemClickListener() {
+		mShareTaskMenu
+				.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
 					@Override
 					public boolean onMenuItemClick(MenuItem item) {
 
@@ -492,7 +492,8 @@ public class ScheduleActivity extends Activity implements
 						editor.remove("email");
 						editor.commit();
 
-						Intent loginintent = new Intent(ScheduleActivity.this,LoginActivity.class);
+						Intent loginintent = new Intent(ScheduleActivity.this,
+								LoginActivity.class);
 						loginintent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 						startActivity(loginintent);
 						ScheduleActivity.this.onDestroy();
@@ -608,14 +609,14 @@ public class ScheduleActivity extends Activity implements
 		try {
 			if (result != null) {
 				mGroupList = result;
-				
-				if(shareTaskState) {
+
+				if (shareTaskState) {
 					for (View view : viewOfSchedule) {
 						mainFrame.removeView(view);
 					}
 					viewOfSchedule.clear();
 					shareTaskState = false;
-					
+
 					mShareTaskMenu.setIcon(R.drawable.compare_schedule_off);
 					displayCalendar();
 				} else {
@@ -673,11 +674,13 @@ public class ScheduleActivity extends Activity implements
 										}
 									}
 
-									if (selectedList.size() > 0 && !shareTaskState) {
+									if (selectedList.size() > 0
+											&& !shareTaskState) {
 										// 共通空き時間表示
 										displayShareTimeWith(selectedList);
 										shareTaskState = true;
-										mShareTaskMenu.setIcon(R.drawable.compare_schedule_on);
+										mShareTaskMenu
+												.setIcon(R.drawable.compare_schedule_on);
 									} else {
 										// 自分のスケジュールを表示
 										displayCalendar();
@@ -758,10 +761,10 @@ public class ScheduleActivity extends Activity implements
 				final String userListStr = temp;
 				final boolean unwiseFinal = unwise;
 				mHandler.post(new Runnable() {
-					//グループスケジュールのkeyはまだ
+					// グループスケジュールのkeyはまだ
 					public void run() {
 						displaySchedule(false, gs.getStartTime(),
-								gs.getFinishTime(), userListStr, "", 
+								gs.getFinishTime(), userListStr, "",
 								unwiseFinal);
 					}
 				});
@@ -849,7 +852,8 @@ public class ScheduleActivity extends Activity implements
 													finishE);
 											intentEdit.putExtra("repeat",
 													repeat);
-											intentEdit.putExtra("create", false);
+											intentEdit
+													.putExtra("create", false);
 											startActivity(intentEdit);
 										}
 									})
@@ -937,7 +941,7 @@ public class ScheduleActivity extends Activity implements
 				List<ScheduleV1Dto> schedules = getSchedule.execute()
 						.getItems();
 
-				if (schedules.size() > 0) {
+				if (schedules != null && schedules.size() > 0) {
 					for (final ScheduleV1Dto schedule : schedules) {
 						mHandler.post(new Runnable() {
 							public void run() {
@@ -959,7 +963,7 @@ public class ScheduleActivity extends Activity implements
 								START_OF_DAY, END_OF_DAY, mEmail);
 				List<RepeatScheduleV1Dto> repeatList = getRepeatSchedule
 						.execute().getItems();
-				if (repeatList.size() > 0) {
+				if (repeatList != null && repeatList.size() > 0) {
 					for (final RepeatScheduleV1Dto repeat : repeatList) {
 						for (int day : repeat.getRepeatDays()) {
 							final Calendar start = (Calendar) mBeginOfWeek
@@ -971,27 +975,33 @@ public class ScheduleActivity extends Activity implements
 							finish.add(Calendar.DAY_OF_MONTH, day);
 							DateTime ds = new DateTime(repeat.getRepeatBegin());
 							DateTime de = new DateTime(repeat.getRepeatEnd());
-							//　もし開始が繰り返し期間中の時のみ表示
-							if ((start.getTimeInMillis() >= repeat.getRepeatBegin()) &&
-									(start.getTimeInMillis() <= repeat.getRepeatEnd())) {
-							
+							// 　もし開始が繰り返し期間中の時のみ表示
+							if ((start.getTimeInMillis() >= repeat
+									.getRepeatBegin())
+									&& (start.getTimeInMillis() <= repeat
+											.getRepeatEnd())) {
+
 								// startTimeとfinishTimeを設定する
 								start.add(Calendar.MILLISECOND, repeat
 										.getStartTime().intValue());
 								finish.add(Calendar.MILLISECOND, repeat
 										.getFinishTime().intValue());
-	
+
 								// もし、exceptされる日にちじゃなければ表示する
 								DateTime date = new DateTime(
-										CalendarUtils.getBeginOfDate(start.getTimeInMillis()).getTime());
-								if ((repeat.getExcepts() == null) ||
-										(!repeat.getExcepts().contains(date))) {
+										CalendarUtils.getBeginOfDate(
+												start.getTimeInMillis())
+												.getTime());
+								if ((repeat.getExcepts() == null)
+										|| (!repeat.getExcepts().contains(date))) {
 									// exceptsには含まれていない
 									mHandler.post(new Runnable() {
 										public void run() {
-											displaySchedule(true, start.getTime().getTime(),
-													finish.getTime().getTime(), repeat.getName(), repeat.getKey(),
-													false);
+											displaySchedule(true, start
+													.getTime().getTime(),
+													finish.getTime().getTime(),
+													repeat.getName(), repeat
+															.getKey(), false);
 										}
 									});
 								}
@@ -1031,21 +1041,21 @@ public class ScheduleActivity extends Activity implements
 			try {
 				ScheduleEndpoint endpoint = RemoteApi.getScheduleEndpoint();
 				// googleから削除
-				GetScheduleByKeyS getScheduleByKeyS = endpoint.scheduleV1EndPoint()
-						.getScheduleByKeyS(keySS);
+				GetScheduleByKeyS getScheduleByKeyS = endpoint
+						.scheduleV1EndPoint().getScheduleByKeyS(keySS);
 				ScheduleV1Dto schedule = getScheduleByKeyS.execute();
-				if ((schedule != null) && 
-						!GoogleConstant.UNTIED_TO_GOOGLE.equals(schedule.getGoogleId())) {
+				if ((schedule != null)
+						&& !GoogleConstant.UNTIED_TO_GOOGLE.equals(schedule
+								.getGoogleId())) {
 					GoogleCalendarExporter gce = new GoogleCalendarExporter(
 							ScheduleActivity.this, ScheduleActivity.this);
 					gce.delete(schedule);
-				}				
+				}
 				// データベースから削除
 				DeleteSchedule deleteSchedule = endpoint.scheduleV1EndPoint()
 						.deleteSchedule(keySS);
 				deleteSchedule.execute();
-				
-					
+
 				return true;
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -1082,21 +1092,25 @@ public class ScheduleActivity extends Activity implements
 			String keyS = args[0];
 			try {
 				// googleから削除
-				RepeatScheduleEndpoint endpoint = RemoteApi.getRepeatScheduleEndpoint();
-				GetRepeatScheduleByKeyS getRepeatScheduleByKeyS = 
-						endpoint.repeatScheduleV1EndPoint().getRepeatScheduleByKeyS(keyS);
-				RepeatScheduleV1Dto schedule = getRepeatScheduleByKeyS.execute();
-				if ((schedule != null) && 
-						!GoogleConstant.UNTIED_TO_GOOGLE.equals(schedule.getGoogleId())) {
+				RepeatScheduleEndpoint endpoint = RemoteApi
+						.getRepeatScheduleEndpoint();
+				GetRepeatScheduleByKeyS getRepeatScheduleByKeyS = endpoint
+						.repeatScheduleV1EndPoint().getRepeatScheduleByKeyS(
+								keyS);
+				RepeatScheduleV1Dto schedule = getRepeatScheduleByKeyS
+						.execute();
+				if ((schedule != null)
+						&& !GoogleConstant.UNTIED_TO_GOOGLE.equals(schedule
+								.getGoogleId())) {
 					GoogleCalendarExporter gce = new GoogleCalendarExporter(
 							ScheduleActivity.this, ScheduleActivity.this);
 					gce.delete(schedule);
-				}				
+				}
 				// データベースから削除
-				DeleteRepeatSchedule deleteRepeatSchedule = 
-						endpoint.repeatScheduleV1EndPoint().deleteRepeatSchedule(keyS);
+				DeleteRepeatSchedule deleteRepeatSchedule = endpoint
+						.repeatScheduleV1EndPoint().deleteRepeatSchedule(keyS);
 				deleteRepeatSchedule.execute();
-				
+
 				return true;
 			} catch (Exception e) {
 				return false;
@@ -1142,8 +1156,7 @@ public class ScheduleActivity extends Activity implements
 			} else {
 				// アカウントが登録されていない場合、ダイアログを表示して登録を促す
 				new GoogleAccountRegistDialogBuilder(ScheduleActivity.this)
-					.setDefault()
-					.show();
+						.setDefault().show();
 			}
 			Log.d("DEBUG", "checking google account success");
 		} else {
@@ -1175,12 +1188,13 @@ public class ScheduleActivity extends Activity implements
 			Log.d("DEBUG", "create schedule list failed");
 		}
 	}
+
 	/**
 	 * GoogleCalendarのインポート処理ここまで
 	 */
 
 	@Override
 	public void onGoogleCalendarExportFinish(String googleId) {
-		Log.d("DEBUG", "delete: " + googleId); 
+		Log.d("DEBUG", "delete: " + googleId);
 	}
 }
