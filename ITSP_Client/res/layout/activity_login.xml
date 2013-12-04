@@ -26,7 +26,7 @@
             android:layout_marginBottom="16dp"
             android:fontFamily="sans-serif-light"
             android:text="@string/login_progress_signing_in"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
+            android:textAppearance="@android:attr/textAppearanceMedium" />
     </LinearLayout>
 
     <!-- Login form -->

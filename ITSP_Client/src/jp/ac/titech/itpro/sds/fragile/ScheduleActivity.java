@@ -21,6 +21,9 @@ import jp.ac.titech.itpro.sds.fragile.utils.GoogleAccountChecker.GoogleAccountCh
 import jp.ac.titech.itpro.sds.fragile.utils.GoogleCalendarChecker;
 import jp.ac.titech.itpro.sds.fragile.utils.GoogleCalendarChecker.GoogleCalendarCheckFinishListener;
 import jp.ac.titech.itpro.sds.fragile.utils.TimeAdapter;
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ClipData;
@@ -29,6 +32,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.DisplayMetrics;
@@ -95,6 +99,9 @@ public class ScheduleActivity extends Activity implements
 	private DayAdapter dayAdapter;
 	private TimeAdapter timeAdapter;
 	private CalendarAdapter calendarAdapter;
+	
+	private View mScheduleMainView;
+	private View mScheduleStatusView;
 
 	private List<View> viewOfSchedule = new ArrayList<View>();
 
@@ -145,6 +152,9 @@ public class ScheduleActivity extends Activity implements
 		dayGrid = (GridView) findViewById(R.id.gridView1);
 		timeGrid = (GridView) findViewById(R.id.gridView2);
 		mainGrid = (GridView) findViewById(R.id.gridView3);
+		
+		mScheduleStatusView = (View) findViewById(R.id.schedule_status);
+		mScheduleMainView = (View) findViewById(R.id.schedule_main);
 
 		metrics = new DisplayMetrics();
 		this.getWindowManager().getDefaultDisplay().getMetrics(metrics);
@@ -913,6 +923,8 @@ public class ScheduleActivity extends Activity implements
 		if (mCalTask != null) {
 			return;
 		}
+		
+		showProgress(true);
 		boolean cancel = false;
 		mCalTask = new GetScheduleTask();
 		mCalTask.execute((Void) null);
@@ -1010,6 +1022,7 @@ public class ScheduleActivity extends Activity implements
 		@Override
 		protected void onPostExecute(final Boolean success) {
 			mCalTask = null;
+			showProgress(false);
 			if (success) {
 				Log.d("DEBUG", "スケジュール表示成功");
 			} else {
@@ -1183,4 +1196,46 @@ public class ScheduleActivity extends Activity implements
 	public void onGoogleCalendarExportFinish(String googleId) {
 		Log.d("DEBUG", "delete: " + googleId); 
 	}
+	
+	/**
+	 * Shows the progress UI and hides the login form.
+	 */
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
+	private void showProgress(final boolean show) {
+		// On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
+		// for very easy animations. If available, use these APIs to fade-in
+		// the progress spinner.
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
+			int shortAnimTime = getResources().getInteger(
+					android.R.integer.config_shortAnimTime);
+
+			mScheduleStatusView.setVisibility(View.VISIBLE);
+			mScheduleStatusView.animate().setDuration(shortAnimTime)
+					.alpha(show ? 1 : 0)
+					.setListener(new AnimatorListenerAdapter() {
+						@Override
+						public void onAnimationEnd(Animator animation) {
+							mScheduleStatusView.setVisibility(show ? View.VISIBLE
+									: View.GONE);
+						}
+					});
+
+			mScheduleMainView.setVisibility(View.GONE);
+			mScheduleMainView.animate().setDuration(shortAnimTime)
+					.alpha(show ? 0 : 1)
+					.setListener(new AnimatorListenerAdapter() {
+						@Override
+						public void onAnimationEnd(Animator animation) {
+							mScheduleMainView.setVisibility(show ? View.GONE
+									: View.VISIBLE);
+						}
+					});
+		} else {
+			// The ViewPropertyAnimator APIs are not available, so simply show
+			// and hide the relevant UI components.
+			mScheduleStatusView.setVisibility(show ? View.VISIBLE : View.GONE);
+			mScheduleMainView.setVisibility(show ? View.GONE : View.VISIBLE);
+		}
+	}
+
 }
