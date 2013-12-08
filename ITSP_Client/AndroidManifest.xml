@@ -4,164 +4,179 @@
     android:versionCode="1"
     android:versionName="1.0" >
 
-	<uses-permission android:name="android.permission.INTERNET" />
-	
-	<uses-permission android:name="android.permission.GET_ACCOUNTS" />
-	
-	<uses-permission android:name="android.permission.WAKE_LOCK" />
-	
-	<uses-permission android:name="android.permission.READ_CONTACTS" />
-	<uses-permission android:name="android.permission.NFC" />
-	<uses-permission android:name="android.permission.READ_CALENDAR" />
-	<uses-permission android:name="android.permission.WRITE_CALENDAR" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.NFC" />
+    <uses-permission android:name="android.permission.READ_CALENDAR" />
+    <uses-permission android:name="android.permission.WRITE_CALENDAR" />
+
     <uses-feature android:name="android.hardware.nfc" />
-    
+
     <permission
         android:name="jp.ac.titech.itpro.sds.fragile.permission.C2D_MESSAGE"
         android:protectionLevel="signature" />
+
     <uses-permission android:name="jp.ac.titech.itpro.sds.fragile.permission.C2D_MESSAGE" />
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
-    
+
     <uses-sdk
         android:minSdkVersion="16"
         android:targetSdkVersion="17" />
-    
+
     <application
         android:allowBackup="true"
+        android:debuggable="true"
         android:icon="@drawable/icon"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme" android:debuggable="true">
- 
-        <meta-data 
+        android:theme="@style/AppTheme" >
+        <meta-data
             android:name="android.nfc.disable_beam_default"
             android:value="true" />
 
         <activity
-            android:name=".MainActivity"
-            android:theme="@style/ColorBackTheme"
+            android:name="jp.ac.titech.itpro.sds.fragile.MainActivity"
             android:label="@string/app_name"
-            android:screenOrientation="portrait" >
+            android:screenOrientation="portrait"
+            android:theme="@style/ColorBackTheme" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
-            android:name=".LoginActivity"
-            android:theme="@style/ColorBackTheme"
+            android:name="jp.ac.titech.itpro.sds.fragile.LoginActivity"
             android:label="@string/login_progress_signing_in"
-            android:screenOrientation="portrait" >
+            android:screenOrientation="portrait"
+            android:theme="@style/ColorBackTheme" >
         </activity>
         <activity
-            android:name=".LoggedActivity"
+            android:name="jp.ac.titech.itpro.sds.fragile.LoggedActivity"
             android:label="@string/logged_title"
             android:screenOrientation="portrait" >
         </activity>
         <activity
-            android:name=".RegisterActivity"
-            android:theme="@style/ColorBackTheme"
+            android:name="jp.ac.titech.itpro.sds.fragile.RegisterActivity"
             android:label="@string/title_activity_register"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:theme="@style/ColorBackTheme" >
         </activity>
         <activity
-            android:name=".RegisteredActivity"
+            android:name="jp.ac.titech.itpro.sds.fragile.RegisteredActivity"
             android:label="@string/title_activity_registered"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait" >
         </activity>
         <activity
-            android:name=".FriendActivity"
+            android:name="jp.ac.titech.itpro.sds.fragile.FriendActivity"
             android:label="@string/title_activity_friend"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait" >
             <intent-filter>
                 <action android:name="android.nfc.action.NDEF_DISCOVERED" />
+
                 <category android:name="android.intent.category.DEFAULT" />
+
                 <data android:mimeType="application/jp.ac.titech.itpro.sds.fragile" />
             </intent-filter>
         </activity>
         <activity
-            android:name=".ScheduleInputActivity"
-            android:theme="@style/AppTheme"
+            android:name="jp.ac.titech.itpro.sds.fragile.ScheduleInputActivity"
             android:label="@string/title_activity_inputschedule"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme" >
         </activity>
         <activity
-            android:name=".ScheduleEditActivity"
-            android:theme="@style/AppTheme"
+            android:name="jp.ac.titech.itpro.sds.fragile.ScheduleEditActivity"
             android:label="@string/title_activity_editschedule"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme" >
         </activity>
         <activity
-            android:name=".ScheduleActivity"
-            android:theme="@style/AppTheme"
+            android:name="jp.ac.titech.itpro.sds.fragile.ScheduleActivity"
             android:label="@string/title_activity_schedule"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme" >
         </activity>
         <activity
-            android:name=".ShareTimeActivity"
-            android:theme="@style/AppTheme"
+            android:name="jp.ac.titech.itpro.sds.fragile.ShareTimeActivity"
             android:label="@string/title_activity_schedule"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme" >
         </activity>
         <activity
-            android:name=".MakeGroupActivity"
-            android:theme="@style/AppTheme"
+            android:name="jp.ac.titech.itpro.sds.fragile.MakeGroupActivity"
             android:label="@string/title_activity_makegroup"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme" >
         </activity>
         <activity
-            android:name=".TestActivity"
+            android:name="jp.ac.titech.itpro.sds.fragile.TestActivity"
             android:label="@string/title_activity_makegroup"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait" >
         </activity>
         <activity
- 			android:name="TransparentActivity"
-  			android:theme="@android:style/Theme.Translucent.NoTitleBar"
-  			android:screenOrientation="portrait">
-  			<intent-filter>
-      			<action android:name="android.intent.action.MAIN" />
-  			</intent-filter>
-		</activity>
-		<activity
-            android:name=".TestActivity2"
+            android:name="jp.ac.titech.itpro.sds.fragile.TransparentActivity"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="jp.ac.titech.itpro.sds.fragile.TestActivity2"
             android:label="@string/title_activity_makegroup"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait" >
         </activity>
         <activity
- 			android:name="TransparentActivity2"
-  			android:theme="@android:style/Theme.Translucent.NoTitleBar"
-  			android:screenOrientation="portrait">
-  			<intent-filter>
-      			<action android:name="android.intent.action.MAIN" />
-  			</intent-filter>
-		</activity>
+            android:name="jp.ac.titech.itpro.sds.fragile.TransparentActivity2"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
+        </activity>
         <activity
-            android:name=".TestActivity3"
+            android:name="jp.ac.titech.itpro.sds.fragile.TestActivity3"
             android:label="@string/title_activity_makegroup"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait" >
         </activity>
         <activity
- 			android:name="TransparentActivity3"
-  			android:theme="@android:style/Theme.Translucent.NoTitleBar"
-  			android:screenOrientation="portrait">
-  			<intent-filter>
-      			<action android:name="android.intent.action.MAIN" />
-  			</intent-filter>
-		</activity>
-        
+            android:name="jp.ac.titech.itpro.sds.fragile.TransparentActivity3"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
+        </activity>
 
-    <receiver 
-        android:name= "com.google.android.gcm.GCMBroadcastReceiver"
-        android:permission="com.google.android.c2dm.permission.SEND" >
+        <receiver
+            android:name="com.google.android.gcm.GCMBroadcastReceiver"
+            android:permission="com.google.android.c2dm.permission.SEND" >
+
      
-    　　　　<intent-filter>
-    　　　　　　　　<action android:name="com.google.android.c2dm.intent.RECEIVE" />
-    　　　　　　　　<action android:name="com.google.android.c2dm.intent.REGISTRATION" />
-    　　　　　　　　<category android:name="jp.ac.titech.itpro.sds.fragile" />
-    　　　　</intent-filter>
-    </receiver>
-    <service android:name=".GCMIntentService" />
+    　　　　
+            <intent-filter>
 
-        
+    　　　　　　　　
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+
+    　　　　　　　　
+                <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
+
+    　　　　　　　　
+                <category android:name="jp.ac.titech.itpro.sds.fragile" />
+
+    　　　　
+            </intent-filter>
+        </receiver>
+
+        <service android:name="jp.ac.titech.itpro.sds.fragile.GCMIntentService" />
+
+        <activity
+            android:name="jp.ac.titech.itpro.sds.fragile.FriendListActivity"
+            android:label="@string/title_activity_friend_list" >
+        </activity>
     </application>
 
 </manifest>

@@ -5,7 +5,7 @@
     <string name="action_settings">設定</string>
     <string name="message_logged_in">メニュー</string>
     <string name="logged_title">ユーザーページ</string>
-    <string name="back">トップへ戻る</string>    
+    <string name="back">トップへ戻る</string>
     <string name="button_go_to_friend">友人登録</string>
     <string name="button_go_to_inputschedule">予定を追加</string>
     <string name="button_go_to_makegroup">グループ作成</string>
@@ -13,12 +13,14 @@
     <string name="button_go_to_login">ログイン</string>
     <string name="button_go_to_schedule">スケジュール</string>
     <string name="button_go_to_sharetime">予定を比較</string>
-    <string name="welcome_menu">ようこそ</string>        
+    <string name="welcome_menu">ようこそ</string>
     <string name="title_activity_makegroup">グループ作成</string>
     <string name="button_sample">Sample Button</string>
     <string name="button_logout">ログアウト</string>
     <string name="button_go_to_previous_week">先週</string>
     <string name="button_go_to_next_week">来週</string>
     <string name="button_googlecalendar_import">インポート</string>
-
+    <string name="button_friend_list">友達一覧表示</string>
+    <string name="title_activity_friend_list">FriendListActivity</string>
+    <string name="hello_world">Hello world!</string>
 </resources>

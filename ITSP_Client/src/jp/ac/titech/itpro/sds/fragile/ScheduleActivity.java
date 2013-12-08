@@ -524,6 +524,19 @@ public class ScheduleActivity extends Activity implements
 					}
 				});
 
+
+		// friend list ボタン
+		fMenu.getItem(8).setOnMenuItemClickListener(
+				new MenuItem.OnMenuItemClickListener() {
+					@Override
+					public boolean onMenuItemClick(MenuItem item) {
+						startActivity(new Intent(ScheduleActivity.this,
+								FriendListActivity.class));
+
+						return true;
+					}
+				});
+
 		return super.onCreateOptionsMenu(fMenu);
 	}
 
@@ -798,13 +811,14 @@ public class ScheduleActivity extends Activity implements
 		TextView sampleSched = new TextView(this);
 		double[] scheduleLayout = new double[3]; // scheduleの {x, y, height}
 
-		final long startE = startTime;
-		final long finishE = finishTime;
-
 		Calendar start = Calendar.getInstance();
 		Calendar finish = Calendar.getInstance();
 		start.setTimeInMillis(startTime);
 		finish.setTimeInMillis(finishTime);
+
+		final Calendar fStart =  (Calendar) start.clone();
+		final Calendar fFinish = (Calendar) finish.clone();
+
 
 		scheduleLayout[0] = CalendarUtils.calcDateDiff(start, mBeginOfWeek);
 		scheduleLayout[1] = start.get(Calendar.HOUR_OF_DAY)
@@ -857,9 +871,9 @@ public class ScheduleActivity extends Activity implements
 											intentEdit.putExtra("key", keyS);
 											intentEdit.putExtra("name", name);
 											intentEdit
-													.putExtra("start", startE);
+													.putExtra("start", fStart);
 											intentEdit.putExtra("finish",
-													finishE);
+													fFinish);
 											intentEdit.putExtra("repeat",
 													repeat);
 											intentEdit
