@@ -243,21 +243,6 @@
                         android:text="@string/saturday" />
                 </LinearLayout>
 
-                <CheckBox
-                    android:id="@+id/groupScheduleCheckbox"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:checked="false"
-                    android:text="@string/group" />
-
-                <RadioGroup
-                    android:id="@+id/radioButtonGroup"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:paddingLeft="20dp"
-                    android:visibility="gone" >
-                </RadioGroup>
             </LinearLayout>
 
             <LinearLayout
