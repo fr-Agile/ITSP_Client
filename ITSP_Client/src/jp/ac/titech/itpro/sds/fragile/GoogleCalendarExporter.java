@@ -25,8 +25,8 @@ public class GoogleCalendarExporter {
 	private GoogleCalendarInstance gci = null;
 	private String keyS = null;
 	private Activity activity = null;
+	private Long calID;
 	private static final String FAIL = CommonConstant.FAIL;
-	private static final int CALENDAR_ID = 1;
 	
 	public GoogleCalendarExporter(
 			GoogleCalendarExportFinishListener listener, Activity activity) {
@@ -41,12 +41,14 @@ public class GoogleCalendarExporter {
 		public void onGoogleCalendarExportFinish(String googleId);
 	}
 	
-	public void insert(ScheduleV1Dto schedule) {
+	public void insert(Long calID, ScheduleV1Dto schedule) {
+		this.calID = calID;
 		this.gci = new GoogleCalendarInstance(schedule);
 		new GoogleExportTask().execute();
 	}
 	
-	public void insert(RepeatScheduleV1Dto schedule) {
+	public void insert(Long calID, RepeatScheduleV1Dto schedule) {
+		this.calID = calID;
 		this.gci = new GoogleCalendarInstance(schedule);
 		new GoogleExportTask().execute();
 	}
@@ -82,7 +84,7 @@ public class GoogleCalendarExporter {
 				values.put(Events.DTSTART, gci.getDtstart());
 				values.put(Events.TITLE, gci.getTitle());
 				values.put(Events.RRULE, gci.getRrule());
-				values.put(Events.CALENDAR_ID, CALENDAR_ID);
+				values.put(Events.CALENDAR_ID, calID);
 				values.put(Events.EVENT_TIMEZONE, "Asia/Tokyo");
 				
 				// dtendかdurationを登録
@@ -95,7 +97,7 @@ public class GoogleCalendarExporter {
 				
 				// get the event ID that is the last element in the Uri
 				String eventId = uri.getLastPathSegment();
-				String googleId = CALENDAR_ID + "_" + eventId;
+				String googleId = calID + "_" + eventId;
 				
 				Log.d("DEBUG", "export: " + googleId);
 				return googleId;
@@ -181,7 +183,7 @@ public class GoogleCalendarExporter {
 					values.put(Events.DTSTART, gci.getDtstart());
 					values.put(Events.TITLE, gci.getTitle());
 					values.put(Events.RRULE, gci.getRrule());
-					values.put(Events.CALENDAR_ID, CALENDAR_ID);
+					values.put(Events.CALENDAR_ID, calID);
 					values.put(Events.EVENT_TIMEZONE, "Asia/Tokyo");
 					
 					// dtendかdurationを登録
@@ -194,7 +196,7 @@ public class GoogleCalendarExporter {
 					
 					// get the event ID that is the last element in the Uri
 					String eventId = uri.getLastPathSegment();
-					googleId = CALENDAR_ID + "_" + eventId;
+					googleId = calID + "_" + eventId;
 					
 					Log.d("DEBUG", "edit: " + googleId);
 					return googleId;

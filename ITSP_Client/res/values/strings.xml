@@ -19,7 +19,7 @@
     <string name="button_logout">ログアウト</string>
     <string name="button_go_to_previous_week">先週</string>
     <string name="button_go_to_next_week">来週</string>
-    <string name="button_googlecalendar_import">インポート</string>
+    <string name="button_googlecalendar_import">Googleアカウントの登録</string>
     <string name="button_friend_list">友達一覧表示</string>
     <string name="title_activity_friend_list">FriendListActivity</string>
     <string name="hello_world">Hello world!</string>

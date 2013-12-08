@@ -44,6 +44,10 @@ import android.widget.TimePicker.OnTimeChangedListener;
 import android.widget.Toast;
 
 import com.appspot.fragile_t.groupEndpoint.model.GroupV1Dto;
+import com.appspot.fragile_t.getUserEndpoint.GetUserEndpoint;
+import com.appspot.fragile_t.getUserEndpoint.GetUserEndpoint.GetUserV1Endpoint.GetUser;
+import com.appspot.fragile_t.getUserEndpoint.model.GetUserResultV1Dto;
+import com.appspot.fragile_t.getUserEndpoint.model.UserV1Dto;
 import com.appspot.fragile_t.repeatScheduleEndpoint.RepeatScheduleEndpoint;
 import com.appspot.fragile_t.repeatScheduleEndpoint.RepeatScheduleEndpoint.RepeatScheduleV1EndPoint.CreateRepeatScheduleWithGId;
 import com.appspot.fragile_t.repeatScheduleEndpoint.RepeatScheduleEndpoint.RepeatScheduleV1EndPoint.CreateRepeatScheduleWithTerm;
@@ -71,6 +75,7 @@ public class ScheduleEditActivity extends Activity
 	private DatePicker mDatepicker;
 	private TimePicker mStartTimePicker;
 	private TimePicker mFinishTimePicker;
+	private UserV1Dto mUser;
 	
 	private CheckBox repeatChk;
 	private CheckBox everydayChk;
@@ -88,7 +93,6 @@ public class ScheduleEditActivity extends Activity
 	private List<Integer> repeats;
 	private List<GroupV1Dto> groupList;
 	
-	private CheckBox googleChk;
 	private boolean googleChecked;
 
 	private View mInputScheduleView;
@@ -98,6 +102,7 @@ public class ScheduleEditActivity extends Activity
 	
 	private EditRepeatScheduleTask mRepeatAuthTask = null;
 	private EditScheduleTask mAuthTask = null;
+	private GetUserTask mGetUserTask = null;
 
 	private DateFormat formatDateTime = DateFormat.getDateTimeInstance();
 	private Calendar startTime=Calendar.getInstance();
@@ -244,11 +249,6 @@ public class ScheduleEditActivity extends Activity
 		});
         repeatdaysView = findViewById(R.id.repeatdaysView);
         
-		googleChk = (CheckBox) findViewById(R.id.googleCheckbox);
-		googleChk.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {}
-		});
 
 		sunChk = (CheckBox) findViewById(R.id.sundayCheckbox);
 		monChk = (CheckBox) findViewById(R.id.mondayCheckbox);
@@ -416,23 +416,11 @@ public class ScheduleEditActivity extends Activity
 		if (satChk.isChecked())
 			repeats.add(6);
 
-		googleChecked = googleChk.isChecked();
-
-		showProgress(true);
-
-		if (googleChecked) {
-			GoogleAccountChecker gac = 
-					new GoogleAccountChecker(ScheduleEditActivity.this, ScheduleEditActivity.this);
-			gac.run();
-		} else { 
-			if(repeat){
-				mRepeatAuthTask = new EditRepeatScheduleTask();
-				mRepeatAuthTask.execute((Void) null);
-			}else{
-				mAuthTask = new EditScheduleTask();
-				mAuthTask.execute((Void) null);
-			}
-		}
+		
+		// user情報を手に入れる(user情報をもとにgoogleにエクスポートするかを決める)
+		mGetUserTask = new GetUserTask();
+		mGetUserTask.execute();
+		
 	}
 	private void setButtonEnable() {
 		if (scheduleStartTime == 0 || scheduleFinishTime == 0 || scheduleStartTime >= scheduleFinishTime){
@@ -766,38 +754,50 @@ public class ScheduleEditActivity extends Activity
 
 	@Override
 	public void onGoogleAccountCheckFinish(boolean result,
-			List<String> accountList) {
+			List<String> accountList, List<String> displayList, List<Long> idList) {
 		if (result) {
 			if (accountList != null && accountList.size() > 0) {
-				// アカウントが登録されているのでスケジュールをエクスポートする
-				
-				// スケジュールを生成
+				// エクスポート先のカレンダーidを探す
 				SharedPreferences pref = getSharedPreferences("user",
 						Activity.MODE_PRIVATE);
 				mEmail = pref.getString("email", "");
-
-				if (repeatChk.isChecked()) {
-					// 繰り返しの場合
-					RepeatScheduleV1Dto newSchedule = 
-							makeRepeatScheduleDto(name, scheduleStartTime, scheduleFinishTime, repeats);
-					GoogleCalendarExporter gce = 
-							new GoogleCalendarExporter(this, this);
-					if (create) {
-						gce.insert(newSchedule);
-					} else {
-						gce.edit(keyS, newSchedule);
+				String accountName = mUser.getGoogleAccount().split("_")[0];
+				String displayName = mUser.getGoogleAccount().split("_")[1];
+				
+				Long calID = null;
+				for (int i = 0; i < accountList.size(); i++) {
+					if (accountList.get(i).equals(accountName) && 
+							displayList.get(i).equals(displayName)) {
+						// アカウントネームとディスプレイネームが一致するidを取得
+						calID = idList.get(i);
+						break;
 					}
-				} else {
-					ScheduleV1Dto newSchedule = new ScheduleV1Dto();
-					newSchedule.setStartTime(scheduleStartTime);
-					newSchedule.setFinishTime(scheduleFinishTime);
-					newSchedule.setName(name);
-					GoogleCalendarExporter gce = 
-							new GoogleCalendarExporter(this, this);
-					if (create) {
-						gce.insert(newSchedule);
+				}
+
+				if (calID != null) {
+					if (repeatChk.isChecked()) {
+						// 繰り返しの場合
+						RepeatScheduleV1Dto newSchedule = 
+								makeRepeatScheduleDto(name, scheduleStartTime, scheduleFinishTime, repeats);
+						GoogleCalendarExporter gce = 
+								new GoogleCalendarExporter(this, this);
+						if (create) {
+							gce.insert(calID, newSchedule);
+						} else {
+							gce.edit(keyS, newSchedule);
+						}
 					} else {
-						gce.edit(keyS, newSchedule);
+						ScheduleV1Dto newSchedule = new ScheduleV1Dto();
+						newSchedule.setStartTime(scheduleStartTime);
+						newSchedule.setFinishTime(scheduleFinishTime);
+						newSchedule.setName(name);
+						GoogleCalendarExporter gce = 
+								new GoogleCalendarExporter(this, this);
+						if (create) {
+							gce.insert(calID, newSchedule);
+						} else {
+							gce.edit(keyS, newSchedule);
+						}
 					}
 				}
 			} else {
@@ -836,5 +836,62 @@ public class ScheduleEditActivity extends Activity
 			}
 		}
 		return false;
+	}
+	
+	public class GetUserTask extends AsyncTask<Void, Void, GetUserResultV1Dto> {
+		@Override
+		protected GetUserResultV1Dto doInBackground(Void... args) {
+			try {
+				SharedPreferences pref = getSharedPreferences("user", Activity.MODE_PRIVATE);
+				mEmail = pref.getString("email","");	
+				
+				GetUserEndpoint endpoint = RemoteApi.getGetUserEndpoint();
+				GetUser getUser = endpoint.getUserV1Endpoint().getUser(mEmail);
+				GetUserResultV1Dto result = getUser.execute();
+				return result;
+			} catch (Exception e) {
+				Log.d("DEBUG", "get user fail: " + e);
+				return null;
+			}
+		}
+	
+		@Override
+		protected void onPostExecute(GetUserResultV1Dto result) {
+			mGetUserTask = null;
+			if ((result != null) && SUCCESS.equals(result.getResult())) {
+				mUser = result.getUser();
+				Log.d("DEBUG", "get user success");
+				
+				if (mUser.getGoogleAccount().equals(GoogleConstant.UNTIED_TO_GOOGLE)) {
+					googleChecked = false;
+				} else {
+					googleChecked = true;
+				}
+				
+				showProgress(true);
+				if (googleChecked) {
+					GoogleAccountChecker gac = 
+							new GoogleAccountChecker(ScheduleEditActivity.this, ScheduleEditActivity.this);
+					gac.run();
+				} else { 
+					if(repeat){
+						mRepeatAuthTask = new EditRepeatScheduleTask();
+						mRepeatAuthTask.execute((Void) null);
+					}else{
+						mAuthTask = new EditScheduleTask();
+						mAuthTask.execute((Void) null);
+					}
+				}
+				
+			} else {
+				mUser = null;
+				Log.d("DEBUG", "get user fail");
+			}
+		}
+
+		@Override
+		protected void onCancelled() {
+			mGetUserTask = null;
+		}
 	}
 }

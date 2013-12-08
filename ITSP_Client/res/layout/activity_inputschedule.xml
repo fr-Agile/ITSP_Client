@@ -176,12 +176,6 @@
 	                    android:checked="false"
 	                    android:text="Repeart" />
 	                
-	                <CheckBox
-	                    android:id="@+id/googleCheckbox"
-	                    android:layout_width="wrap_content"
-	                    android:layout_height="wrap_content"
-	                    android:checked="false"
-	                    android:text="@string/googleCheckText" />
                	</LinearLayout>
                 
                 <LinearLayout 

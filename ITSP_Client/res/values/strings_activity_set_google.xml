@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="title_activity_setgoogle">出力先のGoogleアカウントを登録</string>
+    <string name="button_set_google">登録</string>
+    <string name="button_set_google_cancel">キャンセル</string>
+    <string name="getting_google_account">Googleアカウントを取得中</string>
+
+</resources>

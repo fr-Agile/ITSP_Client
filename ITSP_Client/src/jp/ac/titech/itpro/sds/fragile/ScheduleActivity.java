@@ -530,10 +530,15 @@ public class ScheduleActivity extends Activity implements
 				new MenuItem.OnMenuItemClickListener() {
 					@Override
 					public boolean onMenuItemClick(MenuItem item) {
+						/*
 						// GoogleAccountCheckerを起動
 						GoogleAccountChecker gac = new GoogleAccountChecker(
 								ScheduleActivity.this, ScheduleActivity.this);
 						gac.run();
+						*/
+						startActivity(new Intent(ScheduleActivity.this,
+								SetGoogleActivity.class));
+						
 						return true;
 					}
 				});
@@ -1172,7 +1177,7 @@ public class ScheduleActivity extends Activity implements
 
 	@Override
 	public void onGoogleAccountCheckFinish(boolean result,
-			List<String> accountList) {
+			List<String> accountList, List<String> displayList, List<Long> idList) {
 		if (result) {
 			if (accountList != null && accountList.size() > 0) {
 				// アカウントが登録されているのでカレンダーを読み込む
