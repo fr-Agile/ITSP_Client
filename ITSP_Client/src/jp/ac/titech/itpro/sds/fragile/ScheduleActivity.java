@@ -530,8 +530,8 @@ public class ScheduleActivity extends Activity implements
 				new MenuItem.OnMenuItemClickListener() {
 					@Override
 					public boolean onMenuItemClick(MenuItem item) {
-						startActivity(new Intent(ScheduleActivity.this,
-								FriendListActivity.class));
+						//startActivity(new Intent(ScheduleActivity.this,
+							//	FriendListActivity.class));
 
 						return true;
 					}
@@ -795,11 +795,6 @@ public class ScheduleActivity extends Activity implements
 		}
 	}
 
-	private void displaySchedule(Long startTime, Long finishTime,
-			final String keyS) {
-		displaySchedule(false, startTime, finishTime, "", keyS, false);
-	}
-
 	private void displaySchedule(String name, Long startTime, Long finishTime,
 			final String keyS) {
 		displaySchedule(false, startTime, finishTime, name, keyS, false);
@@ -871,8 +866,8 @@ public class ScheduleActivity extends Activity implements
 											intentEdit.putExtra("key", keyS);
 											intentEdit.putExtra("name", name);
 											intentEdit
-													.putExtra("start", fStart);
-											intentEdit.putExtra("finish",
+													.putExtra("startTime", fStart);
+											intentEdit.putExtra("finishTime",
 													fFinish);
 											intentEdit.putExtra("repeat",
 													repeat);
