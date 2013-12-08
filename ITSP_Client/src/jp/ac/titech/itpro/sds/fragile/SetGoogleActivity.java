@@ -3,11 +3,14 @@ package jp.ac.titech.itpro.sds.fragile;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.appspot.fragile_t.getUserEndpoint.model.GetUserResultV1Dto;
 import com.appspot.fragile_t.registerEndpoint.RegisterEndpoint;
 import com.appspot.fragile_t.registerEndpoint.RegisterEndpoint.RegisterV1Endpoint.SetGoogleAccount;
 import com.appspot.fragile_t.registerEndpoint.model.UserV1Dto;
 
+import jp.ac.titech.itpro.sds.fragile.GetUserTask.GetUserFinishListener;
 import jp.ac.titech.itpro.sds.fragile.api.RemoteApi;
+import jp.ac.titech.itpro.sds.fragile.api.constant.CommonConstant;
 import jp.ac.titech.itpro.sds.fragile.api.constant.GoogleConstant;
 import jp.ac.titech.itpro.sds.fragile.utils.GoogleAccountChecker;
 import jp.ac.titech.itpro.sds.fragile.utils.GoogleAccountChecker.GoogleAccountCheckFinishListener;
@@ -29,7 +32,7 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class SetGoogleActivity extends Activity implements GoogleAccountCheckFinishListener {
+public class SetGoogleActivity extends Activity implements GoogleAccountCheckFinishListener, GetUserFinishListener {
 	private List<String> mAccountList = new ArrayList<String>();
 	private List<String> mDisplayList = new ArrayList<String>();
 	private ArrayAdapter<String> mAdapter;
@@ -41,7 +44,9 @@ public class SetGoogleActivity extends Activity implements GoogleAccountCheckFin
 	private TextView mSetGoogleStatusMessageView;
 	
 	private String mGoogleAccount;
-	private SetGoogleTask mAuthTask = null;
+	private SetGoogleTask mSetTask = null;
+	
+	private final static String SUCCESS = CommonConstant.SUCCESS;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -70,9 +75,9 @@ public class SetGoogleActivity extends Activity implements GoogleAccountCheckFin
         		}
         		if (selected != null) {
         			mGoogleAccount = selected;
-        			if (mAuthTask == null) { 
-        				mAuthTask = new SetGoogleTask();
-        				mAuthTask.execute();
+        			if (mSetTask == null) { 
+        				mSetTask = new SetGoogleTask();
+        				mSetTask.execute();
         			}
         		}
         	}
@@ -112,6 +117,12 @@ public class SetGoogleActivity extends Activity implements GoogleAccountCheckFin
 			
 			// account_nameのリストも更新
 			mAccountList = accountList;
+			
+			SharedPreferences pref = getSharedPreferences("user", Activity.MODE_PRIVATE);
+			String email = pref.getString("email", "");
+			GetUserTask getTask = new GetUserTask(this);
+			getTask.setEmail(email);
+			getTask.execute();
 		} else {
 			// アカウントが登録されていない場合、ダイアログを表示して登録を促す
 			new GoogleAccountRegistDialogBuilder(SetGoogleActivity.this)
@@ -192,7 +203,7 @@ public class SetGoogleActivity extends Activity implements GoogleAccountCheckFin
 
 		@Override
 		protected void onPostExecute(final Boolean success) {
-			mAuthTask = null;
+			mSetTask = null;
 			if (success) {
 				Log.d("DEBUG", "set google success");
 				SetGoogleActivity.this.finish();	// 元のアクティビティに戻る
@@ -201,8 +212,30 @@ public class SetGoogleActivity extends Activity implements GoogleAccountCheckFin
 
 		@Override
 		protected void onCancelled() {
-			mAuthTask = null;
+			mSetTask = null;
 			SetGoogleActivity.this.finish();	// 元のアクティビティに戻る
+		}
+	}
+
+	@Override
+	public void onGetUserFinish(GetUserResultV1Dto result) {
+		if (result != null && SUCCESS.equals(result.getResult())) {
+			// もともと選択していたアカウントにチェックを入れる
+			com.appspot.fragile_t.getUserEndpoint.model.UserV1Dto userDto = result.getUser();
+			if (GoogleConstant.UNTIED_TO_GOOGLE.equals(userDto.getGoogleAccount())) {
+				// Googleと紐づけないにチェックを入れる
+				mListView.setItemChecked(mAccountList.size(), true);
+			} else {
+				String accountName = userDto.getGoogleAccount().split("_")[0];
+				String displayName = userDto.getGoogleAccount().split("_")[1];
+				for (int i = 0; i < mAccountList.size(); i++) {
+					if (accountName.equals(mAccountList.get(i)) && 
+							displayName.equals(mDisplayList.get(i))) {
+						// 名前が一致したのでチェックを入れる
+						mListView.setItemChecked(i, true);
+					}
+				}
+			}
 		}
 	}
 }
