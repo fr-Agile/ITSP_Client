@@ -261,17 +261,23 @@ public class ScheduleEditActivity extends Activity
 			repeatChk.setChecked(true);
 			if(DayCheck(rd,0)){
 				sunChk.setChecked(true);
-			}else if(DayCheck(rd,1)){
+			}
+			if(DayCheck(rd,1)){
 				monChk.setChecked(true);
-			}else if(DayCheck(rd,2)){
+			}
+			if(DayCheck(rd,2)){
 				tueChk.setChecked(true);
-			}else if(DayCheck(rd,3)){
+			}
+			if(DayCheck(rd,3)){
 				wedChk.setChecked(true);
-			}else if(DayCheck(rd,4)){
+			}
+			if(DayCheck(rd,4)){
 				thuChk.setChecked(true);
-			}else if(DayCheck(rd,5)){
+			}
+			if(DayCheck(rd,5)){
 				friChk.setChecked(true);
-			}else if(DayCheck(rd,6)){
+			}
+			if(DayCheck(rd,6)){
 				satChk.setChecked(true);
 			}
 		}
@@ -821,17 +827,11 @@ public class ScheduleEditActivity extends Activity
 		}
 	}
 	public boolean DayCheck(int[] rd,int n){
-		int i;
-		int count=0;
-		for(i=0;i<rd.length;i++){
+		for(int i=0;i<rd.length;i++){
 			if(rd[i]==n){
-				count=1;
+				return true;
 			}
 		}
-		if(count==1){
-			return true;
-		}else{
-			return false;
-		}
+		return false;
 	}
 }
