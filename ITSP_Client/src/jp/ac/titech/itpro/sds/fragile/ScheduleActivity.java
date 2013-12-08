@@ -942,7 +942,6 @@ public class ScheduleActivity extends Activity implements
 			return;
 		}
 		
-		showProgress(true);
 		boolean cancel = false;
 		mCalTask = new GetScheduleTask();
 		mCalTask.execute((Void) null);
