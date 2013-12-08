@@ -106,6 +106,7 @@ public class ScheduleEditActivity extends Activity
 	private String name="";
 	private boolean repeat;
 	private boolean create;
+	private int[] rd;
 	
 	
 	/** Called when the activity is first created. */
@@ -154,6 +155,7 @@ public class ScheduleEditActivity extends Activity
         mFinishTimePicker = (TimePicker)findViewById(R.id.timePicker2);
 		
 		keyS = extras.getString("key", "");
+		rd = extras.getIntArray("repeatdays");
 		repeat = extras.containsKey("repeat") && (Boolean) extras.get("repeat");
 		create = extras.containsKey("create") && (Boolean) extras.get("create");
 		
@@ -245,10 +247,33 @@ public class ScheduleEditActivity extends Activity
 			public void onClick(View v) {}
 		});
 
+		sunChk = (CheckBox) findViewById(R.id.sundayCheckbox);
+		monChk = (CheckBox) findViewById(R.id.mondayCheckbox);
+		tueChk = (CheckBox) findViewById(R.id.tuesdayCheckbox);
+		wedChk = (CheckBox) findViewById(R.id.wednesdayCheckbox);
+		thuChk = (CheckBox) findViewById(R.id.thursdayCheckbox);
+		friChk = (CheckBox) findViewById(R.id.fridayCheckbox);
+		satChk = (CheckBox) findViewById(R.id.saturdayCheckbox);
+		
 		repeatChk = (CheckBox) findViewById(R.id.repeartCheckbox);
 		if(repeat){
 			repeatdaysView.setVisibility(View.VISIBLE);
 			repeatChk.setChecked(true);
+			if(DayCheck(rd,0)){
+				sunChk.setChecked(true);
+			}else if(DayCheck(rd,1)){
+				monChk.setChecked(true);
+			}else if(DayCheck(rd,2)){
+				tueChk.setChecked(true);
+			}else if(DayCheck(rd,3)){
+				wedChk.setChecked(true);
+			}else if(DayCheck(rd,4)){
+				thuChk.setChecked(true);
+			}else if(DayCheck(rd,5)){
+				friChk.setChecked(true);
+			}else if(DayCheck(rd,6)){
+				satChk.setChecked(true);
+			}
 		}
 		repeatChk.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -264,14 +289,6 @@ public class ScheduleEditActivity extends Activity
 				}
 			}
 		});
-
-		sunChk = (CheckBox) findViewById(R.id.sundayCheckbox);
-		monChk = (CheckBox) findViewById(R.id.mondayCheckbox);
-		tueChk = (CheckBox) findViewById(R.id.tuesdayCheckbox);
-		wedChk = (CheckBox) findViewById(R.id.wednesdayCheckbox);
-		thuChk = (CheckBox) findViewById(R.id.thursdayCheckbox);
-		friChk = (CheckBox) findViewById(R.id.fridayCheckbox);
-		satChk = (CheckBox) findViewById(R.id.saturdayCheckbox);
 
 		everydayChk = (CheckBox) findViewById(R.id.everydayCheckbox);
 		everydayChk.setOnClickListener(new View.OnClickListener() {
@@ -801,6 +818,20 @@ public class ScheduleEditActivity extends Activity
 				mAuthTask.setGoogleId(googleId);
 				mAuthTask.execute();
 			}
+		}
+	}
+	public boolean DayCheck(int[] rd,int n){
+		int i;
+		int count=0;
+		for(i=0;i<rd.length;i++){
+			if(rd[i]==n){
+				count=1;
+			}
+		}
+		if(count==1){
+			return true;
+		}else{
+			return false;
 		}
 	}
 }

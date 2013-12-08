@@ -786,7 +786,7 @@ public class ScheduleActivity extends Activity implements
 				mHandler.post(new Runnable() {
 					// グループスケジュールのkeyはまだ
 					public void run() {
-						displaySchedule(false, gs.getStartTime(),
+						displaySchedule(false, null,gs.getStartTime(),
 								gs.getFinishTime(), userListStr, "",
 								unwiseFinal);
 					}
@@ -797,10 +797,10 @@ public class ScheduleActivity extends Activity implements
 
 	private void displaySchedule(String name, Long startTime, Long finishTime,
 			final String keyS) {
-		displaySchedule(false, startTime, finishTime, name, keyS, false);
+		displaySchedule(false,null, startTime, finishTime, name, keyS, false);
 	}
 
-	private void displaySchedule(final Boolean repeat, Long startTime,
+	private void displaySchedule(final Boolean repeat,  final int[] rd,Long startTime,
 			Long finishTime, final String name, final String keyS,
 			Boolean unwise) {
 		TextView sampleSched = new TextView(this);
@@ -869,6 +869,7 @@ public class ScheduleActivity extends Activity implements
 													.putExtra("startTime", fStart);
 											intentEdit.putExtra("finishTime",
 													fFinish);
+											intentEdit.putExtra("repeatdays", rd);
 											intentEdit.putExtra("repeat",
 													repeat);
 											intentEdit
@@ -985,6 +986,10 @@ public class ScheduleActivity extends Activity implements
 						.execute().getItems();
 				if (repeatList != null && repeatList.size() > 0) {
 					for (final RepeatScheduleV1Dto repeat : repeatList) {
+						final int[] intArray = new int[repeat.getRepeatDays().size()];
+						for (int i=0; i<repeat.getRepeatDays().size(); i++) {
+						  intArray[i] = repeat.getRepeatDays().get(i);
+						}
 						for (int day : repeat.getRepeatDays()) {
 							final Calendar start = (Calendar) mBeginOfWeek
 									.clone();
@@ -1017,7 +1022,7 @@ public class ScheduleActivity extends Activity implements
 									// exceptsには含まれていない
 									mHandler.post(new Runnable() {
 										public void run() {
-											displaySchedule(true, start
+											displaySchedule(true, intArray,start
 													.getTime().getTime(),
 													finish.getTime().getTime(),
 													repeat.getName(), repeat
