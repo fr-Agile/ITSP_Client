@@ -122,8 +122,11 @@ public class ScheduleEditActivity extends Activity
         mInputScheduleView = findViewById(R.id.inputScheduleView);
         mScheduleNameView = (EditText) findViewById(R.id.nameInput);
 		mSpinView = findViewById(R.id.spinView);
+		repeatChk = (CheckBox) findViewById(R.id.repeartCheckbox);
                
 		if (extras != null) {
+			repeatChk.setChecked(false);
+			repeatChk.setEnabled(false);
 			if (extras.containsKey("startTime")) {
 				Calendar cal = (Calendar) extras.get("startTime");
 				startTime = (Calendar) cal.clone();
@@ -255,7 +258,7 @@ public class ScheduleEditActivity extends Activity
 		friChk = (CheckBox) findViewById(R.id.fridayCheckbox);
 		satChk = (CheckBox) findViewById(R.id.saturdayCheckbox);
 		
-		repeatChk = (CheckBox) findViewById(R.id.repeartCheckbox);
+		
 		if(repeat){
 			repeatdaysView.setVisibility(View.VISIBLE);
 			repeatChk.setChecked(true);
