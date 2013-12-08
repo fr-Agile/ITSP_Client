@@ -125,7 +125,6 @@ public class ScheduleEditActivity extends Activity
 		if (extras != null) {
 			if (extras.containsKey("startTime")) {
 				Calendar cal = (Calendar) extras.get("startTime");
-				Log.d("myDEBUG", extras.get("startTime").toString());
 				startTime = (Calendar) cal.clone();
 
 				if(extras.containsKey("length")){
@@ -134,7 +133,11 @@ public class ScheduleEditActivity extends Activity
 					cal.add(Calendar.HOUR_OF_DAY, 1);
 				}
 
-				finishTime = (Calendar) cal.clone();
+				if (extras.containsKey("finishTime")) {
+					finishTime = (Calendar) extras.get("finishTime");
+				} else {
+					finishTime = (Calendar) cal.clone();
+				}
 			} else {
 				Calendar cal = Calendar.getInstance();
 				startTime = (Calendar) cal.clone();
