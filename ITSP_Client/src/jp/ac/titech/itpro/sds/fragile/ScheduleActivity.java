@@ -361,17 +361,31 @@ public class ScheduleActivity extends Activity implements
 		displayCalendar(); // スケジュールを四角で表示
 	}
 
-	// 戻るボタンを無効にしています
 	@Override
-	public boolean dispatchKeyEvent(KeyEvent event) {
-		if (event.getAction() == KeyEvent.ACTION_UP) {
-			if (event.getKeyCode() == KeyEvent.KEYCODE_BACK) {
-				return true;
-			}
+	public boolean onKeyDown(int keyCode, KeyEvent event){
+		if (keyCode == KeyEvent.KEYCODE_BACK){
+			new AlertDialog.Builder(this)
+			.setTitle("あじゃ助の終了")
+			.setMessage("あじゃ助を終了してよろしいですか？")
+			.setPositiveButton("いいえ", new DialogInterface.OnClickListener() {		
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					// TODO 自動生成されたメソッド・スタブ					
+				}
+			})
+			.setNegativeButton("はい", new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					// TODO 自動生成されたメソッド・スタブ
+					moveTaskToBack(true);
+				}
+			})
+			.show();
+			return true;
 		}
-		return super.dispatchKeyEvent(event);
+		return false;
 	}
-
+	
 	private void setUpWeek() {
 		// 現在の時刻情報を色々取得
 		dayOfWeek = current.get(Calendar.DAY_OF_WEEK) - Calendar.SUNDAY;
