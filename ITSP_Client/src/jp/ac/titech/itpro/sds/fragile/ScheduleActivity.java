@@ -524,19 +524,6 @@ public class ScheduleActivity extends Activity implements
 					}
 				});
 
-
-		// friend list ボタン
-		fMenu.getItem(8).setOnMenuItemClickListener(
-				new MenuItem.OnMenuItemClickListener() {
-					@Override
-					public boolean onMenuItemClick(MenuItem item) {
-						startActivity(new Intent(ScheduleActivity.this,
-								FriendListActivity.class));
-
-						return true;
-					}
-				});
-
 		return super.onCreateOptionsMenu(fMenu);
 	}
 
@@ -871,8 +858,8 @@ public class ScheduleActivity extends Activity implements
 											intentEdit.putExtra("key", keyS);
 											intentEdit.putExtra("name", name);
 											intentEdit
-													.putExtra("start", fStart);
-											intentEdit.putExtra("finish",
+													.putExtra("startTime", fStart);
+											intentEdit.putExtra("finishTime",
 													fFinish);
 											intentEdit.putExtra("repeat",
 													repeat);
