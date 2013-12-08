@@ -3,13 +3,11 @@ package jp.ac.titech.itpro.sds.fragile;
 import java.util.Calendar;
 import java.util.List;
 
-import com.appspot.fragile_t.getUserEndpoint.GetUserEndpoint;
-import com.appspot.fragile_t.getUserEndpoint.GetUserEndpoint.GetUserV1Endpoint.GetUser;
 import com.appspot.fragile_t.getUserEndpoint.model.GetUserResultV1Dto;
 import com.appspot.fragile_t.getUserEndpoint.model.UserV1Dto;
 
 import jp.ac.titech.itpro.sds.fragile.CalendarSaver.GoogleCalendarSaveFinishListener;
-import jp.ac.titech.itpro.sds.fragile.api.RemoteApi;
+import jp.ac.titech.itpro.sds.fragile.GetUserTask.GetUserFinishListener;
 import jp.ac.titech.itpro.sds.fragile.api.constant.CommonConstant;
 import jp.ac.titech.itpro.sds.fragile.api.constant.GoogleConstant;
 import jp.ac.titech.itpro.sds.fragile.utils.GoogleAccountChecker;
@@ -21,16 +19,14 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
-import android.view.View;
 
 public class MainActivity extends Activity implements 
 	GoogleCalendarSaveFinishListener, GoogleCalendarCheckFinishListener, 
-	GoogleAccountCheckFinishListener {
-	private static SharedPreferences pref;
+	GoogleAccountCheckFinishListener, GetUserFinishListener {
+	private static SharedPreferences mPref;
 	
 	private GetUserTask mGetUserTask = null;
 	private UserV1Dto mUser;
@@ -39,19 +35,21 @@ public class MainActivity extends Activity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-		pref = getSharedPreferences("user", Activity.MODE_PRIVATE);
+		mPref = getSharedPreferences("user", Activity.MODE_PRIVATE);
 		
 		
 		// googleカレンダーをインポートするかどうか判断するため、user情報を取得する
 		if (mGetUserTask == null) {
+			String email = mPref.getString("email", "");
 			Log.d("DEBUG", "start importing google event");
-			mGetUserTask = new GetUserTask();
+			mGetUserTask = new GetUserTask(this);
+			mGetUserTask.setEmail(email);
 			mGetUserTask.execute();
 		}
 		
 		
-		
-		if (!pref.getString("email", "").equals("")) {
+		String nonstr = "";
+		if (!nonstr.equals(mPref.getString("email", ""))) {
 			// 2回目以降の起動時（メールアドレスが保存されているとき）
 			// スケジュール画面へ遷移
 			Intent intent = new Intent(this, ScheduleActivity.class);
@@ -125,49 +123,25 @@ public class MainActivity extends Activity implements
 	 * GoogleCalendarのインポート処理ここまで
 	 */
 	
-	public class GetUserTask extends AsyncTask<Void, Void, GetUserResultV1Dto> {
-		@Override
-		protected GetUserResultV1Dto doInBackground(Void... args) {
-			try {
-				SharedPreferences pref = getSharedPreferences("user", Activity.MODE_PRIVATE);
-				String email = pref.getString("email","");	
-				
-				GetUserEndpoint endpoint = RemoteApi.getGetUserEndpoint();
-				GetUser getUser = endpoint.getUserV1Endpoint().getUser(email);
-				GetUserResultV1Dto result = getUser.execute();
-				return result;
-			} catch (Exception e) {
-				Log.d("DEBUG", "get user fail: " + e);
-				return null;
-			}
-		}
-	
-		@Override
-		protected void onPostExecute(GetUserResultV1Dto result) {
-			mGetUserTask = null;
-			if ((result != null) && SUCCESS.equals(result.getResult())) {
-				mUser = result.getUser();
-				Log.d("DEBUG", "get user success");
-				
-				if (mUser.getGoogleAccount().equals(GoogleConstant.UNTIED_TO_GOOGLE)) {
-					// google登録されていないのでインポートしない
-				} else {
-					// インポートする
-					// GoogleAccountCheckerを起動
-					GoogleAccountChecker gac = new GoogleAccountChecker(
-							MainActivity.this, MainActivity.this);
-					gac.run();
-				}
-				
+	@Override
+	public void onGetUserFinish(GetUserResultV1Dto result) {
+		mGetUserTask = null;
+		if ((result != null) && SUCCESS.equals(result.getResult())) {
+			Log.d("DEBUG", "get user success");
+			mUser = result.getUser();
+			
+			if (mUser.getGoogleAccount().equals(GoogleConstant.UNTIED_TO_GOOGLE)) {
+				// google登録されていないのでインポートしない
 			} else {
-				mUser = null;
-				Log.d("DEBUG", "get user fail");
+				// インポートする
+				// GoogleAccountCheckerを起動
+				GoogleAccountChecker gac = new GoogleAccountChecker(
+						MainActivity.this, MainActivity.this);
+				gac.run();
 			}
-		}
-
-		@Override
-		protected void onCancelled() {
-			mGetUserTask = null;
+		} else {
+			mUser = null;
+			Log.d("DEBUG", "get user fail");
 		}
 	}
 }

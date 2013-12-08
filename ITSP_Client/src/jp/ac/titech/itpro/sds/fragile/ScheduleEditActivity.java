@@ -6,6 +6,7 @@ import java.util.Calendar;
 import java.util.List;
 
 import jp.ac.titech.itpro.sds.fragile.GetGroupTask.GetGroupFinishListener;
+import jp.ac.titech.itpro.sds.fragile.GetUserTask.GetUserFinishListener;
 import jp.ac.titech.itpro.sds.fragile.GoogleCalendarExporter.GoogleCalendarExportFinishListener;
 import jp.ac.titech.itpro.sds.fragile.api.RemoteApi;
 import jp.ac.titech.itpro.sds.fragile.api.constant.CommonConstant;
@@ -65,7 +66,8 @@ import com.appspot.fragile_t.scheduleEndpoint.model.ScheduleV1Dto;
 
 public class ScheduleEditActivity extends Activity 
 	implements GetGroupFinishListener,
-		GoogleAccountCheckFinishListener, GoogleCalendarExportFinishListener{
+		GoogleAccountCheckFinishListener, GoogleCalendarExportFinishListener,
+		GetUserFinishListener {
 	private static final String TAG = "ScheduleEditActivity";
 	private static final String FAIL = CommonConstant.FAIL;
 	private Button doneBtn, showScheduleViewBtn;
@@ -418,9 +420,13 @@ public class ScheduleEditActivity extends Activity
 
 		
 		// user情報を手に入れる(user情報をもとにgoogleにエクスポートするかを決める)
-		mGetUserTask = new GetUserTask();
-		mGetUserTask.execute();
-		
+		if (mGetUserTask == null) {
+			SharedPreferences pref = getSharedPreferences("user", Activity.MODE_PRIVATE);
+			mEmail = pref.getString("email","");	
+			mGetUserTask = new GetUserTask(this);
+			mGetUserTask.setEmail(mEmail);
+			mGetUserTask.execute();
+		}
 	}
 	private void setButtonEnable() {
 		if (scheduleStartTime == 0 || scheduleFinishTime == 0 || scheduleStartTime >= scheduleFinishTime){
@@ -838,60 +844,37 @@ public class ScheduleEditActivity extends Activity
 		return false;
 	}
 	
-	public class GetUserTask extends AsyncTask<Void, Void, GetUserResultV1Dto> {
-		@Override
-		protected GetUserResultV1Dto doInBackground(Void... args) {
-			try {
-				SharedPreferences pref = getSharedPreferences("user", Activity.MODE_PRIVATE);
-				mEmail = pref.getString("email","");	
-				
-				GetUserEndpoint endpoint = RemoteApi.getGetUserEndpoint();
-				GetUser getUser = endpoint.getUserV1Endpoint().getUser(mEmail);
-				GetUserResultV1Dto result = getUser.execute();
-				return result;
-			} catch (Exception e) {
-				Log.d("DEBUG", "get user fail: " + e);
-				return null;
-			}
-		}
-	
-		@Override
-		protected void onPostExecute(GetUserResultV1Dto result) {
-			mGetUserTask = null;
-			if ((result != null) && SUCCESS.equals(result.getResult())) {
-				mUser = result.getUser();
-				Log.d("DEBUG", "get user success");
-				
-				if (mUser.getGoogleAccount().equals(GoogleConstant.UNTIED_TO_GOOGLE)) {
-					googleChecked = false;
-				} else {
-					googleChecked = true;
-				}
-				
-				showProgress(true);
-				if (googleChecked) {
-					GoogleAccountChecker gac = 
-							new GoogleAccountChecker(ScheduleEditActivity.this, ScheduleEditActivity.this);
-					gac.run();
-				} else { 
-					if(repeat){
-						mRepeatAuthTask = new EditRepeatScheduleTask();
-						mRepeatAuthTask.execute((Void) null);
-					}else{
-						mAuthTask = new EditScheduleTask();
-						mAuthTask.execute((Void) null);
-					}
-				}
-				
+	@Override
+	public void onGetUserFinish(GetUserResultV1Dto result) {
+		mGetUserTask = null;
+		if ((result != null) && SUCCESS.equals(result.getResult())) {
+			mUser = result.getUser();
+			Log.d("DEBUG", "get user success");
+			
+			if (mUser.getGoogleAccount().equals(GoogleConstant.UNTIED_TO_GOOGLE)) {
+				googleChecked = false;
 			} else {
-				mUser = null;
-				Log.d("DEBUG", "get user fail");
+				googleChecked = true;
 			}
-		}
-
-		@Override
-		protected void onCancelled() {
-			mGetUserTask = null;
+			
+			showProgress(true);
+			if (googleChecked) {
+				GoogleAccountChecker gac = 
+						new GoogleAccountChecker(ScheduleEditActivity.this, ScheduleEditActivity.this);
+				gac.run();
+			} else { 
+				if(repeat){
+					mRepeatAuthTask = new EditRepeatScheduleTask();
+					mRepeatAuthTask.execute((Void) null);
+				}else{
+					mAuthTask = new EditScheduleTask();
+					mAuthTask.execute((Void) null);
+				}
+			}
+			
+		} else {
+			mUser = null;
+			Log.d("DEBUG", "get user fail");
 		}
 	}
 }
