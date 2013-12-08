@@ -57,7 +57,7 @@ public class FriendActivity extends Activity implements
 	 */
 	private FriendTask mAuthTask = null;
 
-	private String fEmail;
+	private String mFriendEmail;
 	private View focusView = null;
 	private NfcAdapter mNfcAdapter;
 	private SharedPreferences pref;
@@ -66,7 +66,7 @@ public class FriendActivity extends Activity implements
 	public final static String EXTRA_MESSAGE = "Friend_register_check_message";
 
 	// UI references.
-	private EditText fEmailView;
+	private EditText mEmailView;
 
 	// ProgressDialog用
 	private View mFriendFormView;
@@ -86,7 +86,7 @@ public class FriendActivity extends Activity implements
 
 		setContentView(R.layout.activity_friend);
 		pref = getSharedPreferences("user", Activity.MODE_PRIVATE);
-		fEmailView = (EditText) findViewById(R.id.femail);
+		mEmailView = (EditText) findViewById(R.id.femail);
 		findViewById(R.id.friend_regist).setOnClickListener(
 				new View.OnClickListener() {
 					public void onClick(View view) {
@@ -137,20 +137,20 @@ public class FriendActivity extends Activity implements
 		}
 
 		// Reset errors.
-		fEmailView.setError(null);
+		mEmailView.setError(null);
 		// Store values at the time of the login attempt.
-		fEmail = fEmailView.getText().toString();
+		mFriendEmail = mEmailView.getText().toString();
 
 		boolean cancel = false;
 
 		// Check for a valid email address.
-		if (TextUtils.isEmpty(fEmail)) {
-			fEmailView.setError(getString(R.string.error_f_empty));
-			focusView = fEmailView;
+		if (TextUtils.isEmpty(mFriendEmail)) {
+			mEmailView.setError(getString(R.string.error_f_empty));
+			focusView = mEmailView;
 			cancel = true;
-		} else if (!fEmail.contains("@")) {
-			fEmailView.setError(getString(R.string.error_f_email));
-			focusView = fEmailView;
+		} else if (!mFriendEmail.contains("@")) {
+			mEmailView.setError(getString(R.string.error_f_email));
+			focusView = mEmailView;
 			cancel = true;
 		}
 
@@ -229,7 +229,7 @@ public class FriendActivity extends Activity implements
 				}
 				mailCursor.close();
 			}
-			fEmailView.setText(email);
+			mEmailView.setText(email);
 		}
 
 	/**
@@ -243,7 +243,7 @@ public class FriendActivity extends Activity implements
 			try {
 				FriendEndpoint endpoint = RemoteApi.getFriendEndpoint();
 				Friendship friend = endpoint.friendV1Endpoint().friendship(
-						fEmail, pref.getString("email", ""));
+						mFriendEmail, pref.getString("email", ""));
 
 				FriendResultV1Dto result = friend.execute();
 
@@ -252,25 +252,27 @@ public class FriendActivity extends Activity implements
 					try{
 						// プッシュ通知を行う
 						PushMessageEndpoint endpoint2 = RemoteApi.getPushMessageEndpoint();
-						SendMessageFromRegisterId pushmsg = endpoint2.pushMessageV1Endpoint().sendMessageFromRegisterId("addFriend", pref.getString("email", ""), fEmail);
-						PushMessageResultV1Dto result2 = pushmsg.execute();
-						Log.d("DEBUG", "プッシュリザルト："+result2.getResult());	
+						SendMessageFromRegisterId pushMessage = 
+								endpoint2.pushMessageV1Endpoint().sendMessageFromRegisterId("addFriend", pref.getString("email", ""), mFriendEmail);
+						PushMessageResultV1Dto result2 = pushMessage.execute();
+
+						Log.d("DEBUG", "プッシュリザルト：" + result2.getResult());	
 					} catch (Exception e) {
 						Log.d("DEBUG", e.toString());
 						Log.d("DEBUG", "プッシュ送信に失敗しました");
 					}
 					return true;
 				} else if (NULLMY.equals(result.getResult())) {
-					fEmailView.setError(getString(R.string.error_f_nullmy));
-					focusView = fEmailView;
+					mEmailView.setError(getString(R.string.error_f_nullmy));
+					focusView = mEmailView;
 					return false;
 				} else if (NOFRIEND.equals(result.getResult())) {
-					fEmailView.setError(getString(R.string.error_f_nof));
-					focusView = fEmailView;
+					mEmailView.setError(getString(R.string.error_f_nof));
+					focusView = mEmailView;
 					return false;
 				} else if (ALREADY.equals(result.getResult())) {
-					fEmailView.setError(getString(R.string.error_f_already));
-					focusView = fEmailView;
+					mEmailView.setError(getString(R.string.error_f_already));
+					focusView = mEmailView;
 					return false;
 				} else {
 					return false;
@@ -292,7 +294,7 @@ public class FriendActivity extends Activity implements
 				// 成功した場合、トースト表示
 				Toast.makeText(getApplicationContext(),"友人申請を行いました", Toast.LENGTH_SHORT).show();
 				// メール入力欄を空に
-				fEmailView.setText("");
+				mEmailView.setText("");
 
 				
 			} else {
@@ -327,12 +329,12 @@ public class FriendActivity extends Activity implements
 
 		byte[] data = msg.getRecords()[0].getPayload();
 		try {
-			fEmail = new String(data, "UTF-8");
+			mFriendEmail = new String(data, "UTF-8");
 		} catch (UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		fEmailView.setText(fEmail);
+		mEmailView.setText(mFriendEmail);
 	}
 
 	public void onNdefPushComplete(NfcEvent event) {

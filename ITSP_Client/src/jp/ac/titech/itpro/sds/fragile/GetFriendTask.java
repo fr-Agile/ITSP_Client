@@ -6,7 +6,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.appspot.fragile_t.getFriendEndpoint.GetFriendEndpoint;
-import com.appspot.fragile_t.getFriendEndpoint.GetFriendEndpoint.GetFriendV1Endpoint.GetFriendTo;
+import com.appspot.fragile_t.getFriendEndpoint.GetFriendEndpoint.GetFriendV1Endpoint.GetFriendToFrom;
 import com.appspot.fragile_t.getFriendEndpoint.model.GetFriendResultV1Dto;
 
 public class GetFriendTask extends AsyncTask<String, Void, GetFriendResultV1Dto> {
@@ -26,8 +26,8 @@ public class GetFriendTask extends AsyncTask<String, Void, GetFriendResultV1Dto>
 		String userEmail = args[0];
 		try {
 			GetFriendEndpoint endpoint = RemoteApi.getGetFriendEndpoint();
-			GetFriendTo getFriendTo = endpoint.getFriendV1Endpoint().getFriendTo(userEmail);
-			GetFriendResultV1Dto result = getFriendTo.execute();
+			GetFriendToFrom getFriendToFrom = endpoint.getFriendV1Endpoint().getFriendToFrom(userEmail);
+			GetFriendResultV1Dto result = getFriendToFrom.execute();
 			
 			return result;
 			
