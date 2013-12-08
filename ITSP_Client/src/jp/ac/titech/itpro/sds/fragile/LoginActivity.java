@@ -100,20 +100,6 @@ public class LoginActivity extends Activity {
 						RegisterActivity.class));
 			}
 		});
-
-		// 2回目以降の起動時（メールアドレスが保存されているとき）
-		if (!pref.getString("email", "").equals("")) {
-
-			// スケジュール画面へ遷移
-			Intent intent = new Intent(LoginActivity.this,
-					ScheduleActivity.class);
-			Calendar nowCal = Calendar.getInstance();
-			// nowCal.add(Calendar.DAY_OF_YEAR, 7);
-			StoreData data = new StoreData(nowCal);
-			intent.putExtra("StoreData", data);
-			intent.setAction(Intent.ACTION_VIEW);
-			startActivity(intent);
-		}
 	}
 
 	/**
