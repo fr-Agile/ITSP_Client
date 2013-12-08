@@ -530,8 +530,8 @@ public class ScheduleActivity extends Activity implements
 				new MenuItem.OnMenuItemClickListener() {
 					@Override
 					public boolean onMenuItemClick(MenuItem item) {
-						//startActivity(new Intent(ScheduleActivity.this,
-							//	FriendListActivity.class));
+						startActivity(new Intent(ScheduleActivity.this,
+								FriendListActivity.class));
 
 						return true;
 					}
