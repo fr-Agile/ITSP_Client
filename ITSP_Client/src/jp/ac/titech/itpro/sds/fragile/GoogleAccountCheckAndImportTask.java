@@ -120,7 +120,7 @@ public class GoogleAccountCheckAndImportTask implements GetUserFinishListener,
 			Log.d("DEBUG", "get user success");
 			mUser = result.getUser();
 			
-			if (mUser.getGoogleAccount().equals(GoogleConstant.UNTIED_TO_GOOGLE)) {
+			if (GoogleConstant.UNTIED_TO_GOOGLE.equals(mUser.getGoogleAccount())) {
 				// google登録されていないのでインポートしない
 			} else {
 				// インポートする
