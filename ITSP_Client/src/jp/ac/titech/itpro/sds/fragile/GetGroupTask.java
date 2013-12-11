@@ -8,7 +8,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.appspot.fragile_t.groupEndpoint.GroupEndpoint;
-import com.appspot.fragile_t.groupEndpoint.GroupEndpoint.GroupV1Endpoint.GetGroupList;
+import com.appspot.fragile_t.groupEndpoint.GroupEndpoint.GroupV1Endpoint.GetMyGroupList;
 import com.appspot.fragile_t.groupEndpoint.model.GroupV1Dto;
 
 public class GetGroupTask extends AsyncTask<String, Void, List<GroupV1Dto>> {
@@ -29,7 +29,7 @@ public class GetGroupTask extends AsyncTask<String, Void, List<GroupV1Dto>> {
 		List<GroupV1Dto> result = null;
 		try {
 			GroupEndpoint endpoint = RemoteApi.getGroupEndpoint();
-			GetGroupList getGroupList = endpoint.groupV1Endpoint().getGroupList(userEmail);
+			GetMyGroupList getGroupList = endpoint.groupV1Endpoint().getMyGroupList(userEmail);
 			result = getGroupList.execute().getItems();
 			
 		} catch (Exception e) {
