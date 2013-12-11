@@ -353,7 +353,7 @@ public class MakeGroupActivity extends Activity implements
 								String msg = "";
 								List<com.appspot.fragile_t.groupEndpoint.model.UserV1Dto> member = group.getUserlList();
 								for(com.appspot.fragile_t.groupEndpoint.model.UserV1Dto user : member){
-									msg += user.getFirstName()+" "+user.getLastName() +"\n";
+									msg += user.getFirstName()+" "+user.getLastName() + "（ " + user.getEmail() + " ）\n";
 								}
 								AlertDialog.Builder builder = new AlertDialog.Builder(context);
 								builder.setTitle("メンバー").setMessage(msg)
