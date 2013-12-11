@@ -79,6 +79,7 @@ public class FriendActivity extends Activity implements
 	private static final String NULLMY = FriendConstant.NULLMY;
 	private static final String NOFRIEND = FriendConstant.NOFRIEND;
 	private static final String ALREADY = FriendConstant.ALREADY;
+	private static final String MINE = FriendConstant.MINE;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -272,6 +273,10 @@ public class FriendActivity extends Activity implements
 					return false;
 				} else if (ALREADY.equals(result.getResult())) {
 					mEmailView.setError(getString(R.string.error_f_already));
+					focusView = mEmailView;
+					return false;
+				} else if (MINE.equals(result.getResult())) {
+					mEmailView.setError(getString(R.string.error_f_mine));
 					focusView = mEmailView;
 					return false;
 				} else {
