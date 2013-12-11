@@ -89,6 +89,11 @@ public class CalendarSaver implements DeleteAllScheduleFinishListener, CreateSch
 						repsche.setStartTime(startTime);
 						repsche.setFinishTime(finishTime);
 						
+						// Idをセット
+						repsche.setGoogleId(gci.getGoogleId());
+						// nameを登録
+						repsche.setName(gci.getTitle());
+						
 						
 						// 繰り返す曜日を設定
 						repsche.setRepeatDays(rrule.getRepeatDays());
@@ -120,11 +125,8 @@ public class CalendarSaver implements DeleteAllScheduleFinishListener, CreateSch
 								break;
 							}
 						}
-						repsche.setGoogleId(gci.getGoogleId());
 						// 例外日を設定
 						repsche.setExcepts(exceptCandidates);
-						// nameを登録
-						repsche.setName(gci.getTitle());
 						mCreateRepeatScheduleList.add(repsche);
 					}
 					

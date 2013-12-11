@@ -11,6 +11,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -65,6 +66,8 @@ public class RegisterActivity extends Activity {
     private static final String UNEXPECTED_ERROR = RegisterConstant.UNEXPECTED_ERROR;
     private static final int PASS_LENGTH = RegisterConstant.PASS_LENGTH;
 
+    private static final int SET_GOOGLE = 100;
+    
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -231,8 +234,16 @@ public class RegisterActivity extends Activity {
 			showProgress(false);
 
 			if (success) {
+				// 登録成功
 				Log.d("DEBUG", "register success");
-				startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
+				// メールを保存しておく
+				SharedPreferences pref = getSharedPreferences("user", Activity.MODE_PRIVATE);
+				SharedPreferences.Editor editor = pref.edit();
+				editor.putString("email", mEmail);
+				editor.commit();
+				// googleアカウントを設定させる
+				startActivityForResult(new Intent(RegisterActivity.this, SetGoogleActivity.class),
+						SET_GOOGLE);
 				finish();
 			}
 		}
@@ -335,5 +346,13 @@ public class RegisterActivity extends Activity {
 			success = false;
 		}
 		return success;
+	}
+	
+	public void onActivityResult(int reqestCode, int result, Intent intent) {
+		if ((reqestCode == SET_GOOGLE) && (result == RESULT_OK)) {
+			// SetGoogleActivityから戻ってきたらログイン画面に遷移する
+			startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
+			finish();
+		}
 	}
 }

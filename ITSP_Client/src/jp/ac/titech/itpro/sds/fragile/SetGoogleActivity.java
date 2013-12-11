@@ -9,6 +9,7 @@ import com.appspot.fragile_t.registerEndpoint.RegisterEndpoint.RegisterV1Endpoin
 import com.appspot.fragile_t.registerEndpoint.model.UserV1Dto;
 
 import jp.ac.titech.itpro.sds.fragile.GetUserTask.GetUserFinishListener;
+import jp.ac.titech.itpro.sds.fragile.GoogleAccountCheckAndImportTask.GoogleAccountCheckAndImportFinishListener;
 import jp.ac.titech.itpro.sds.fragile.api.RemoteApi;
 import jp.ac.titech.itpro.sds.fragile.api.constant.CommonConstant;
 import jp.ac.titech.itpro.sds.fragile.api.constant.GoogleConstant;
@@ -32,7 +33,9 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class SetGoogleActivity extends Activity implements GoogleAccountCheckFinishListener, GetUserFinishListener {
+public class SetGoogleActivity extends Activity implements 
+	GoogleAccountCheckFinishListener, GetUserFinishListener, 
+	GoogleAccountCheckAndImportFinishListener {
 	private List<String> mAccountList = new ArrayList<String>();
 	private List<String> mDisplayList = new ArrayList<String>();
 	private ArrayAdapter<String> mAdapter;
@@ -201,12 +204,20 @@ public class SetGoogleActivity extends Activity implements GoogleAccountCheckFin
 			}
 		}
 
+		// アカウント設定終了時の処理
 		@Override
 		protected void onPostExecute(final Boolean success) {
 			mSetTask = null;
 			if (success) {
 				Log.d("DEBUG", "set google success");
-				SetGoogleActivity.this.finish();	// 元のアクティビティに戻る
+				
+				// googleアカウントをチェックして、可能ならばインポートする
+				GoogleAccountCheckAndImportTask gaciTask = 
+						new GoogleAccountCheckAndImportTask(
+								SetGoogleActivity.this, 
+								SetGoogleActivity.this);
+				gaciTask.run();
+				
 			}
 		}
 
@@ -237,5 +248,11 @@ public class SetGoogleActivity extends Activity implements GoogleAccountCheckFin
 				}
 			}
 		}
+	}
+
+
+	@Override
+	public void onGoogleAccountCheckAndImportFinish(boolean result) {
+		SetGoogleActivity.this.finish();	// 元のアクティビティに戻る
 	}
 }
