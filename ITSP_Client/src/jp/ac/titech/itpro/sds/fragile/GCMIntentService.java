@@ -115,6 +115,14 @@ public class GCMIntentService extends GCMBaseIntentService {
         	in.putExtra("msg", msg);
         	in.setFlags( Intent.FLAG_ACTIVITY_NEW_TASK );
         	startActivity(in);
+        } else if(value.equals("delFriend")) {
+        	CharSequence msg = intent.getCharSequenceExtra("msg");
+        	Log.d("DEBUG", "onMessage: msg = " + msg);
+        	
+        	Intent in = new Intent(getApplicationContext(),TransparentActivity4.class);
+        	in.putExtra("msg", msg);
+        	in.setFlags( Intent.FLAG_ACTIVITY_NEW_TASK );
+        	startActivity(in);
         }
         
     	Log.d("DEBUG", "メッセージを受信しました");

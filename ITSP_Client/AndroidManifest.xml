@@ -155,6 +155,19 @@
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>
         </activity>
+        <activity
+            android:name="jp.ac.titech.itpro.sds.fragile.TestActivity4"
+            android:label="@string/title_activity_makegroup"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name="jp.ac.titech.itpro.sds.fragile.TransparentActivity4"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
+        </activity>
 
         <receiver
             android:name="com.google.android.gcm.GCMBroadcastReceiver"
