@@ -126,8 +126,6 @@ public class ScheduleEditActivity extends Activity
 		repeatChk = (CheckBox) findViewById(R.id.repeartCheckbox);
 
 		if (extras != null) {
-			repeatChk.setChecked(false);
-			repeatChk.setEnabled(false);
 			if (extras.containsKey("startTime")) {
 				Calendar cal = (Calendar) extras.get("startTime");
 				startTime = (Calendar) cal.clone();
@@ -163,6 +161,11 @@ public class ScheduleEditActivity extends Activity
 		repeat = extras.containsKey("repeat") && (Boolean) extras.get("repeat");
 		create = extras.containsKey("create") && (Boolean) extras.get("create");
 
+		if (!create) {
+			repeatChk.setChecked(false);
+			repeatChk.setEnabled(false);
+		}
+		
 		if (extras.containsKey("name")) {
 			name = extras.getString("name");
 			mScheduleNameView.setText(name);
