@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import jp.ac.titech.itpro.sds.fragile.DeleteGroupTask.DeleteGroupFinishListener;
 import jp.ac.titech.itpro.sds.fragile.GetFriendTask.GetFriendFinishListener;
 import jp.ac.titech.itpro.sds.fragile.GetGroupTask.GetGroupFinishListener;
 import jp.ac.titech.itpro.sds.fragile.TransparentActivity2.ScheduleDelTask;
@@ -37,7 +38,7 @@ import com.appspot.fragile_t.groupEndpoint.model.GroupV1Dto;
 import com.appspot.fragile_t.groupEndpoint.model.StringListContainer;
 
 public class MakeGroupActivity extends Activity implements
-		GetFriendFinishListener, GetGroupFinishListener {
+		GetFriendFinishListener, GetGroupFinishListener, DeleteGroupFinishListener {
 
 	LinearLayout layout, group_list;
 	Context context;
@@ -45,6 +46,8 @@ public class MakeGroupActivity extends Activity implements
 	List<String> emails; // 友達のメールリスト
 	MakeGroupTask task;
 	Button makegroup_btn;
+	
+	public static String buffkeyS = null;  // 削除しようとしているグループのKeyを保存しておく
 	
 	public static ProgressDialog dialog = null;
 
@@ -79,6 +82,9 @@ public class MakeGroupActivity extends Activity implements
 
 			}
 		});
+		// 通信成功するまでは使用不可
+		makegroup_btn.setEnabled(false);
+		
 		Button back_btn = (Button) findViewById(R.id.go_to_logged_from_makegroup);
 		back_btn.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
@@ -166,6 +172,19 @@ public class MakeGroupActivity extends Activity implements
 			Log.d("DEBUG", "get group fail");
 		}
 	}
+	
+	/**
+	 * group を削除する
+	 */
+	public void deleteGroup(String KeyS) {
+		try {
+			DeleteGroupTask task = new DeleteGroupTask(this);
+			task.execute(KeyS);
+		} catch (Exception e) {
+			e.printStackTrace();
+			Log.d("DEBUG", "delete group fail");
+		}
+	}
 
 	/**
 	 * GetFriendTask終了後の処理
@@ -200,6 +219,9 @@ public class MakeGroupActivity extends Activity implements
 						layout.addView(checkbox);
 						Log.d("DEBUG", "added to view by " + name + "さん");
 					}
+					
+					// グループ作成ボタンを有効化
+					makegroup_btn.setEnabled(true);
 				
 					// 終了後、次にグループ一覧を取得する
 					dialog.show();
@@ -207,8 +229,6 @@ public class MakeGroupActivity extends Activity implements
 				
 				// 友達がいない場合
 				}else{
-					// グループ作成ボタンを無効化
-					makegroup_btn.setEnabled(false);
 					
 					// ラベルの表示
 					Log.d("DEBUG", "友達がいません");
@@ -226,7 +246,12 @@ public class MakeGroupActivity extends Activity implements
 			    			  MakeGroupActivity.dialog.show();
 			    			  getFriendList();   			  
 			    			}
-			    		});
+			    		}).setNegativeButton("戻る", new DialogInterface.OnClickListener() {
+				              public void onClick(DialogInterface dialog, int id) {
+					                dialog.cancel();                
+					                MakeGroupActivity.this.finish();
+				              }
+					    });
 			    AlertDialog alert = builder.create();
 			    alert.show();
 			}
@@ -275,7 +300,22 @@ public class MakeGroupActivity extends Activity implements
 								alert.show();
 							}
 						});
-						group_list.addView(btn);
+						
+						Button delbtn = new Button(this);
+						delbtn.setText("削除");
+						delbtn.setOnClickListener(new View.OnClickListener() {
+							public void onClick(View v) {
+								((Button)v).setEnabled(false);
+								dialog.show();
+								buffkeyS = group.getKey();
+								deleteGroup(buffkeyS);
+							}
+						});
+						
+						LinearLayout setbtn = new LinearLayout(this);
+						setbtn.addView(btn);
+						setbtn.addView(delbtn);
+						group_list.addView(setbtn);
 					}
 				
 				// グループの数が0
@@ -295,11 +335,63 @@ public class MakeGroupActivity extends Activity implements
 			    			  MakeGroupActivity.dialog.show();
 			    			  getGroupList();   			  
 			    			}
-			    		});
+			    		}).setNegativeButton("戻る", new DialogInterface.OnClickListener() {
+				              public void onClick(DialogInterface dialog, int id) {
+					                dialog.cancel();                
+					                MakeGroupActivity.this.finish();
+				              }
+					    });
 			    AlertDialog alert = builder.create();
 			    alert.show();
 			}
 
+		} catch (Exception e) {
+			e.printStackTrace();
+			Log.d("DEBUG", "エラー原因："+e.toString());
+		}
+	}
+	
+	/**
+	 * DeleteGroupTask終了後の処理
+	 */
+	@Override
+	public void onFinish(GroupResultV1Dto result) {
+		// 終了時に通信中...のダイアログを消す
+		if(dialog != null){
+			dialog.dismiss();
+		}
+				
+		try {
+			if ((result != null)&&(result.getResult().equals(SUCCESS))) {
+				AlertDialog.Builder builder = new AlertDialog.Builder(context);
+			    builder.setTitle("通信成功").setMessage("グループを削除しました")
+			    		.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+			    			public void onClick(DialogInterface dialog, int whichButton) {
+			    				dialog.cancel();			  
+			    			}
+			    		});
+			    AlertDialog alert = builder.create();
+			    alert.show();
+
+			// 通信失敗した場合
+			} else {
+				AlertDialog.Builder builder = new AlertDialog.Builder(context);
+			    builder.setTitle("通信エラー")
+			    		.setPositiveButton("再接続", new DialogInterface.OnClickListener() {
+			    			public void onClick(DialogInterface dialog, int whichButton) {
+			    			  dialog.cancel();
+			    			  MakeGroupActivity.dialog.show();
+			    			  deleteGroup(buffkeyS);   			  
+			    			}
+			    		}).setNegativeButton("戻る", new DialogInterface.OnClickListener() {
+				              public void onClick(DialogInterface dialog, int id) {
+					                dialog.cancel();                
+					                MakeGroupActivity.this.finish();
+				              }
+					    });
+			    AlertDialog alert = builder.create();
+			    alert.show();
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			Log.d("DEBUG", "エラー原因："+e.toString());
