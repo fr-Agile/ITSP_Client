@@ -150,6 +150,11 @@ public class MakeGroupActivity extends Activity implements
 				layout.removeViewAt(i);
 			}
 		}
+		
+		// チェックボックスがなくなったらグループ作成ボタンを使えないようにする
+		if(emails.size()<=0) {
+			makegroup_btn.setEnabled(false);
+		}
 	}
 
 	/**
