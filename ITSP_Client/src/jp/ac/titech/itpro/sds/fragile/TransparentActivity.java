@@ -34,6 +34,7 @@ public class TransparentActivity extends Activity {
 	private static final String NULLMY = FriendConstant.NULLMY;
 	private static final String NOFRIEND = FriendConstant.NOFRIEND;
 	private static final String ALREADY = FriendConstant.ALREADY;
+	private static final String MINE = FriendConstant.MINE;
 	
 	@Override
 	  protected void onCreate(Bundle savedInstanceState) {
@@ -106,6 +107,9 @@ public class TransparentActivity extends Activity {
 			}else if(rs.equals(NOFRIEND)){
 				Log.d("DEBUG", "登録失敗");
 				msg = "友人が見つかりませんでした";
+			}else if(rs.equals(MINE)){
+				Log.d("DEBUG", "登録失敗");
+				msg = "自分自身は登録できません";
 			}else if(rs.equals(ALREADY)){
 				Log.d("DEBUG", "登録失敗");
 				msg = "すでに登録済みです";

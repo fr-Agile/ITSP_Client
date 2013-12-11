@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import jp.ac.titech.itpro.sds.fragile.DeleteFriendTask.DeleteFriendFinishListener;
 import jp.ac.titech.itpro.sds.fragile.DeleteGroupTask.DeleteGroupFinishListener;
 import jp.ac.titech.itpro.sds.fragile.GetFriendTask.GetFriendFinishListener;
 import jp.ac.titech.itpro.sds.fragile.GetGroupTask.GetGroupFinishListener;
@@ -29,6 +30,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.appspot.fragile_t.friendEndpoint.model.FriendResultV1Dto;
 import com.appspot.fragile_t.getFriendEndpoint.model.GetFriendResultV1Dto;
 import com.appspot.fragile_t.getFriendEndpoint.model.UserV1Dto;
 import com.appspot.fragile_t.groupEndpoint.GroupEndpoint;
@@ -38,7 +40,7 @@ import com.appspot.fragile_t.groupEndpoint.model.GroupV1Dto;
 import com.appspot.fragile_t.groupEndpoint.model.StringListContainer;
 
 public class MakeGroupActivity extends Activity implements
-		GetFriendFinishListener, GetGroupFinishListener, DeleteGroupFinishListener {
+		GetFriendFinishListener, GetGroupFinishListener, DeleteGroupFinishListener, DeleteFriendFinishListener {
 
 	LinearLayout layout, group_list;
 	Context context;
@@ -48,6 +50,7 @@ public class MakeGroupActivity extends Activity implements
 	Button makegroup_btn;
 	
 	public static String buffkeyS = null;  // 削除しようとしているグループのKeyを保存しておく
+	public static String buffmail = null;  // 削除しようとしている友人のメールアドレスを保存しておく
 	
 	public static ProgressDialog dialog = null;
 
@@ -114,7 +117,8 @@ public class MakeGroupActivity extends Activity implements
 		int max = layout.getChildCount();
 		ArrayList<String> checked_names = new ArrayList<String>();
 		for (int i = 0; i < max; i++) {
-			CheckBox c = (CheckBox) layout.getChildAt(i);
+			LinearLayout l = (LinearLayout) layout.getChildAt(i);
+			CheckBox c = (CheckBox) l.getChildAt(0);
 			if (c.isChecked()) {
 				checked_names.add((String) c.getText());
 			}
@@ -127,12 +131,25 @@ public class MakeGroupActivity extends Activity implements
 		int max = layout.getChildCount();
 		List<String> checked_emails = new ArrayList<String>();
 		for (int i = 0; i < max; i++) {
-			CheckBox c = (CheckBox) layout.getChildAt(i);
+			LinearLayout l = (LinearLayout) layout.getChildAt(i);
+			CheckBox c = (CheckBox) l.getChildAt(0);
 			if (c.isChecked()) {
 				checked_emails.add(emails.get(i));
 			}
 		}
 		return checked_emails;
+	}
+	
+	// 友人のチェックボックスを削除する
+	public void delCheckMail(String mail) {
+		int max = layout.getChildCount();
+		
+		for (int i = 0; i < max; i++) {
+			if (emails.get(i).equals(mail)) {
+				emails.remove(i);
+				layout.removeViewAt(i);
+			}
+		}
 	}
 
 	/**
@@ -185,6 +202,23 @@ public class MakeGroupActivity extends Activity implements
 			Log.d("DEBUG", "delete group fail");
 		}
 	}
+	
+	/**
+	 * friend を削除する
+	 */
+	public void deleteFriend(String email) {
+		SharedPreferences pref = getSharedPreferences("user",
+				Activity.MODE_PRIVATE);
+		String userEmail = pref.getString("email", "");
+		
+		try {
+			DeleteFriendTask task = new DeleteFriendTask(this);
+			task.execute(email, userEmail);
+		} catch (Exception e) {
+			e.printStackTrace();
+			Log.d("DEBUG", "delete friend fail");
+		}
+	}
 
 	/**
 	 * GetFriendTask終了後の処理
@@ -202,22 +236,48 @@ public class MakeGroupActivity extends Activity implements
 			
 			if ((result != null)&&(result.getResult().equals(SUCCESS))) {
 				if((result.getFriendList() != null)&&(!result.getFriendList().isEmpty())){
-					final List<String> friendNameList = new ArrayList<String>();
+					
 					List<UserV1Dto> friendList = result.getFriendList();
-					for (UserV1Dto friend : friendList) {
-						friendNameList.add(friend.getLastName() + "　"
-								+ friend.getFirstName());
+					for (final UserV1Dto friend : friendList) {
+						
+						// グループ作成時のためにemailのリストを保存しておく
 						emails.add(friend.getEmail());
-					}
-					String[] nameStrList = friendNameList
-							.toArray(new String[friendNameList.size()]);
-
-					// 取得したネームリストをチェックボックスとしてレイアウトに追加
-					for (String name : nameStrList) {
+					
+					    // 取得したネームリストをチェックボックスとしてレイアウトに追加
+					
 						CheckBox checkbox = new CheckBox(this);
-						checkbox.setText(name);
-						layout.addView(checkbox);
-						Log.d("DEBUG", "added to view by " + name + "さん");
+						checkbox.setText(friend.getFirstName() + " " + friend.getLastName());
+						
+						LinearLayout set = new LinearLayout(this);
+						
+						Button delbtn = new Button(this);
+						delbtn.setText("削除");
+						delbtn.setOnClickListener(new View.OnClickListener() {
+							public void onClick(View v) {
+								AlertDialog.Builder builder = new AlertDialog.Builder(context);
+							    builder.setTitle("確認").setMessage(friend.getEmail()+"の友人登録を解除しますか？")
+							    		.setNegativeButton("はい", new DialogInterface.OnClickListener() {
+							    			public void onClick(DialogInterface dialog, int whichButton) {
+							    			  dialog.cancel();
+							    			  MakeGroupActivity.dialog.show();
+							    			  buffmail = friend.getEmail();
+							    			  deleteFriend(buffmail);  			  
+							    			}
+							    		}).setPositiveButton("いいえ", new DialogInterface.OnClickListener() {
+								              public void onClick(DialogInterface dialog, int id) {
+									                dialog.cancel();                
+								              }
+									    });
+							    AlertDialog alert = builder.create();
+							    alert.show();
+							}
+						});
+						
+						set.addView(checkbox);
+						set.addView(delbtn);
+						
+						layout.addView(set);
+						Log.d("DEBUG", "added to view by " + friend.getFirstName() + friend.getLastName() + "さん");
 					}
 					
 					// グループ作成ボタンを有効化
@@ -235,6 +295,7 @@ public class MakeGroupActivity extends Activity implements
 					TextView none = new TextView(context);
 					none.setText("相互登録している友人がいません");
 					layout.addView(none);
+					
 				}
 			// 通信に失敗した場合
 			} else {
@@ -304,11 +365,24 @@ public class MakeGroupActivity extends Activity implements
 						Button delbtn = new Button(this);
 						delbtn.setText("削除");
 						delbtn.setOnClickListener(new View.OnClickListener() {
-							public void onClick(View v) {
-								((Button)v).setEnabled(false);
-								dialog.show();
-								buffkeyS = group.getKey();
-								deleteGroup(buffkeyS);
+							public void onClick(final View v) {
+								AlertDialog.Builder builder = new AlertDialog.Builder(context);
+							    builder.setTitle("確認").setMessage(group.getName()+"を削除しますか？")
+							    		.setNegativeButton("はい", new DialogInterface.OnClickListener() {
+							    			public void onClick(DialogInterface dialog, int whichButton) {
+							    				dialog.cancel();
+							    				((Button)v).setEnabled(false);
+							    				MakeGroupActivity.dialog.show();
+							    				buffkeyS = group.getKey();
+												deleteGroup(buffkeyS); 
+							    			}
+							    		}).setPositiveButton("いいえ", new DialogInterface.OnClickListener() {
+								              public void onClick(DialogInterface dialog, int id) {
+									                dialog.cancel();                
+								              }
+									    });
+							    AlertDialog alert = builder.create();
+							    alert.show();
 							}
 						});
 						
@@ -392,6 +466,54 @@ public class MakeGroupActivity extends Activity implements
 			    AlertDialog alert = builder.create();
 			    alert.show();
 			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			Log.d("DEBUG", "エラー原因："+e.toString());
+		}
+	}
+	
+	/**
+	 * DeleteFriendTask終了後の処理
+	 */
+	@Override
+	public void onFinish(FriendResultV1Dto result) {
+		// 終了時に通信中...のダイアログを消す
+		if(dialog != null){
+			dialog.dismiss();
+		}
+		
+		try{
+			if((result != null)&&(result.getResult().equals(SUCCESS))){
+				
+				// その友人のチェックボックスを消す
+				if(buffmail != null){
+					delCheckMail(buffmail);
+				}
+				buffmail = null;
+				
+				AlertDialog.Builder builder = new AlertDialog.Builder(context);
+				builder.setTitle("通信成功").setMessage("友人登録を解除しました")
+				.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int whichButton) {
+						dialog.cancel();			  
+		    				}
+		    			});
+				AlertDialog alert = builder.create();
+				alert.show();
+		    
+			// 通信失敗
+			} else {
+				AlertDialog.Builder builder = new AlertDialog.Builder(context);
+				builder.setTitle("通信エラー").setMessage("友人登録を解除できませんでした")
+				.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int whichButton) {
+						dialog.cancel();			  
+		    				}
+		    			});
+				AlertDialog alert = builder.create();
+				alert.show();
+			}
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			Log.d("DEBUG", "エラー原因："+e.toString());
