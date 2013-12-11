@@ -233,7 +233,7 @@ public class MakeGroupActivity extends Activity implements
 					// ラベルの表示
 					Log.d("DEBUG", "友達がいません");
 					TextView none = new TextView(context);
-					none.setText("友人が登録されていません");
+					none.setText("相互登録している友人がいません");
 					layout.addView(none);
 				}
 			// 通信に失敗した場合
