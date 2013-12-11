@@ -44,13 +44,7 @@
 					    android:paddingRight="32dp"
 				        android:text="グループ作成" />
 		        </LinearLayout>
-		        
-	            <LinearLayout
-        			android:id="@+id/group_list"
-        			android:orientation="vertical"
-        			android:layout_width="wrap_content"
-        			android:layout_height="wrap_content" >
-   				 </LinearLayout>
+		 
 	
 	            <LinearLayout
 	                android:layout_width="0dip"
@@ -70,5 +64,19 @@
 		                android:text="@string/back" />
 		        </LinearLayout>
 	        </LinearLayout> 
+	        
+	        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal" >
+	            
+	            <LinearLayout
+        			android:id="@+id/group_list"
+        			android:orientation="vertical"
+        			android:layout_width="wrap_content"
+        			android:layout_height="wrap_content" >
+   				 </LinearLayout>
+	            
+	        </LinearLayout>
 
 </LinearLayout>

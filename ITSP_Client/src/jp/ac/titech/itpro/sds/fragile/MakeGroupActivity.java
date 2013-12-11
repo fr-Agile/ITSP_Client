@@ -44,8 +44,9 @@ public class MakeGroupActivity extends Activity implements
 	EditText group_title;
 	List<String> emails; // 友達のメールリスト
 	MakeGroupTask task;
+	Button makegroup_btn;
 	
-	ProgressDialog dialog = null;
+	public static ProgressDialog dialog = null;
 
 	AlertDialog.Builder alertDialog;
 	
@@ -69,7 +70,7 @@ public class MakeGroupActivity extends Activity implements
 		emails = new ArrayList<String>();
 
 		// ボタン作成
-		Button makegroup_btn = (Button) findViewById(R.id.make_group_button);
+		makegroup_btn = (Button) findViewById(R.id.make_group_button);
 		makegroup_btn.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				// DBにグループを作成
@@ -181,28 +182,40 @@ public class MakeGroupActivity extends Activity implements
 		try {
 			
 			if ((result != null)&&(result.getResult().equals(SUCCESS))) {
-				final List<String> friendNameList = new ArrayList<String>();
-				List<UserV1Dto> friendList = result.getFriendList();
-				for (UserV1Dto friend : friendList) {
-					friendNameList.add(friend.getLastName() + "　"
-							+ friend.getFirstName());
-					emails.add(friend.getEmail());
-				}
-				String[] nameStrList = friendNameList
-						.toArray(new String[friendNameList.size()]);
+				if((result.getFriendList() != null)&&(!result.getFriendList().isEmpty())){
+					final List<String> friendNameList = new ArrayList<String>();
+					List<UserV1Dto> friendList = result.getFriendList();
+					for (UserV1Dto friend : friendList) {
+						friendNameList.add(friend.getLastName() + "　"
+								+ friend.getFirstName());
+						emails.add(friend.getEmail());
+					}
+					String[] nameStrList = friendNameList
+							.toArray(new String[friendNameList.size()]);
 
-				// 取得したネームリストをチェックボックスとしてレイアウトに追加
-				for (String name : nameStrList) {
-					CheckBox checkbox = new CheckBox(this);
-					checkbox.setText(name);
-					layout.addView(checkbox);
-					Log.d("DEBUG", "added to view by " + name + "さん");
+					// 取得したネームリストをチェックボックスとしてレイアウトに追加
+					for (String name : nameStrList) {
+						CheckBox checkbox = new CheckBox(this);
+						checkbox.setText(name);
+						layout.addView(checkbox);
+						Log.d("DEBUG", "added to view by " + name + "さん");
+					}
+				
+					// 終了後、次にグループ一覧を取得する
+					dialog.show();
+					getGroupList();
+				
+				// 友達がいない場合
+				}else{
+					// グループ作成ボタンを無効化
+					makegroup_btn.setEnabled(false);
+					
+					// ラベルの表示
+					Log.d("DEBUG", "友達がいません");
+					TextView none = new TextView(context);
+					none.setText("友人が登録されていません");
+					layout.addView(none);
 				}
-				
-				// 終了後、次にグループ一覧を取得する
-				dialog.show();
-				getGroupList();
-				
 			// 通信に失敗した場合
 			} else {
 				AlertDialog.Builder builder = new AlertDialog.Builder(context);
@@ -210,6 +223,7 @@ public class MakeGroupActivity extends Activity implements
 			    		.setPositiveButton("再接続", new DialogInterface.OnClickListener() {
 			    			public void onClick(DialogInterface dialog, int whichButton) {
 			    			  dialog.cancel();
+			    			  MakeGroupActivity.dialog.show();
 			    			  getFriendList();   			  
 			    			}
 			    		});
@@ -278,6 +292,7 @@ public class MakeGroupActivity extends Activity implements
 			    		.setPositiveButton("再接続", new DialogInterface.OnClickListener() {
 			    			public void onClick(DialogInterface dialog, int whichButton) {
 			    			  dialog.cancel();
+			    			  MakeGroupActivity.dialog.show();
 			    			  getGroupList();   			  
 			    			}
 			    		});
@@ -345,7 +360,8 @@ public class MakeGroupActivity extends Activity implements
 				alertDialog.setMessage(message); //内容(メッセージ)設定
 				alertDialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
 	    			public void onClick(DialogInterface dialog, int whichButton) {
-		    			  dialog.cancel();  			  
+		    			  dialog.cancel();
+		    			  MakeGroupActivity.this.finish();
 		    			}
 		    		});
 				alertDialog.show();
@@ -354,10 +370,9 @@ public class MakeGroupActivity extends Activity implements
 				Log.d("DEBUG", "グループ作成失敗");
 				alertDialog.setTitle("エラー"); //タイトル設定
 				alertDialog.setMessage("グループ作成失敗"); //内容(メッセージ)設定
-				alertDialog.setPositiveButton("再接続", new DialogInterface.OnClickListener() {
+				alertDialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int whichButton) {
-						dialog.cancel();
-						execute();			  
+						dialog.cancel();		  
 					}
 				});
 				alertDialog.show();
