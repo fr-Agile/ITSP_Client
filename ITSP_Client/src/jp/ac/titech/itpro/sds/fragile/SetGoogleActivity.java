@@ -83,6 +83,9 @@ public class SetGoogleActivity extends Activity implements
         				mSetTask.execute();
         			}
         		}
+        		
+        		// ボタンを押したら元に戻る
+        		SetGoogleActivity.this.finish();	// 元のアクティビティに戻る
         	}
         });
         Button cancelBtn = (Button) findViewById(R.id.set_google_cancel_button);
