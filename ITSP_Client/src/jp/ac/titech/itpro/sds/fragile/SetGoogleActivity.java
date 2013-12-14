@@ -20,6 +20,9 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
@@ -51,10 +54,14 @@ public class SetGoogleActivity extends Activity implements
 	
 	private final static String SUCCESS = CommonConstant.SUCCESS;
 	
+	private static Context context;
+	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_set_google);
+        
+        context = this;
         
         mListView = (ListView) findViewById(R.id.set_google_list);
 
@@ -83,9 +90,6 @@ public class SetGoogleActivity extends Activity implements
         				mSetTask.execute();
         			}
         		}
-        		
-        		// ボタンを押したら元に戻る
-        		SetGoogleActivity.this.finish();	// 元のアクティビティに戻る
         	}
         });
         Button cancelBtn = (Button) findViewById(R.id.set_google_cancel_button);
@@ -221,9 +225,23 @@ public class SetGoogleActivity extends Activity implements
 								SetGoogleActivity.this);
 				gaciTask.run();
 				
+				SetGoogleActivity.this.finish();	// 元のアクティビティに戻る
+				
+			} else {
+				
+			
+				AlertDialog.Builder builder = new AlertDialog.Builder(context);
+			    builder.setTitle("エラー").setMessage("通信に失敗しました")
+			    		.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+				              public void onClick(DialogInterface dialog, int id) {
+					                dialog.cancel();                
+				              }
+					    });
+			    AlertDialog alert = builder.create();
+			    alert.show();
 			}
 		}
-
+		
 		@Override
 		protected void onCancelled() {
 			mSetTask = null;
