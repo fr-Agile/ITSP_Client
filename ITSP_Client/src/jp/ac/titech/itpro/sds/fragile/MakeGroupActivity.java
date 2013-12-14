@@ -273,7 +273,7 @@ public class MakeGroupActivity extends Activity implements
 					    // 取得したネームリストをチェックボックスとしてレイアウトに追加
 					
 						CheckBox checkbox = new CheckBox(this);
-						checkbox.setText(friend.getFirstName() + " " + friend.getLastName() + "（ " + friend.getEmail() + " ）\n");
+						checkbox.setText(friend.getLastName() + " " + friend.getFirstName() + "（ " + friend.getEmail() + " ）\n");
 						
 						LinearLayout set = new LinearLayout(this);
 						
@@ -304,7 +304,7 @@ public class MakeGroupActivity extends Activity implements
 						set.addView(delbtn);
 						
 						layout.addView(set);
-						Log.d("DEBUG", "added to view by " + friend.getFirstName() + friend.getLastName() + "さん");
+						Log.d("DEBUG", "added to view by " + friend.getLastName() + friend.getFirstName() + "さん");
 					}
 					
 					// グループ作成ボタンを有効化
@@ -379,7 +379,7 @@ public class MakeGroupActivity extends Activity implements
 								String msg = "";
 								List<com.appspot.fragile_t.groupEndpoint.model.UserV1Dto> member = group.getUserlList();
 								for(com.appspot.fragile_t.groupEndpoint.model.UserV1Dto user : member){
-									msg += user.getFirstName()+" "+user.getLastName() + "（ " + user.getEmail() + " ）\n";
+									msg += user.getLastName()+" "+user.getFirstName() + "（ " + user.getEmail() + " ）\n";
 								}
 								AlertDialog.Builder builder = new AlertDialog.Builder(context);
 								builder.setTitle("メンバー").setMessage(msg)
