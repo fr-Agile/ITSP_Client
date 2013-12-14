@@ -134,6 +134,12 @@ public class ScheduleActivity extends Activity implements
 		setContentView(R.layout.activity_schedule);
 		
 		context = this;
+		
+		SharedPreferences pref = getSharedPreferences("user",
+				Activity.MODE_PRIVATE);
+		Editor editor = pref.edit();
+		editor.putString("selectEmails", "");
+		editor.commit();
 
 		Intent intent = getIntent();
 		data = (StoreData) intent.getSerializableExtra("StoreData");
