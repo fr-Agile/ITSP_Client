@@ -46,6 +46,7 @@ public class MakeGroupActivity extends Activity implements
 	Context context;
 	EditText group_title;
 	List<String> emails; // 友達のメールリスト
+	List<String> groups;  // グループのKeySのリスト
 	MakeGroupTask task;
 	Button makegroup_btn;
 	
@@ -74,6 +75,7 @@ public class MakeGroupActivity extends Activity implements
 		context = this;
 		alertDialog = new AlertDialog.Builder(this);
 		emails = new ArrayList<String>();
+		groups = new ArrayList<String>();
 
 		// ボタン作成
 		makegroup_btn = (Button) findViewById(R.id.make_group_button);
@@ -156,6 +158,25 @@ public class MakeGroupActivity extends Activity implements
 			makegroup_btn.setEnabled(false);
 		}
 	}
+	
+	// グループのボタンを削除する
+	public void delGroupBtn(String keyS) {
+		int max = group_list.getChildCount();
+		
+		for (int i = 0; i < max; i++) {
+			if (groups.get(i).equals(keyS)) {
+				groups.remove(i);
+				group_list.removeViewAt(i);
+			}
+		}
+		
+		// グループがなくなったらメッセージを表示
+		if(groups.size()<=0) {
+			TextView none = new TextView(context);
+			none.setText("グループはありません");
+			group_list.addView(none);
+		}
+	}
 
 	/**
 	 * friend listを取得する
@@ -200,6 +221,7 @@ public class MakeGroupActivity extends Activity implements
 	 */
 	public void deleteGroup(String KeyS) {
 		try {
+			Log.d("DEBUG", KeyS+"のグループを削除しようとしています");
 			DeleteGroupTask task = new DeleteGroupTask(this);
 			task.execute(KeyS);
 		} catch (Exception e) {
@@ -251,7 +273,7 @@ public class MakeGroupActivity extends Activity implements
 					    // 取得したネームリストをチェックボックスとしてレイアウトに追加
 					
 						CheckBox checkbox = new CheckBox(this);
-						checkbox.setText(friend.getFirstName() + " " + friend.getLastName());
+						checkbox.setText(friend.getFirstName() + " " + friend.getLastName() + "（ " + friend.getEmail() + " ）\n");
 						
 						LinearLayout set = new LinearLayout(this);
 						
@@ -288,10 +310,6 @@ public class MakeGroupActivity extends Activity implements
 					// グループ作成ボタンを有効化
 					makegroup_btn.setEnabled(true);
 				
-					// 終了後、次にグループ一覧を取得する
-					dialog.show();
-					getGroupList();
-				
 				// 友達がいない場合
 				}else{
 					
@@ -302,6 +320,11 @@ public class MakeGroupActivity extends Activity implements
 					layout.addView(none);
 					
 				}
+				
+				// 終了後、次にグループ一覧を取得する
+				dialog.show();
+				getGroupList();
+				
 			// 通信に失敗した場合
 			} else {
 				AlertDialog.Builder builder = new AlertDialog.Builder(context);
@@ -344,6 +367,9 @@ public class MakeGroupActivity extends Activity implements
 				if (result.size() > 0) {
 					
 					for(final GroupV1Dto group : result) {
+						// 削除時のためにグループのKeyを保存
+						groups.add(group.getKey());
+						
 						// 取得したグループをボタンとしてレイアウトに追加
 						Button btn = new Button(this);
 						btn.setText(group.getName());
@@ -442,6 +468,10 @@ public class MakeGroupActivity extends Activity implements
 				
 		try {
 			if ((result != null)&&(result.getResult().equals(SUCCESS))) {
+				
+				// 一覧からグループのボタンを削除
+				delGroupBtn(buffkeyS);
+				
 				AlertDialog.Builder builder = new AlertDialog.Builder(context);
 			    builder.setTitle("通信成功").setMessage("グループを削除しました")
 			    		.setPositiveButton("OK", new DialogInterface.OnClickListener() {
@@ -456,18 +486,11 @@ public class MakeGroupActivity extends Activity implements
 			} else {
 				AlertDialog.Builder builder = new AlertDialog.Builder(context);
 			    builder.setTitle("通信エラー")
-			    		.setPositiveButton("再接続", new DialogInterface.OnClickListener() {
+			    		.setPositiveButton("OK", new DialogInterface.OnClickListener() {
 			    			public void onClick(DialogInterface dialog, int whichButton) {
-			    			  dialog.cancel();
-			    			  MakeGroupActivity.dialog.show();
-			    			  deleteGroup(buffkeyS);   			  
+			    			  dialog.cancel();  			  
 			    			}
-			    		}).setNegativeButton("戻る", new DialogInterface.OnClickListener() {
-				              public void onClick(DialogInterface dialog, int id) {
-					                dialog.cancel();                
-					                MakeGroupActivity.this.finish();
-				              }
-					    });
+			    		});
 			    AlertDialog alert = builder.create();
 			    alert.show();
 			}
