@@ -25,6 +25,7 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ClipData;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -100,6 +101,8 @@ public class ScheduleActivity extends Activity implements
 
 	private View mScheduleMainView;
 	private View mScheduleStatusView;
+	
+	private Context context;
 
 	private List<View> viewOfSchedule = new ArrayList<View>();
 
@@ -129,6 +132,8 @@ public class ScheduleActivity extends Activity implements
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_schedule);
+		
+		context = this;
 
 		Intent intent = getIntent();
 		data = (StoreData) intent.getSerializableExtra("StoreData");
@@ -600,9 +605,35 @@ public class ScheduleActivity extends Activity implements
 		try {
 			if (result != null) {
 				mFriendList = result.getFriendList();
-				// friendListの取得が終わったら次はgroupList
-				getGroupList();
+				
+				if (mFriendList==null) { 
+					// 友人がいない場合はエラーダイアログを表示
+					AlertDialog.Builder builder = new AlertDialog.Builder(context);
+				    builder.setTitle("エラー").setMessage("相互登録の友人がいません")
+				    		.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+					              public void onClick(DialogInterface dialog, int id) {
+						                dialog.cancel();                
+					              }
+						    });
+				    AlertDialog alert = builder.create();
+				    alert.show();
+				} else {
+					// friendListの取得が終わったら次はgroupList
+					getGroupList();
+				}
+			} else {
+				// 通信エラー時
+				AlertDialog.Builder builder = new AlertDialog.Builder(context);
+			    builder.setTitle("エラー").setMessage("通信エラーです")
+			    		.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+				              public void onClick(DialogInterface dialog, int id) {
+					                dialog.cancel();                
+				              }
+					    });
+			    AlertDialog alert = builder.create();
+			    alert.show();
 			}
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -635,26 +666,35 @@ public class ScheduleActivity extends Activity implements
 		try {
 			if (result != null) {
 				mGroupList = result;
-			} else {
-				mGroupList = new ArrayList<GroupV1Dto>();
-			}
-
-			if (shareTaskState) {
-				for (View view : viewOfSchedule) {
-					mainFrame.removeView(view);
+				
+				if (shareTaskState) {
+					for (View view : viewOfSchedule) {
+						mainFrame.removeView(view);
+					}
+					viewOfSchedule.clear();
+					shareTaskState = false;
+					SharedPreferences pref = getSharedPreferences("user",
+							Activity.MODE_PRIVATE);
+					Editor editor = pref.edit();
+					editor.putString("selectEmails", "");
+					editor.commit();
+					mShareTaskMenu.setIcon(R.drawable.compare_schedule_off);
+					displayCalendar();
+				} else {
+					// alertDialogを表示
+					makeShareTimeAlertDialog();
 				}
-				viewOfSchedule.clear();
-				shareTaskState = false;
-				SharedPreferences pref = getSharedPreferences("user",
-						Activity.MODE_PRIVATE);
-				Editor editor = pref.edit();
-				editor.putString("selectEmails", "");
-				editor.commit();
-				mShareTaskMenu.setIcon(R.drawable.compare_schedule_off);
-				displayCalendar();
 			} else {
-				// alertDialogを表示
-				makeShareTimeAlertDialog();
+				// 通信エラー時
+				AlertDialog.Builder builder = new AlertDialog.Builder(context);
+			    builder.setTitle("エラー").setMessage("通信エラーです")
+			    		.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+				              public void onClick(DialogInterface dialog, int id) {
+					                dialog.cancel();                
+				              }
+					    });
+			    AlertDialog alert = builder.create();
+			    alert.show();
 			}
 
 		} catch (Exception e) {
