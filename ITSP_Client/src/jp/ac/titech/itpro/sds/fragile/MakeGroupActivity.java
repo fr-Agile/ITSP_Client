@@ -81,10 +81,12 @@ public class MakeGroupActivity extends Activity implements
 		makegroup_btn = (Button) findViewById(R.id.make_group_button);
 		makegroup_btn.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-				// DBにグループを作成
-				task = new MakeGroupTask();
-				task.execute();
-
+				// グループ名が設定されているなら
+				if((group_title.getText().toString()!=null)&&(!group_title.getText().toString().isEmpty())){
+					// DBにグループを作成
+					task = new MakeGroupTask();
+					task.execute();
+				}
 			}
 		});
 		// 通信成功するまでは使用不可
@@ -551,6 +553,7 @@ public class MakeGroupActivity extends Activity implements
 	public class MakeGroupTask extends AsyncTask<Void, Void, Boolean> {
 		
 		ProgressDialog dialog;
+		String error_message;
 		
 		@Override
 		protected Boolean doInBackground(Void... args) {
@@ -575,10 +578,13 @@ public class MakeGroupActivity extends Activity implements
 			}
 
 			if (result == null) {
+				error_message = null;
 				return false;
 			}else if (SUCCESS.equals(result.getResult())) {
+				error_message = result.getResult();
 				return true;
 			} else {
+				error_message = result.getResult();
 				return false;
 			}
 		}
@@ -610,8 +616,22 @@ public class MakeGroupActivity extends Activity implements
 
 			} else {
 				Log.d("DEBUG", "グループ作成失敗");
-				alertDialog.setTitle("エラー"); //タイトル設定
-				alertDialog.setMessage("グループ作成失敗"); //内容(メッセージ)設定
+				alertDialog.setTitle("グループ作成失敗"); //タイトル設定
+				if (error_message==null){
+					alertDialog.setMessage("通信エラー"); //内容(メッセージ)設定
+				} else if(error_message.equals("nullname")) {
+					alertDialog.setMessage("グループ名を設定して下さい"); //内容(メッセージ)設定
+				} else if(error_message.equals("alreadygroup")) {
+					alertDialog.setMessage("同じ名前のグループが存在します"); //内容(メッセージ)設定
+				} else if(error_message.equals("nomember")) {
+					alertDialog.setMessage("友人を選択して下さい"); //内容(メッセージ)設定
+				} else if(error_message.equals("short")) {
+					alertDialog.setMessage("グループ名が短すぎます"); //内容(メッセージ)設定
+				} else if(error_message.equals("long")) {
+					alertDialog.setMessage("グループ名が長すぎます"); //内容(メッセージ)設定
+				} else {
+					alertDialog.setMessage("通信エラー"); //内容(メッセージ)設定
+				}
 				alertDialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int whichButton) {
 						dialog.cancel();		  
