@@ -21,6 +21,7 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.opengl.Visibility;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -247,6 +248,7 @@ public class ScheduleEditActivity extends Activity
 		SharedPreferences pref = getSharedPreferences("user",
 				Activity.MODE_PRIVATE);
 		if (pref.getString("selectEmails", "").length() > 0) {
+			repeatChk.setVisibility(View.INVISIBLE);
 			doneBtn.setText("イベントの開催日を提案");
 		}
 		showScheduleViewBtn = (Button) findViewById(R.id.showScheduleViewBtn);
@@ -805,6 +807,11 @@ public class ScheduleEditActivity extends Activity
 		if ((result != null) && SUCCESS.equals(result.getResult())) {
 			mUser = result.getUser();
 			Log.d("DEBUG", "get user success");
+			if(mUser!=null){
+				Log.d("DEBUG","mUser："+mUser.toString());
+			}else{
+				Log.d("DEBUG","mUserはnull");
+			}
 			
 			if (mUser.getGoogleAccount().equals(GoogleConstant.UNTIED_TO_GOOGLE)) {
 				googleChecked = false;
