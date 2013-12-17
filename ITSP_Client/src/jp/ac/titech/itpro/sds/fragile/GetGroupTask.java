@@ -1,5 +1,6 @@
 package jp.ac.titech.itpro.sds.fragile;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import jp.ac.titech.itpro.sds.fragile.api.RemoteApi;
@@ -10,6 +11,7 @@ import android.util.Log;
 import com.appspot.fragile_t.groupEndpoint.GroupEndpoint;
 import com.appspot.fragile_t.groupEndpoint.GroupEndpoint.GroupV1Endpoint.GetMyGroupList;
 import com.appspot.fragile_t.groupEndpoint.model.GroupV1Dto;
+import com.appspot.fragile_t.groupEndpoint.model.GroupV1DtoCollection;
 
 public class GetGroupTask extends AsyncTask<String, Void, List<GroupV1Dto>> {
 
@@ -30,7 +32,12 @@ public class GetGroupTask extends AsyncTask<String, Void, List<GroupV1Dto>> {
 		try {
 			GroupEndpoint endpoint = RemoteApi.getGroupEndpoint();
 			GetMyGroupList getGroupList = endpoint.groupV1Endpoint().getMyGroupList(userEmail);
-			result = getGroupList.execute().getItems();
+			GroupV1DtoCollection collection = getGroupList.execute();
+			if((collection != null)&&(collection.getItems() != null)){
+				result = collection.getItems();
+			}else{
+				result = new ArrayList<GroupV1Dto>();
+			}
 			
 		} catch (Exception e) {
 			Log.d("DEBUG", "GetGroupTask fail");
