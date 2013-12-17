@@ -473,6 +473,7 @@ public class ScheduleActivity extends Activity implements
 					@Override
 					public boolean onMenuItemClick(MenuItem item) {
 
+						showProgress(true);
 						getFriendList();
 
 						return true;
@@ -623,6 +624,7 @@ public class ScheduleActivity extends Activity implements
 						    });
 				    AlertDialog alert = builder.create();
 				    alert.show();
+				    showProgress(false);
 				} else {
 					// friendListの取得が終わったら次はgroupList
 					getGroupList();
@@ -760,6 +762,7 @@ public class ScheduleActivity extends Activity implements
 										shareTaskState = true;
 										mShareTaskMenu
 												.setIcon(R.drawable.compare_schedule_on);
+										showProgress(false);
 									} else {
 										// 自分のスケジュールを表示
 										displayCalendar();
@@ -997,6 +1000,7 @@ public class ScheduleActivity extends Activity implements
 		if (mCalTask != null) {
 			return;
 		}
+		showProgress(true);
 
 		mCalTask = new GetScheduleTask();
 		mCalTask.execute((Void) null);
@@ -1297,21 +1301,27 @@ public class ScheduleActivity extends Activity implements
 						}
 					});
 
+			/*
 			mScheduleMainView.setVisibility(View.GONE);
+			*/
 			mScheduleMainView.animate().setDuration(shortAnimTime)
 					.alpha(show ? 0 : 1)
 					.setListener(new AnimatorListenerAdapter() {
 						@Override
 						public void onAnimationEnd(Animator animation) {
+							/*
 							mScheduleMainView.setVisibility(show ? View.GONE
 									: View.VISIBLE);
+									*/
 						}
 					});
 		} else {
 			// The ViewPropertyAnimator APIs are not available, so simply show
 			// and hide the relevant UI components.
 			mScheduleStatusView.setVisibility(show ? View.VISIBLE : View.GONE);
+			/*
 			mScheduleMainView.setVisibility(show ? View.GONE : View.VISIBLE);
+			*/
 		}
 	}
 
