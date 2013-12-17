@@ -52,13 +52,16 @@
 			android:orientation="horizontal" >
 					
 			<Button
+                style="@style/MyButton"
 				android:id="@+id/set_google_button"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:text="@string/button_set_google" 
 				android:layout_weight="1"
 			/>
+
 			<Button
+                style="@style/MyButton"
 				android:id="@+id/set_google_cancel_button"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
